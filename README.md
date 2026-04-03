@@ -1,12 +1,7 @@
 # FAPE — Fairness-Aware Predictive Ensemble
 
 ## Overview
-FAPE investigates algorithmic bias and fairness in ML 
-classification systems used in high-stakes decision-making 
-contexts. We evaluate fairness across 7 domains and 5M+ 
-records to ensure comprehensive generalizability of our 
-fairness framework across criminal justice, healthcare, 
-education, financial, and socioeconomic systems.
+FAPE investigates algorithmic bias and fairness in ML classification systems used in high-stakes decision-making contexts. We evaluate fairness across 7 domains and 5M+ records to ensure comprehensive generalizability of our fairness framework across criminal justice, healthcare, education, financial, and socioeconomic systems.
 
 ## Research Question
 How can ensemble ML models be designed to reduce demographic 
@@ -97,15 +92,17 @@ Detection in High-Stakes ML Systems" — Under development
 
 ## References
 - Angwin et al. (2016) — Machine Bias, ProPublica
-- Ding et al. (2021) — Retiring Adult: New Datasets 
-  for Fair Machine Learning
+- Ding et al. (2021) — RRetiring Adult / Folktables:
+  New Datasets for Fair Machine Learning
 - Johnson et al. (2016) — MIMIC-III Clinical Database, 
   PhysioNet
-- Ding et al. (2021) — Folktables: US Census ACS PUMS
 - Fabris et al. (2025) — FairGround Corpus: Bias 
   Begins with Data
 - Wightman (1998) — LSAC National Longitudinal Bar 
   Passage Study
+- Cortez & Silva (2008) — Student Performance 
+  Dataset, UCI ML Repository
+- Lending Club (2007-2020) — Loan Data, Kaggle  
 - Chen & Guestrin (2016) — XGBoost
 - Weerts et al. (2023) — Fairlearn Toolkit
 - Bellamy et al. (2019) — AI Fairness 360 (AIF360)
