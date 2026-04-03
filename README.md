@@ -4,9 +4,7 @@
 FAPE investigates algorithmic bias and fairness in ML classification systems used in high-stakes decision-making contexts. We evaluate fairness across 7 domains and 5M+ records to ensure comprehensive generalizability of our fairness framework across criminal justice, healthcare, education, financial, and socioeconomic systems.
 
 ## Research Question
-How can ensemble ML models be designed to reduce demographic 
-bias while maintaining predictive accuracy across multiple 
-high-stakes decision-making domains?
+How can ensemble ML models be designed to reduce demographic bias while maintaining predictive accuracy across multiple high-stakes decision-making domains?
 
 ## Pipeline Architecture
 - Stage 1 — Data Preprocessing:
@@ -92,7 +90,7 @@ Detection in High-Stakes ML Systems" — Under development
 
 ## References
 - Angwin et al. (2016) — Machine Bias, ProPublica
-- Ding et al. (2021) — RRetiring Adult / Folktables:
+- Ding et al. (2021) — Retiring Adult / Folktables:
   New Datasets for Fair Machine Learning
 - Johnson et al. (2016) — MIMIC-III Clinical Database, 
   PhysioNet
