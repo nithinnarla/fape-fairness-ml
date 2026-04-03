@@ -13,6 +13,19 @@ How can ensemble ML models be designed to reduce demographic
 bias while maintaining predictive accuracy across multiple 
 high-stakes decision-making domains?
 
+## Pipeline Architecture
+- Stage 1 — Data Preprocessing:
+  Feature engineering and 
+  demographic attribute extraction
+- Stage 2 — Ensemble Classification:
+  XGBoost with fairness constraints
+- Stage 3 — Fairness Auditing:
+  Multi-metric bias evaluation
+  across demographic subgroups
+- Stage 4 — Reporting:
+  Cross-domain generalizability 
+  analysis and recommendations
+
 ## Datasets
 
 | Dataset | Year | Records | Domain | Access |
@@ -35,6 +48,15 @@ Dataset notes:
 - MIMIC-III access via PhysioNet credentialed registration
 - Cross-domain evaluation ensures FAPE generalizes beyond 
   single-domain studies
+
+## Evaluation Metrics
+- Accuracy, Precision, Recall, F1
+- Demographic parity difference
+- Equalized odds difference
+- Disparate impact ratio
+- Individual fairness score
+- Statistical significance testing
+  across all demographic subgroups
 
 ## Methodology
 - XGBoost ensemble classifier baseline
