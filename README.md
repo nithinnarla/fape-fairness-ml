@@ -56,18 +56,13 @@ Dataset notes:
 Python, XGBoost, scikit-learn, pandas, numpy, matplotlib, seaborn, Fairlearn, AIF360, folktables
 
 ## Research Timeline
-- December 2025: Research conception, literature review, 
-  dataset identification
-- January 2026: Methodology design, fairness framework 
-  development
-- February 2026: Paper outlining, research question 
-  refinement
-- March 2026: GitHub repository created, active code 
-  development begins
-- April 2026: Pipeline implementation, fairness metrics 
-  testing
-- May 2026: Cross-domain evaluation, results analysis, 
-  paper writing
+- November 2025: Research conception — observed demographic bias patterns in production ML systems at work
+- December 2025: Literature review, dataset identification, research question formalized 
+- January 2026: Methodology design, fairness framework development
+- February 2026: Paper outlining, research question refinement
+- March 2026: GitHub repository created, active code development begins
+- April 2026: Pipeline implementation, fairness metrics testing
+- May 2026: Cross-domain evaluation, results analysis, paper writing
 - June 2026: Target submission to JASIST
 
 ## Status
