@@ -74,23 +74,23 @@ The field is actively contested on two questions FAPE addresses directly. First:
 
 | Dataset | Year | Records | Domain | Access |
 |---------|------|---------|--------|--------|
-| COMPAS Recidivism | 2013-2014 | — | Criminal Justice | Public |
-| Folktables ACS | 2021-2023 | — | Socioeconomic | Public |
+| COMPAS Recidivism | 2013-2014 | 6,172 | Criminal Justice | Public |
+| Folktables ACS | 2021 | 1,589,032 | Socioeconomic | Public |
 | FairGround Corpus | 2025 | — | Multi-domain | Public |
 | MIMIC-III Clinical | 2001-2012 | — | Healthcare | PhysioNet |
-| Student Performance | 2014-2022 | — | Education | UCI ML |
-| Law School Admissions | 1991-2023 | — | Education/Legal | Public |
+| Student Performance | 2008 | — | Education | UCI ML |
+| Law School Admissions | 1991-2000 | — | Education/Legal | Public |
 | Lending Club | 2007-2020 | — | Financial | Kaggle |
 
-**Total: 5.3M+ records across 7 datasets, 5 high-stakes domains**
+**Verified: 1,595,204 records (COMPAS + Folktables confirmed) | Full pipeline pending**
 
 Dataset notes:
-- COMPAS is the field's primary validation benchmark — ProPublica's documented racial disparities provide known ground truth for framework validation
-- Folktables ACS replaces Adult Income — Ding et al. (2021) demonstrated Adult Income has serious methodological flaws
-- FairGround Corpus (Fabris et al. 2025) addresses the reproducibility crisis in fairness benchmarking
-- MIMIC-III requires PhysioNet credentialed registration
-- Student Performance (649 records) is deliberately included — FAPE must work at small scale as well as large scale
-- Lending Club at 2.2M+ records tests framework performance at production scale
+- COMPAS: 6,172 records verified — ProPublica Broward County Florida 2013-2014, binary recidivism outcome, race and sex as sensitive attributes. Field's primary criminal justice fairness benchmark.
+- Folktables ACS: 1,589,032 records verified across all 50 states — replaces Adult Income dataset per Ding et al. (2021). Income, employment, and mobility prediction tasks with demographic fairness attributes.
+- FairGround Corpus (Fabris et al. 2025) — loader in progress, verification pending
+- MIMIC-III requires PhysioNet credentialed registration — access pending
+- Student Performance (649 records) deliberately included — FAPE must work at small scale as well as large scale
+- Lending Club at 2.2M+ records tests framework performance at production scale — verification pending
 
 ---
 
