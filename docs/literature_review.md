@@ -23,7 +23,7 @@ The fairness in ML literature has exploded since 2016. ProPublica's COMPAS inves
 **Foundational papers that shaped my thinking:**
 
 **Chouldechova (2017) — Fair Prediction with Disparate Impact**
-This one stopped me cold. The mathematical proof that you cannot simultaneously satisfy calibration and equalized odds when base rates differ between groups is not a limitation of current methods — it's a fundamental impossibility. Reading this early forced me to think about FAPE differently. The goal can't be "achieve fairness" — it has to be "audit which fairness properties are achievable in which contexts and at what cost." That reframing is central to everything FAPE does.
+This result forced a fundamental reframing of what FAPE could claim to achieve. The mathematical proof that you cannot simultaneously satisfy calibration and equalized odds when base rates differ between groups is not a limitation of current methods — it's a fundamental impossibility. Reading this early forced me to think about FAPE differently. The goal can't be "achieve fairness" — it has to be "audit which fairness properties are achievable in which contexts and at what cost." That reframing is central to everything FAPE does.
 
 **Hardt, Price & Srebro (2016) — Equality of Opportunity**
 The cleanest formalization of equalized odds I found. What's useful here beyond the definition is the post-processing approach — you can take any trained model and apply a fairness constraint after the fact without retraining. This is exactly what FAPE's Stage 3 does. What the paper doesn't address is whether this holds across domains. That's the gap.
@@ -32,7 +32,7 @@ The cleanest formalization of equalized odds I found. What's useful here beyond 
 Individual fairness — similar people should get similar predictions. Philosophically appealing. Practically difficult because defining "similar" requires a task-specific metric nobody agrees on. I include it in FAPE's evaluation because ignoring it would be a gap in the framework, but it's the metric I'm least confident defending in production settings.
 
 **Barocas & Hardt (2017) — NeurIPS Tutorial**
-Best taxonomy of fairness definitions I found. Spent a full evening with this one. The key takeaway for FAPE: fairness is not one thing. Different metrics capture different moral intuitions. A production auditing framework needs to surface all of them and let domain context determine which ones matter — not pick one and declare victory.
+Best taxonomy of fairness definitions I found. The taxonomy here is the most comprehensive surveyed across the literature. The key takeaway for FAPE: fairness is not one thing. Different metrics capture different moral intuitions. A production auditing framework needs to surface all of them and let domain context determine which ones matter — not pick one and declare victory.
 
 ---
 
@@ -62,7 +62,7 @@ Bias emerged from economic optimization, not discriminatory intent. The algorith
 **Production ML systems literature:**
 
 **Sculley et al. (2015) — Hidden Technical Debt in ML Systems**
-Not a fairness paper but maybe the most practically important thing I read. The argument that production ML systems degrade silently over time — through feature drift, dependency changes, data shifts — maps directly onto fairness. A model that passed a fairness audit at deployment will not necessarily pass one six months later. This motivated Stage 4 of FAPE: deployment monitoring isn't optional.
+Not a fairness paper — but possibly the most consequential for FAPE's design. The argument that production ML systems degrade silently over time — through feature drift, dependency changes, data shifts — maps directly onto fairness. A model that passed a fairness audit at deployment will not necessarily pass one six months later. This motivated Stage 4 of FAPE: deployment monitoring isn't optional.
 
 **Mitchell et al. (2019) — Model Cards**
 Good idea, limited execution. Static documentation snapshots don't capture fairness drift over time. Useful as a starting point but not sufficient for production environments. FAPE is partly an answer to the question: what would Model Cards look like if they were continuous and cross-domain rather than static and single-model?
