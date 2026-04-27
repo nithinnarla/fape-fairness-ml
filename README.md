@@ -66,7 +66,7 @@ Most fairness papers ask: "Can we reduce bias in this dataset?" FAPE asks: "Does
 
 The distinction matters because every major institution deploying ML for consequential decisions operates across multiple domains simultaneously. A bank uses ML for credit scoring, fraud detection, and hiring. A hospital uses ML for triage, diagnosis, and resource allocation. The research community has given them domain-specific tools. Nobody has given them a cross-domain production auditing framework.
 
-The field is actively contested on two questions FAPE addresses directly. First: whether post-processing constraints generalize across domains or whether each deployment requires bespoke solutions — no paper has empirically tested this at scale across 5 distinct domains. Second: whether continuous monitoring can detect fairness drift before harm accumulates — the January 2026 theoretical work on auditing under model updates confirms this is open. FAPE provides the empirical answer to both.
+The field is actively contested on two questions FAPE addresses directly. First: whether post-processing constraints generalize across domains or whether each deployment requires bespoke solutions — no paper has empirically tested this at scale across 5 distinct domains. Second: whether continuous monitoring can detect fairness drift before harm accumulates — recent theoretical work on auditing under model updates confirms this is open. FAPE provides the empirical answer to both.
 
 ---
 
@@ -86,9 +86,9 @@ The field is actively contested on two questions FAPE addresses directly. First:
 
 Dataset notes:
 - COMPAS is the field's primary validation benchmark — ProPublica's documented racial disparities provide known ground truth for framework validation
-- Folktables ACS replaces Adult Income — Ding et al. (2021) demonstrated Adult Income has serious methodological flaws; using ACS is not just a better choice, it's the right one given the literature
-- FairGround Corpus (Fabris et al. 2025) addresses the reproducibility crisis in fairness benchmarking — 44 datasets with fairness-relevant metadata annotations
-- MIMIC-III requires PhysioNet credentialed registration — same credentials as our clinical NLP work
+- Folktables ACS replaces Adult Income — Ding et al. (2021) demonstrated Adult Income has serious methodological flaws
+- FairGround Corpus (Fabris et al. 2025) addresses the reproducibility crisis in fairness benchmarking
+- MIMIC-III requires PhysioNet credentialed registration
 - Student Performance (649 records) is deliberately included — FAPE must work at small scale as well as large scale
 - Lending Club at 2.2M+ records tests framework performance at production scale
 
