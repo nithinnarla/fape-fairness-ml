@@ -1,22 +1,35 @@
+# FAPE — Fairness-Aware Predictive Ensemble
+# Requirements for cross-domain fairness auditing pipeline
+# Python 3.10+
+
 # Core data processing
-pandas>=2.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
+pandas==2.2.2
+numpy==1.26.4
+
+# Machine learning
+scikit-learn==1.4.2
+xgboost==2.0.3
 
 # Dataset loaders
-folktables>=0.0.12
-
-# ML models
-xgboost>=2.0.0
+folktables==0.0.12
 
 # Fairness toolkits
-fairlearn>=0.10.0
-aif360>=0.6.0
+fairlearn==0.10.0
+aif360==0.6.0
+
+# Statistical significance testing
+scipy==1.13.0
+statsmodels==0.14.2
 
 # Visualization
-matplotlib>=3.7.0
-seaborn>=0.12.0
+matplotlib==3.8.4
+seaborn==0.13.2
 
 # Notebook support
-jupyter>=1.0.0
-ipykernel>=6.0.0
+jupyter==1.0.0
+ipykernel==6.29.4
+
+# Utilities
+tqdm==4.66.4
+python-dotenv==1.0.1
+requests==2.31.0
