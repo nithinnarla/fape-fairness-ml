@@ -76,21 +76,22 @@ The field is actively contested on two questions FAPE addresses directly. First:
 |---------|------|---------|--------|--------|
 | COMPAS Recidivism | 2013-2014 | 6,172 | Criminal Justice | Public |
 | Folktables ACS | 2021 | 1,589,032 | Socioeconomic | Public |
-| FairGround Corpus | 2025 | — | Multi-domain | Public |
+| FairGround Corpus | 2025 | 1,964,010 | Multi-domain | Public |
 | MIMIC-III Clinical | 2001-2012 | — | Healthcare | PhysioNet |
-| Student Performance | 2008 | — | Education | UCI ML |
-| Law School Admissions | 1991-2000 | — | Education/Legal | Public |
+| Student Performance | 2008 | 1,044 | Education | UCI ML |
+| Law School Admissions | 1991-2000 | 18,692 | Education/Legal | Public |
 | Lending Club | 2007-2020 | — | Financial | Kaggle |
 
-**Verified: 1,595,204 records (COMPAS + Folktables confirmed) | Full pipeline pending**
+**Verified: 3,578,958 records (COMPAS + Folktables + FairGround + Student + Law School confirmed) | Lending Club + MIMIC-III pending**
 
 Dataset notes:
-- COMPAS: 6,172 records verified — ProPublica Broward County Florida 2013-2014, binary recidivism outcome, race and sex as sensitive attributes. Field's primary criminal justice fairness benchmark.
-- Folktables ACS: 1,589,032 records verified across all 50 states — replaces Adult Income dataset per Ding et al. (2021). Income, employment, and mobility prediction tasks with demographic fairness attributes.
-- FairGround Corpus (Fabris et al. 2025) — loader in progress, verification pending
+- COMPAS: 6,172 records verified — ProPublica Broward County Florida 2013-2014, binary recidivism outcome, race and sex as sensitive attributes
+- Folktables ACS: 1,589,032 records verified across all 50 states — replaces Adult Income per Ding et al. (2021)
+- FairGround Corpus: 1,964,010 records verified — 44 fairness-annotated datasets across multiple domains (Fabris et al. 2025)
+- Student Performance: 1,044 records verified — math and Portuguese course variants combined
+- Law School Admissions: 18,692 records verified — race and sex sensitive attributes, bar passage outcome
+- Lending Club — verification pending
 - MIMIC-III requires PhysioNet credentialed registration — access pending
-- Student Performance (649 records) deliberately included — FAPE must work at small scale as well as large scale
-- Lending Club at 2.2M+ records tests framework performance at production scale — verification pending
 
 ---
 
