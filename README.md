@@ -80,9 +80,9 @@ The field is actively contested on two questions FAPE addresses directly. First:
 | MIMIC-III Clinical | 2001-2012 | — | Healthcare | PhysioNet |
 | Student Performance | 2008 | 1,044 | Education | UCI ML |
 | Law School Admissions | 1991-2000 | 18,692 | Education/Legal | Public |
-| Lending Club | 2007-2020 | — | Financial | Kaggle |
+| Lending Club | 2007-2018 | 1,348,099 | Financial | Kaggle |
 
-**Verified: 3,578,958 records (COMPAS + Folktables + FairGround + Student + Law School confirmed) | Lending Club + MIMIC-III pending**
+**Verified: 4,927,057 records (COMPAS + Folktables + FairGround + Student + Law School + Lending Club confirmed) | Agricultural + MIMIC-III pending**
 
 Dataset notes:
 - COMPAS: 6,172 records verified — ProPublica Broward County Florida 2013-2014, binary recidivism outcome, race and sex as sensitive attributes
@@ -90,7 +90,8 @@ Dataset notes:
 - FairGround Corpus: 1,964,010 records verified — 44 fairness-annotated datasets across multiple domains (Fabris et al. 2025)
 - Student Performance: 1,044 records verified — math and Portuguese course variants combined
 - Law School Admissions: 18,692 records verified — race and sex sensitive attributes, bar passage outcome
-- Lending Club — verification pending
+- Lending Club: 1,348,099 records verified — socioeconomic proxy fairness at production scale, binary default outcome
+- Agricultural datasets — verification pending
 - MIMIC-III requires PhysioNet credentialed registration — access pending
 
 ---
