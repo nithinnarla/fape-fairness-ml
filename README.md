@@ -81,17 +81,23 @@ The field is actively contested on two questions FAPE addresses directly. First:
 | Student Performance | 2008 | 1,044 | Education | UCI ML |
 | Law School Admissions | 1991-2000 | 18,692 | Education/Legal | Public |
 | Lending Club | 2007-2018 | 1,348,099 | Financial | Kaggle |
+| USDA NASS Census | 2022 | 7,334 | Agriculture (baseline) | Public |
+| SBA 7(a) NAICS-11 | FY1991-2024 | 15,845 | Agriculture | Public |
+| LSMS-ISA Nigeria | 2018-2019 | 30,312 | Agriculture | World Bank |
+| MIMIC-III Clinical | 2001-2012 | — | Healthcare | PhysioNet |
 
-**Verified: 4,927,057 records (COMPAS + Folktables + FairGround + Student + Law School + Lending Club confirmed) | Agricultural + MIMIC-III pending**
+**Verified: 4,980,540 records (all confirmed except MIMIC-III) | MIMIC-III pending PhysioNet approval**
 
 Dataset notes:
-- COMPAS: 6,172 records verified — ProPublica Broward County Florida 2013-2014, binary recidivism outcome, race and sex as sensitive attributes
-- Folktables ACS: 1,589,032 records verified across all 50 states — replaces Adult Income per Ding et al. (2021)
-- FairGround Corpus: 1,964,010 records verified — 44 fairness-annotated datasets across multiple domains (Fabris et al. 2025)
-- Student Performance: 1,044 records verified — math and Portuguese course variants combined
-- Law School Admissions: 18,692 records verified — race and sex sensitive attributes, bar passage outcome
-- Lending Club: 1,348,099 records verified — socioeconomic proxy fairness at production scale, binary default outcome
-- Agricultural datasets — verification pending
+- COMPAS: 6,172 records verified — ProPublica Broward County Florida 2013-2014
+- Folktables ACS: 1,589,032 records verified — replaces Adult Income per Ding et al. (2021)
+- FairGround Corpus: 1,964,010 records verified — 44 fairness-annotated datasets (Fabris et al. 2025)
+- Student Performance: 1,044 records verified — math and Portuguese variants combined
+- Law School Admissions: 18,692 records verified — race and sex, bar passage outcome
+- Lending Club: 1,348,099 records verified — socioeconomic proxy fairness at production scale
+- USDA NASS Census 2022: 7,334 aggregate rows — racial disparity baseline, not individual-level training data. CIPSEA (7 U.S.C. §2204) prohibits public release of individual farm records.
+- SBA 7(a) NAICS-11: 15,845 individual agricultural business loans FY1991-2024 — binary default outcome, geographic proxy attributes
+- LSMS-ISA Nigeria Wave 4: 30,312 individual farm households — sex and education as sensitive attributes, food security outcome. Only large-scale publicly downloadable individual-level agricultural dataset with demographic attributes.
 - MIMIC-III requires PhysioNet credentialed registration — access pending
 
 ---
