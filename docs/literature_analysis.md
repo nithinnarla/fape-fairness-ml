@@ -95,11 +95,14 @@ Sculley (2015) identified the problem. Ajarra (2026) confirmed it applies specif
 **Gap 3 — Multi-metric reporting is treated as optional.**
 Sariola et al. (2026) showed single-metric optimization creates illusions. FAPE reports demographic parity, equalized odds, disparate impact ratio, and individual fairness simultaneously — making the Chouldechova tradeoffs visible rather than hidden.
 
-**Gap 4 — Intersectional fairness is theoretically acknowledged and empirically ignored.**
+**Gap 4 — Agricultural domain has never appeared in fairness research.**
+I went looking for fairness papers on agricultural lending or farm household outcomes. Nothing. Criminal justice, healthcare, education, financial services — all represented. The populations most affected by algorithmic decisions in agricultural contexts are invisible in the fairness literature. FAPE adds this domain with three datasets now verified: USDA NASS Census 2022, SBA 7(a) NAICS-11 loans, LSMS-ISA Nigeria Wave 4.
+
+**Gap 5 — Intersectional fairness is theoretically acknowledged and empirically ignored.**
 Race and gender evaluated independently in virtually every paper. FAPE reports intersectional breakdowns where sample sizes permit and flags where they don't.
 
-**Gap 5 — Legacy benchmark reliance persists despite documented flaws.**
-Ding et al. (2021) documented Adult Income's problems. The field kept using it. FAPE uses Folktables ACS because validating on data I know is flawed undermines everything the paper claims.
+**Gap 6 — Legacy benchmark reliance persists despite documented flaws.**
+Ding et al. (2021) documented Adult Income's problems. The field kept using it. FAPE uses Folktables ACS and FairGround because validating on data I know is flawed undermines everything the paper claims.
 
 ---
 
@@ -128,6 +131,8 @@ What isn't settled — and what I didn't fully appreciate until I started loadin
 The production deployment gap is where I keep landing. Sculley identified silent degradation in 2015. Breck built a 28-test readiness rubric in 2017 with zero fairness tests — I read that as a practitioner saying fairness is not a production concern, full stop. Mitchell proposed model cards in 2019. Ajarra confirmed in 2026 that model updates fundamentally alter fairness properties. Eleven years of documented awareness and nobody built the monitoring infrastructure. That gap is what FAPE Stage 4 is about.
 
 Having COMPAS (6,172 records) and Folktables ACS (1,589,032 records) loaded changes the texture of reading these papers. Chouldechova's impossibility isn't abstract when the base rate difference is in the data in front of me. When FAPE runs ThresholdOptimizer in Stage 3, I'm going to be trading calibration for equalized odds in a measurable way. The paper has to report both numbers and explain the tradeoff.
+
+The full dataset pipeline is now complete. Student Performance (1,044 records), Law School Admissions (18,692), Lending Club (1,348,099), USDA NASS Census (7,334 aggregate rows), SBA 7(a) agricultural loans (15,845), and LSMS-ISA Nigeria Wave 4 (30,312 farm households) all verified and loaded. The agricultural domain is the one I'm most interested in — no fairness paper has looked at this population. Small farmers, agricultural loan applicants, farm household outcomes — invisible in the fairness literature. FAPE is the first framework to include this domain in a cross-domain fairness evaluation.
 
 FairGround (Fabris et al. 2025) is now verified — 1,964,010 records across 44 fairness-annotated datasets. This changes the benchmark picture meaningfully. FAPE is the first paper to use FairGround as part of a multi-domain evaluation framework rather than as a standalone benchmark.
 
@@ -164,12 +169,12 @@ They don't necessarily. Dwork et al. (2012) and Sariola et al. (2026) both show 
 - Bias propagates through proxy variables — Obermeyer established this for healthcare.
 
 **What I think is true but haven't confirmed yet:**
-- Cross-domain constraints will show different accuracy-fairness tradeoff profiles by domain.
+- Cross-domain constraints will show different accuracy-fairness tradeoff profiles by domain — now testable across criminal justice, socioeconomic, education, financial, and agricultural domains simultaneously.
 - FairGround corpus (1,964,010 records verified across 44 datasets) extends multi-domain evaluation meaningfully — the benchmark monoculture problem Ding et al. identified has a practical response now.
 - Stage 4 CUSUM detection will catch drift a one-time audit misses — but Stage 4 hasn't run yet.
 
 **What I'm genuinely uncertain about:**
-- Whether five domains is enough for cross-domain generalization claims.
+- Whether nine datasets across five domains is enough for cross-domain generalization claims — the agricultural domain addition (USDA NASS, SBA 7(a), LSMS-ISA Nigeria) adds a population that has never appeared in fairness literature.
 - Whether individual fairness in Stage 3 will be defensible without a domain-specific similarity metric.
 - How to handle MIMIC-III if PhysioNet access takes longer than expected.
 
