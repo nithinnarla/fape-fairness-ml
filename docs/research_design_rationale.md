@@ -87,7 +87,11 @@ Race and sex as sensitive attributes, bar passage as outcome. This is a domain w
 
 MIMIC-III is planned for healthcare but requires PhysioNet credentialed registration. Access pending. Healthcare is the domain where Obermeyer et al. documented the most consequential bias mechanism and I want it in the evaluation. If it doesn't come through before writing time, the paper will include the loader and note the access gap.
 
-Agricultural domain is on the roadmap — I went looking for fairness papers on agricultural lending and farm household outcomes and found nothing. The domain is absent from the fairness literature. Datasets under evaluation.
+Agricultural domain confirmed — USDA NASS Census 2022 (7,334 aggregate rows), SBA 7(a) NAICS-11 loans (15,845 individual records), and LSMS-ISA Nigeria Wave 4 (30,312 farm households) all verified and loaded.
+
+Searched for fairness papers on agricultural lending and farm household outcomes before committing to this domain. Nothing exists. The domain is completely absent from the fairness literature. Small farmers, agricultural loan applicants, farm households in developing economies — populations making consequential decisions increasingly mediated by algorithmic systems, and nobody has evaluated the fairness implications.
+
+Three datasets covering different terrain. USDA NASS provides aggregate racial baseline on US farm ownership — not individual training data, but ground truth for what racial disparity in agricultural access actually looks like. SBA 7(a) provides individual-level agricultural loan records with binary default outcomes. LSMS-ISA Nigeria Wave 4 provides 30,312 farm household records from a context where the fairness literature has essentially no presence — sex and education as sensitive attributes, food security as outcome. The only large-scale publicly downloadable individual-level agricultural dataset with demographic attributes I could find.
 
 ---
 
