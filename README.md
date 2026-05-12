@@ -77,7 +77,6 @@ The field is actively contested on two questions FAPE addresses directly. First:
 | COMPAS Recidivism | 2013-2014 | 6,172 | Criminal Justice | Public |
 | Folktables ACS | 2021 | 1,589,032 | Socioeconomic | Public |
 | FairGround Corpus | 2025 | 1,964,010 | Multi-domain | Public |
-| MIMIC-III Clinical | 2001-2012 | — | Healthcare | PhysioNet |
 | Student Performance | 2008 | 1,044 | Education | UCI ML |
 | Law School Admissions | 1991-2000 | 18,692 | Education/Legal | Public |
 | Lending Club | 2007-2018 | 1,348,099 | Financial | Kaggle |
@@ -124,13 +123,14 @@ Full dependency list: `requirements.txt`
 ## Research Timeline
 
 - November 2025: Research conception — observed systematic demographic disparities in production ML deployments across financial services and healthcare engagements
-- December 2025: Literature review, gap identification, 7 datasets identified across 5 domains
+- December 2025: Literature review, gap identification, criminal justice, socioeconomic, healthcare, education, and financial domains scoped
 - January 2026: Methodology design, 4-stage framework developed, fairness metric selection
 - February 2026: Research question formalized, design rationale documented
 - March 2026: GitHub repository created, Phase 1 literature analysis completed
 - April 2026: Data pipeline implementation — COMPAS and Folktables ACS loaders committed
-- May 2026: Full dataset pipeline complete, EDA notebooks, baseline model
-- June 2026: Target submission — JASIST + arXiv simultaneously
+- May 2026: Full dataset pipeline complete across 9 verified datasets — criminal justice, socioeconomic, education, financial, and agricultural domains
+- June 2026: EDA notebooks, baseline model, fairness evaluation across all domains
+- July 2026: Target submission — JASIST + arXiv simultaneously
 
 ---
 
