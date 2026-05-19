@@ -1,0 +1,122 @@
+# FAPE — Methodology Decisions Log
+## Key Decisions Before Phase 4 Implementation
+
+**Period:** February 2026 — May 2026
+**Researcher:** Nithin Narla
+**Status:** Complete — decisions locked before Phase 4 experiments begin
+
+---
+
+## Why Document Decisions Before Running Experiments
+
+The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
+
+There are ten decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+
+---
+
+## Decision 1 — Post-Processing Over In-Processing or Pre-Processing
+
+**Decision:** Use Fairlearn ThresholdOptimizer (post-processing) as the fairness intervention.
+
+**Why:** In-processing requires modifying the training pipeline — which assumes you own the training pipeline. In eight years of production ML I have never inherited a system where I could modify training. Post-processing works on any model regardless of how it was built. That's the only approach deployable in the environments FAPE is designed for.
+
+**What I gave up:** In-processing can achieve better accuracy-fairness tradeoffs because the fairness constraint is built into training. Post-processing applies the constraint after the fact and can only adjust decision thresholds — it can't change what the model learned. The paper will acknowledge this tradeoff explicitly.
+
+---
+
+## Decision 2 — Default XGBoost Hyperparameters Across All Domains
+
+**Decision:** Use identical XGBoost configuration across all nine datasets with no domain-specific tuning.
+
+**Why:** The research question is Causal — does the fairness intervention cause bias reduction? If I tune separately per domain, accuracy differences across domains could reflect tuning rather than genuine domain variation. Default hyperparameters keep the experimental design clean.
+
+**What I gave up:** Accuracy numbers will be lower than they could be with tuning. A reviewer might push back on this. The response is that optimized accuracy is not the variable of interest — the fairness intervention is. Domain-specific accuracy comparison is a different paper.
+
+---
+
+## Decision 3 — Chouldechova Constraint Acknowledged Throughout
+
+**Decision:** Every result section explicitly acknowledges the impossibility theorem constraint — cannot simultaneously satisfy equalized odds and calibration when base rates differ.
+
+**Why:** The COMPAS data shows different recidivism base rates by race. The impossibility theorem applies. Any experiment that reports improved equalized odds is implicitly reporting degraded calibration. Hiding this would mean claiming fairness achievement in a situation where the math proves it's impossible to achieve all fairness properties simultaneously.
+
+**Comfort level:** High. This is the right call and it makes the paper more honest, not less. Reviewers who know the literature will expect this acknowledgment.
+
+---
+
+## Decision 4 — Four Metrics Reported Simultaneously, No Primary Metric
+
+**Decision:** Report demographic parity difference, equalized odds difference, disparate impact ratio, and individual fairness score for every experiment. No single metric designated as primary.
+
+**Why:** Sariola et al. (2026) showed optimizing for one metric can mask 10% disparity on another. Designating a primary metric would invite the paper to be read as optimizing for that metric specifically — which would make the results misleading. All four reported, practitioners decide which matters in their regulatory context.
+
+**What I gave up:** Clean headline results. "FAPE improves demographic parity by X%" is a cleaner claim than four tradeoff curves. The paper will be harder to summarize in an abstract. That's the right tradeoff.
+
+---
+
+## Decision 5 — Cross-Domain Comparison as Central Contribution
+
+**Decision:** The primary empirical contribution is cross-domain comparison of fairness metric behavior, not within-domain improvement over a baseline.
+
+**Why:** Within-domain improvement over a baseline is what every other fairness paper does. The gap FAPE fills is the cross-domain question — do interventions that work in criminal justice also work in education, financial services, and agricultural contexts? That's the question nobody has answered empirically.
+
+**Risk:** Cross-domain comparison requires the experimental design to hold constant everything except the domain — which is why Decisions 2 and 1 above are locked in. If I loosen those constraints, the cross-domain comparison becomes uninterpretable.
+
+---
+
+## Decision 6 — Agricultural Domain Included Despite Literature Absence
+
+**Decision:** Include three agricultural datasets as a distinct domain in the cross-domain evaluation.
+
+**Why:** I searched for fairness papers on agricultural lending and farm household outcomes. Nothing exists. The populations affected — small farmers, agricultural loan applicants, LSMS-ISA farm households in Nigeria — are invisible in a literature that claims to address fairness in high-stakes algorithmic decisions. Including this domain is both a methodological contribution and a statement about whose fairness the field has been ignoring.
+
+**Risk:** Reviewers may push back on agricultural domain inclusion as outside FAPE's stated scope. The response is that the scope is defined by where consequential algorithmic decisions are being made, not by where previous fairness papers have looked.
+
+---
+
+## Decision 7 — Synthetic Distribution Shift for Stage 4 Validation
+
+**Decision:** Use synthetic distribution shift to validate Stage 4 CUSUM drift detection rather than real production data.
+
+**Why:** I don't have access to a live production system. This is a real limitation — Stage 4 validation is controlled rather than real-world. The drift detection results are proof-of-concept.
+
+**Comfort level:** Low. This is the weakest methodological choice in FAPE. The paper will acknowledge it directly. The alternative was to not include Stage 4 at all — which would mean not addressing the production monitoring gap that motivated Stage 4's existence. Proof-of-concept is better than absence.
+
+---
+
+## Decision 8 — Folktables ACS Over Adult Income
+
+**Decision:** Use Folktables ACS as the socioeconomic benchmark, not Adult Income.
+
+**Why:** Ding et al. (2021) documented Adult Income's methodological flaws. Using it in 2026 after that finding is indefensible. Folktables ACS uses US Census data, covers all 50 states, provides multiple prediction tasks, and is 30x larger.
+
+**What I gave up:** Comparability with prior work. Results on Folktables ACS cannot be directly compared to results on Adult Income — different data, different task framing, different population. The paper will acknowledge this rather than treating the benchmark switch as costless.
+
+---
+
+## Decision 9 — Individual Fairness Included With Explicit Uncertainty
+
+**Decision:** Report individual fairness scores using a default distance metric, with explicit acknowledgment that the similarity metric is not domain-validated.
+
+**Why:** Ignoring individual fairness entirely would be a gap in the framework — Dwork et al. (2012) is foundational and excluding it would invite reviewer questions. Including it with a caveat is more honest than either excluding it or presenting it as fully validated.
+
+**Comfort level:** Medium. The individual fairness results are the ones I'm least confident defending in a deep methodological discussion. The paper will frame these as preliminary and call for domain-specific similarity metric development as future work.
+
+---
+
+## Decision 10 — MIMIC-III Included as Pending
+
+**Decision:** Include MIMIC-III healthcare domain in the framework design with a pending access note rather than excluding healthcare entirely.
+
+**Why:** Obermeyer et al. (2019) documented the most consequential fairness failure mechanism in the healthcare domain — cost as proxy for health need. Excluding healthcare from FAPE entirely because of access delays would mean the framework doesn't address the domain where the evidence for its value is strongest.
+
+**Implementation:** MIMIC-III loader is built and tested. PhysioNet access is pending. If access comes through before writing time, healthcare results are included. If not, the paper includes the loader, describes the methodology, and notes the access gap explicitly. Either way the framework design includes healthcare.
+
+---
+
+## What Changes After These Decisions Are Locked
+
+Phase 4 begins with these ten decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+
+That's the standard I'm holding FAPE to.
