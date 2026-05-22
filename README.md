@@ -126,11 +126,12 @@ Full dependency list: `requirements.txt`
 - December 2025: Literature review, gap identification, criminal justice, socioeconomic, healthcare, education, and financial domains scoped
 - January 2026: Methodology design, 4-stage framework developed, fairness metric selection
 - February 2026: Research question formalized, design rationale documented
-- March 2026: GitHub repository created, Phase 1 literature analysis completed
-- April 2026: Data pipeline implementation — COMPAS and Folktables ACS loaders committed
-- May 2026: Full dataset pipeline complete across 9 verified datasets — criminal justice, socioeconomic, education, financial, and agricultural domains
+- March 2026: GitHub repository created, active development begins
+- April 2026: Data pipeline implementation — COMPAS and Folktables ACS loaders committed, Phase 1 literature documentation in progress
+- May 2026: Full dataset pipeline complete across 9 verified datasets — criminal justice, socioeconomic, education, financial, and agricultural domains. Phase 1 literature documentation complete
 - June 2026: EDA notebooks, baseline model, fairness evaluation across all domains
-- July 2026: Target submission — JASIST + arXiv simultaneously
+- July 2026: Paper writing, revisions, and final polish
+- August 2026: Target submission — JASIST + arXiv simultaneously
 
 ---
 
