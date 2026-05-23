@@ -2,7 +2,7 @@
 Lending Club Loan Data Loader — FAPE Phase 4
 Source: Kaggle — wordsforthewise/lending-club
 Period: 2007-2018 Q4
-Records: 2.26M accepted loan applications
+Source: 2.26M accepted loan applications (full Kaggle dataset) — FAPE verified subset: 1,348,099 records after filtering
 
 Lending Club does not collect race or gender data — a documented
 limitation of financial services ML fairness research. FAPE uses
