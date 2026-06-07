@@ -161,6 +161,60 @@ They don't necessarily. Dwork et al. (2012) and Sariola et al. (2026) both show 
 
 ## Protocol 8 — Knowledge Map
 
+```
+FAPE Knowledge Map — May 2026
+Verified: 4,980,540 records across 9 datasets
+
+CORE PROBLEM
+└── Fairness evaluation in production ML is broken
+    ├── One-time audits miss post-deployment drift
+    ├── Single-metric reporting hides tradeoffs
+    └── Domain-specific fixes don’t generalize
+
+FAIRNESS THEORY CLUSTER
+├── Chouldechova 2017 — impossibility theorem
+│   └── constrains all FAPE claims — non-negotiable
+├── Hardt et al. 2016 — equalized odds + ThresholdOptimizer
+│   └── FAPE Stage 3 intervention backbone
+└── Dwork et al. 2012 — individual fairness
+    └── FAPE Stage 3 individual fairness component
+
+PRODUCTION FAILURE CLUSTER
+├── Sculley et al. 2015 — ML technical debt
+│   └── production systems degrade silently
+├── Ajarra et al. 2023 — fairness drift in production
+│   └── confirms Sculley for fairness specifically
+└── Obermeyer et al. 2019 — proxy variable bias
+    └── bias propagates through cost proxies — healthcare
+
+BENCHMARK CLUSTER
+├── Ding et al. 2021 — Folktables ACS
+│   └── 1,589,032 records verified — benchmark monoculture problem
+├── Fabris et al. 2025 — FairGround
+│   └── 1,964,010 records verified — 44 datasets across domains
+└── Angwin et al. 2016 — COMPAS
+    └── 6,172 records verified — criminal justice baseline
+
+DATASET LANDSCAPE
+├── Criminal justice: COMPAS 6,172
+├── Socioeconomic: Folktables ACS 1,589,032
+├── Benchmark: FairGround 1,964,010
+├── Education: Student Performance 1,044
+├── Legal: Law School 18,692
+├── Financial: Lending Club 1,348,099
+├── Agricultural: USDA NASS 7,334 + SBA 7(a) 15,845 + LSMS-ISA 30,312
+└── Healthcare: MIMIC-III pending PhysioNet
+
+FAPE CORE CONTRIBUTION
+└── First cross-domain fairness auditing pipeline
+    ├── Gap 1: no cross-domain fairness evaluation exists
+    ├── Gap 2: production drift monitoring absent from literature
+    ├── Gap 3: impossibility theorem not operationalized in pipelines
+    ├── Gap 4: agricultural domain absent from fairness literature
+    └── Gap 5: enterprise simulation missing from academic fairness work
+```
+
+
 **What I'm confident about:**
 - Chouldechova's impossibility theorem constrains what FAPE can claim. Non-negotiable.
 - COMPAS (6,172 records verified) and Folktables ACS (1,589,032 records verified) are solid starting points.
