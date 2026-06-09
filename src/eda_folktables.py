@@ -67,6 +67,14 @@ def run_eda():
     print(f"  Median: {df['AGEP'].median():.1f}")
     print(f"  Min: {df['AGEP'].min()} | Max: {df['AGEP'].max()}")
 
+    print(f"\n--- Disability Status (DIS) ---")
+    dis_counts = df["DIS"].value_counts()
+    for code, count in dis_counts.items():
+        pct = count / len(df)
+        income_rate = df[df["DIS"] == code]["label"].mean()
+        label = "With disability" if code == 1 else "Without disability"
+        print(f"  {label:<20} n={count:,} ({pct:.1%}) | income >$50k: {income_rate:.1%}")
+
     print(f"\n--- Hours Worked Per Week (WKHP) ---")
     wkhp_high = df[df["label"]==1]["WKHP"].mean()
     wkhp_low = df[df["label"]==0]["WKHP"].mean()
@@ -80,14 +88,6 @@ def run_eda():
     print(f"  Mean SCHL code: {df['SCHL'].mean():.1f}")
     print(f"  Median SCHL code: {df['SCHL'].median():.1f}")
     print(f"  Education-income correlation: {edu_corr:.3f}")
-
-    print(f"\n--- Disability Status (DIS) ---")
-    dis_counts = df["DIS"].value_counts()
-    for code, count in dis_counts.items():
-        pct = count / len(df)
-        income_rate = df[df["DIS"] == code]["label"].mean()
-        label = "With disability" if code == 1 else "Without disability"
-        print(f"  {label:<20} n={count:,} ({pct:.1%}) | income >$50k: {income_rate:.1%}")
 
     print(f"\n--- Missing Values ---")
     nulls = df.isnull().sum()
