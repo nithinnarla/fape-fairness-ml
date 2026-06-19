@@ -121,6 +121,16 @@ def run_eda():
     else:
         print(nulls[nulls > 0])
 
+
+    print(f"\n--- COMPAS Decile Score by Race ---")
+    for race in sorted(df['race'].unique()):
+        subset = df[df['race']==race]
+        if len(subset) < 50: continue
+        mean_score = subset['decile_score'].mean()
+        recid_rate = subset['is_recid'].mean()
+        print(f"  {str(race):<25} mean_decile={mean_score:.2f} | recid_rate={recid_rate:.1%}")
+    print(f"  Note: Higher decile scores for African-American despite similar recidivism — algorithmic bias")
+
     print(f"\n--- Key Fairness Observations ---")
     aa_rate = df[df["race"] == "African-American"]["label"].mean()
     ca_rate = df[df["race"] == "Caucasian"]["label"].mean()

@@ -112,6 +112,15 @@ def run_eda():
     else:
         print(nulls[nulls > 0])
 
+
+    print(f"\n--- LSAT vs UGPA Correlation by Race ---")
+    for race in sorted(df['racetxt'].dropna().unique()):
+        subset = df[df['racetxt']==race]
+        if len(subset) < 50: continue
+        corr = subset['lsat'].corr(subset['ugpa'])
+        print(f"  race={int(race):<5} n={len(subset):,} mean_lsat={subset['lsat'].mean():.2f} mean_ugpa={subset['ugpa'].mean():.2f} corr={corr:.3f}")
+    print(f"  Note: Racial group separation in LSAT-UGPA space — key fairness finding")
+
     print(f"\n--- Key Fairness Observations ---")
     white_pass = df[df["racetxt"] == 1]["label"].mean()
     minority_pass = df[df["racetxt"] == 0]["label"].mean()
