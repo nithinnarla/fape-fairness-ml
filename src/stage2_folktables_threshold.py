@@ -411,8 +411,64 @@ def run_stage2():
     plt.savefig("figures/stage2/folktables_fpr_fnr_by_race.png", dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 7 saved -- folktables_fpr_fnr_by_race.png")
 
+
+    # Fig 8 -- DIR by Race vs EEOC 0.8 Threshold
+    dir_labels = []; dir_vals = []; dir_colors = []
+    white_pred = y_pred_base_gb[race_test==1].mean()
+    for code, label in [(1,'White'),(2,'Black'),(3,'Am.Indian'),(6,'Asian'),(8,'Other'),(9,'Two or more')]:
+        mask = race_test == code
+        if mask.sum() < 30: continue
+        pred = y_pred_base_gb[mask].mean()
+        dir_v = pred / white_pred if white_pred > 0 else 0
+        dir_labels.append(label)
+        dir_vals.append(dir_v)
+        dir_colors.append('#2ecc71' if dir_v >= 0.8 else '#e74c3c')
+    fig, ax = plt.subplots(figsize=(11, 6))
+    bars = ax.bar(dir_labels, dir_vals, color=dir_colors, edgecolor='white', width=0.6)
+    ax.axhline(0.8, color='#f39c12', linestyle='--', linewidth=2, label='EEOC 80% rule threshold')
+    ax.axhline(1.0, color='gray', linestyle=':', linewidth=1, alpha=0.5, label='White reference (DIR=1.0)')
+    for bar, val in zip(bars, dir_vals):
+        ax.text(bar.get_x()+bar.get_width()/2, val+0.02, f'{val:.3f}',
+                ha='center', fontsize=10, fontweight='bold')
+    ax.set_title('Folktables ACS -- Disparate Impact Ratio by Race\n(EEOC 80% Rule: Black DIR=0.657, Am.Indian DIR=0.612, Other DIR=0.460 -- all FAIL)',
+                fontsize=11, fontweight='bold')
+    ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend()
+    ax.set_ylim(0, 1.35)
+    plt.xticks(rotation=15, ha='right'); plt.tight_layout()
+    plt.savefig('figures/stage2/folktables_dir_by_race.png', dpi=150, bbox_inches='tight')
+    plt.close(); print('Fig 8 saved -- folktables_dir_by_race.png')
+
+
+    # Fig 9 -- DIR Before vs After EO Constraint
+    dir_groups = [(1,'White'),(2,'Black'),(3,'Am.Indian'),(6,'Asian'),(8,'Other'),(9,'Two or more')]
+    dir_labels2=[]; dir_base_vals=[]; dir_con_vals=[]
+    white_base = y_pred_base_gb[race_test==1].mean()
+    white_con  = y_pred_to_gb[race_test==1].mean()
+    for code, label in dir_groups:
+        mask = race_test == code
+        if mask.sum() < 30: continue
+        dir_labels2.append(label)
+        dir_base_vals.append(y_pred_base_gb[mask].mean() / white_base if white_base > 0 else 0)
+        dir_con_vals.append(y_pred_to_gb[mask].mean() / white_con if white_con > 0 else 0)
+    x9 = np.arange(len(dir_labels2)); w9 = 0.35
+    fig, ax = plt.subplots(figsize=(13, 6))
+    bars_b = ax.bar(x9-w9/2, dir_base_vals, w9, label='Baseline DIR', color='#e74c3c', edgecolor='white')
+    bars_c = ax.bar(x9+w9/2, dir_con_vals,  w9, label='EO Constrained DIR', color='#3498db', edgecolor='white')
+    ax.axhline(0.8, color='#f39c12', linestyle='--', linewidth=2, label='EEOC 80% threshold')
+    for bar, val in zip(bars_b, dir_base_vals):
+        ax.text(bar.get_x()+bar.get_width()/2, val+0.015, f'{val:.3f}', ha='center', fontsize=8)
+    for bar, val in zip(bars_c, dir_con_vals):
+        ax.text(bar.get_x()+bar.get_width()/2, val+0.015, f'{val:.3f}', ha='center', fontsize=8)
+    ax.set_xticks(x9); ax.set_xticklabels(dir_labels2, rotation=15, ha='right')
+    ax.set_title('Folktables ACS -- DIR Before vs After EO Constraint\n(Two or more: DIR 0.739->0.863 crosses EEOC threshold -- key regulatory finding)',
+                fontsize=11, fontweight='bold')
+    ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend(); ax.set_ylim(0, 1.35)
+    plt.tight_layout()
+    plt.savefig('figures/stage2/folktables_dir_before_after.png', dpi=150, bbox_inches='tight')
+    plt.close(); print('Fig 9 saved -- folktables_dir_before_after.png')
+
     print(f"\n--- Folktables Stage 2 complete ---")
-    print(f"  7 figures saved to figures/stage2/")
+    print(f"  9 figures saved to figures/stage2/")
     print(f"  Ready for FairGround + Student Stage 2")
 
 
