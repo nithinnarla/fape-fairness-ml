@@ -120,3 +120,21 @@ There are ten decisions here. Some were obvious. Some took real thought. A few I
 Phase 4 begins with these ten decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
+
+## Decision 11 — Agricultural Dataset Scope: USDA NASS and LSMS-ISA Nigeria Evaluated and Excluded from ML Pipeline
+
+**Decision:** Include only SBA 7(a) Agricultural Loans in FAPE's ML fairness pipeline. USDA NASS 2022 Census included descriptively in EDA only. LSMS-ISA Nigeria excluded entirely from ML pipeline.
+
+**USDA NASS 2022 Agricultural Census:**
+USDA NASS provides aggregate census counts of US agricultural producers by race group — 6 race groups including American Indian/Alaska Native (1,533,317 producers), Asian (601,476), Black/African American (1,049,156), Hispanic (2,114,132), White (78,199,536), and Native Hawaiian/Pacific Islander (71,197 operations). This is the only US dataset with direct race data for agricultural producers. However, USDA NASS is aggregate summary data — not individual records. Cannot run logistic regression, gradient boosting, or ThresholdOptimizer on 6 rows of race group counts. Included descriptively in EDA notebook (Figure 12) to characterize racial composition of US agricultural producers and motivate why agricultural lending fairness matters. Loader committed at src/usda_nass_loader.py.
+
+**Why not ML:** ThresholdOptimizer requires one row per individual with a binary outcome. USDA NASS has one row per race group with aggregate counts. Mathematically incompatible with any ML fairness intervention.
+
+**LSMS-ISA Nigeria GHS-Panel Wave 4 (World Bank):**
+Individual-level agricultural household survey — 30,312 individuals, sex and education as sensitive attributes, food security as binary target (48.9% positive rate). Data loads correctly via src/lsms_loader.py. ML pipeline is technically feasible.
+
+**Why excluded:** FAPE's scope is US production ML pipeline fairness auditing under ECOA/EEOC regulatory frameworks. LSMS Nigeria targets food security outcomes in Nigeria — a different regulatory context (no ECOA, no EEOC), different country, different outcome variable. Including it would require reframing FAPE's contribution away from US regulatory compliance auditing. A reviewer would correctly ask: "Why is a Nigeria household survey in a paper about US ML fairness?" No defensible answer exists within FAPE's current framing.
+
+**Future use:** Loader committed at src/lsms_loader.py for potential future international extension of FAPE's methodology to non-US agricultural contexts.
+
+**What USDA NASS descriptive figures show:** White producers hold 78.2M of total producers and 4.1B acres operated — structural dominance that contextualizes why agricultural lending fairness matters for minority farming communities despite the SBA loan proxy-based audit showing near-fair business type predictions.
