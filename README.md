@@ -129,16 +129,21 @@ Full dependency list: `requirements.txt`
 - March 2026: GitHub repository created, active development begins
 - April 2026: Data pipeline implementation — COMPAS and Folktables ACS loaders committed, Phase 1 literature documentation in progress
 - May 2026: Full dataset pipeline complete across 9 verified datasets — criminal justice, socioeconomic, education, financial, and agricultural domains. Phase 1 literature documentation complete
-- June 2026: EDA notebooks, baseline model, fairness evaluation across all domains
-- July 2026: Paper writing, revisions, and final polish
-- August 2026: Target submission — JASIST + arXiv simultaneously
+- June 2026: Stage 1 complete — EDA across all 7 domains (COMPAS, Folktables, Law School, Lending Club, Agricultural, FairGround, Student); baseline models (LR, RF, GB) trained and evaluated; 83 EDA figures committed
+- July 2026: Stage 2 complete — ThresholdOptimizer DP/EO constraints across all 7 domains; cross-domain comparison complete; Law School strongest improvement (EO +94.1%); Agricultural counterproductive when near-fair (DPD -288.9%); core finding: effective when baseline DPD > 0.2
+- August 2026: Stage 3 fairness drift detection + paper writing — target submission JASIST Aug 28 2026
 
 ---
 
 ## Status
 
-🔬 Research in progress
-Target venue: JASIST 2026 (arXiv preprint uploaded on submission day)
+🔬 Research in progress — Stage 2 complete, Stage 3 starting
+
+**Stage 1 (complete):** EDA + baseline models across 7 domains — 83 EDA figures.
+**Stage 2 (complete):** ThresholdOptimizer fairness interventions across all 7 domains — cross-domain comparison done — 60 figures committed.
+**Stage 3 (starting):** Fairness drift detection and continuous monitoring.
+
+Target venue: JASIST — submission Aug 28 2026
 
 ---
 
