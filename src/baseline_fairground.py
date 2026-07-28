@@ -21,13 +21,11 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(__file__))
-from fairground_loader import load_fairground_corpus
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
-from sklearn.feature_selection import VarianceThreshold
+from sklearn.metrics import f1_score, roc_auc_score
 
 SELECTED_DATASETS = {
     'adult':               {'domain': 'Income',           'sensitive': 'race',  'target_encode': {'<=50K': 0, '>50K': 1, ' <=50K': 0, ' >50K': 1}},
