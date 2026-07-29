@@ -38,7 +38,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.feature_selection import VarianceThreshold
 from fairlearn.postprocessing import ThresholdOptimizer
-from fairlearn.metrics import demographic_parity_difference, equalized_odds_difference
+from fairlearn.metrics import demographic_parity_difference, equalized_odds_difference, demographic_parity_ratio
 
 os.makedirs("figures/stage2", exist_ok=True)
 
@@ -103,6 +103,7 @@ def run_threshold(model, X_train, y_train, X_test, y_test, sens_train, sens_test
             "f1": f1_score(y_test, yp, zero_division=0),
             "dpd": demographic_parity_difference(y_test, yp, sensitive_features=sens_test),
             "eod": equalized_odds_difference(y_test, yp, sensitive_features=sens_test),
+            "dpr": demographic_parity_ratio(y_test, yp, sensitive_features=sens_test),
         }
     except Exception as e:
         print(f"    ERROR: {e}")
@@ -153,6 +154,7 @@ def run_stage2():
                 "f1": f1_score(y_test, yp, zero_division=0),
                 "dpd": demographic_parity_difference(y_test, yp, sensitive_features=sens_test),
                 "eod": equalized_odds_difference(y_test, yp, sensitive_features=sens_test),
+                "dpr": demographic_parity_ratio(y_test, yp, sensitive_features=sens_test),
                 "model": m, "X_tr": X_tr, "X_te": X_te
             }
             print(f"  Baseline {name:<22} ACC={baseline[name]['acc']:.3f} DPD={baseline[name]['dpd']:.3f} EOD={baseline[name]['eod']:.3f}")
@@ -370,6 +372,31 @@ def run_stage2():
     print(f"  7 figures saved to figures/stage2/")
     print(f"  Cross-domain ThresholdOptimizer results ready for FAPE paper Section 4")
 
+
+
+    # Fig 8 -- DIR Before vs After DP Constraint
+    datasets8 = list(all_results.keys())
+    domains8 = [all_results[d]['domain'] for d in datasets8]
+    dir_b = [all_results[d]['baseline']['GradientBoosting']['dpr'] if all_results[d]['baseline'].get('GradientBoosting') else 0 for d in datasets8]
+    dir_a = [all_results[d]['dp']['GradientBoosting']['dpr'] if all_results[d]['dp'].get('GradientBoosting') else 0 for d in datasets8]
+    x8 = np.arange(len(datasets8))
+    w8 = 0.35
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(x8 - w8/2, dir_b, w8, label='Baseline DIR', color='#d9534f', edgecolor='black', linewidth=0.5)
+    ax.bar(x8 + w8/2, dir_a, w8, label='Post-DP DIR', color='#5cb85c', edgecolor='black', linewidth=0.5)
+    for i, (b, a) in enumerate(zip(dir_b, dir_a)):
+        ax.text(x8[i] - w8/2, b + 0.01, f'{b:.3f}', ha='center', fontsize=8)
+        ax.text(x8[i] + w8/2, a + 0.01, f'{a:.3f}', ha='center', fontsize=8)
+    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='EEOC 4/5ths threshold (0.8)')
+    ax.set_xticks(x8)
+    ax.set_xticklabels(domains8, rotation=15, ha='right', fontsize=9)
+    ax.set_title('FairGround — Disparate Impact Ratio (DIR) Before vs After DP Constraint\n'
+                 '(GB model; EEOC 4/5ths rule: DIR > 0.8 = compliant)', fontsize=11)
+    ax.set_ylabel('Disparate Impact Ratio (DIR)')
+    ax.set_ylim(0, 1.5); ax.legend(fontsize=9)
+    plt.tight_layout()
+    plt.savefig('figures/stage2/fairground_dir_before_after.png', dpi=150, bbox_inches='tight')
+    plt.close(); print('Fig 8 saved -- fairground_dir_before_after.png')
 
 if __name__ == "__main__":
     run_stage2()

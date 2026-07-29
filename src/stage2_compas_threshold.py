@@ -117,7 +117,8 @@ def run_stage2():
             f1 = f1_score(y_test, y_pred_to)
             dpd = demographic_parity_difference(y_test, y_pred_to, sensitive_features=race_test)
             eod = equalized_odds_difference(y_test, y_pred_to, sensitive_features=race_test)
-            dp_results[name] = {'acc': acc, 'f1': f1, 'dpd': dpd, 'eod': eod}
+            dpr = demographic_parity_ratio(y_test, y_pred_to, sensitive_features=race_test)
+            dp_results[name] = {'acc': acc, 'f1': f1, 'dpd': dpd, 'eod': eod, 'dpr': dpr}
             acc_delta = acc - res['acc']
             dpd_delta = dpd - res['dpd']
             print(f"  {name:<22} ACC={acc:.3f}({acc_delta:+.3f}) F1={f1:.3f} DPD={dpd:.3f}({dpd_delta:+.3f}) EOD={eod:.3f}")
@@ -431,6 +432,29 @@ def run_stage2():
     print(f"  7 figures saved to figures/stage2/")
     print(f"  Ready for Folktables Stage 2")
 
+
+
+    # Fig 8 — DIR Before vs After DP Constraint
+    names_list = list(baseline_results.keys())
+    dir_b = [baseline_results[n]['dpr'] for n in names_list]
+    dir_a = [dp_results[n]['dpr'] if dp_results.get(n) else 0 for n in names_list]
+    x8 = np.arange(len(names_list))
+    w8 = 0.35
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.bar(x8 - w8/2, dir_b, w8, label='Baseline DIR', color='#d9534f', edgecolor='black', linewidth=0.5)
+    ax.bar(x8 + w8/2, dir_a, w8, label='Post-DP DIR', color='#5cb85c', edgecolor='black', linewidth=0.5)
+    for i, (b, a) in enumerate(zip(dir_b, dir_a)):
+        ax.text(x8[i] - w8/2, b + 0.01, f'{b:.3f}', ha='center', fontsize=9)
+        ax.text(x8[i] + w8/2, a + 0.01, f'{a:.3f}', ha='center', fontsize=9)
+    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='EEOC 4/5ths threshold (0.8)')
+    ax.set_xticks(x8); ax.set_xticklabels(names_list)
+    ax.set_title('COMPAS — Disparate Impact Ratio (DIR) Before vs After DP Constraint\n'
+                 '(race groups; EEOC 4/5ths rule: DIR > 0.8 = compliant)', fontsize=11)
+    ax.set_ylabel('Disparate Impact Ratio (DIR)')
+    ax.set_ylim(0, 1.5); ax.legend(fontsize=9)
+    plt.tight_layout()
+    plt.savefig('figures/stage2/compas_dir_before_after.png', dpi=150, bbox_inches='tight')
+    plt.close(); print('Fig 8 saved — compas_dir_before_after.png')
 
 if __name__ == "__main__":
     run_stage2()
