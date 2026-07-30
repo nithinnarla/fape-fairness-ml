@@ -21,7 +21,7 @@ We evaluate four regulatory-aligned metrics simultaneously — demographic parit
 and introduce CUSUM-based continuous monitoring for post-deployment fairness drift detection.
 
 Key findings: (1) ThresholdOptimizer effectiveness is strongly domain-dependent — strongest
-improvement in Law School (DPD 0.351→0.039, DIR 0.643→0.964) but counterproductive in
+improvement in Law School (DPD 0.351→0.039, DIR 0.643→0.945) but counterproductive in
 Agricultural (DPD 0.009→0.035) where near-fair baselines exist; (2) no single model
 dominates across all domains, requiring domain-specific model selection; (3) fairness
 constraints achieved at deployment are not permanent — CUSUM detects measurable drift under
@@ -155,20 +155,26 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - COMPAS lowest accuracy (GB=0.674) — 6-group racial classification challenge
 
 ### 5.2 Post-DP Constraint: DPD Results
-- Law School GB: DPD 0.351→0.039 (88.9% reduction) — strongest improvement
-- FairGround GB: DPD 0.342→0.026 (92.4% reduction) — highest accuracy cost (0.159)
-- Agricultural GB: DPD 0.009→0.035 (-288.9%) — counterproductive
-- COMPAS: all models remain above EEOC threshold — irreducible 6-group disparity
+- Law School: all 3 models improve — GB strongest (DPD 0.351→0.039, 88.9% reduction)
+- FairGround GB: DPD 0.342→0.026 (92.4% reduction) — highest accuracy cost (0.159); LR+RF worsen
+- Agricultural GB: DPD 0.009→0.035 (-288.9%) — counterproductive; LR+RF no change
+- COMPAS GB: DPD 0.857→0.571 — improves but above EEOC threshold; LR+RF worsen
+- Folktables GB: DPD 0.320→0.341 — slightly counterproductive; LR+RF no change
+- Student: all 3 models improve
+- Effectiveness is model-dependent within domains — GB most effective in high-DPD contexts
 
 ### 5.3 Post-EO Constraint: EOD Results
-- Law School + Student: strongest EOD improvement across all models
-- Law School GB: EOD 0.528→0.031 (94.1% reduction)
-- COMPAS GB: EOD=0.659 after constraint — most challenging domain
-- Agricultural GB: counterproductive under EO (EOD 0.073→0.194)
+- Law School: all 3 models improve — GB strongest (EOD 0.528→0.031, 94.1% reduction)
+- Student: all 3 models improve — GB strongest (EOD 0.314→0.055, 82.5% reduction)
+- FairGround RF+GB: improve strongly — LR slightly worsens (0.018→0.019)
+- COMPAS GB: EOD 1.000→0.659 — improves but remains high; RF worsens (0.686→0.734)
+- Agricultural GB: counterproductive under EO (EOD 0.073→0.194); LR+RF no change
+- Folktables GB: slightly worsens (0.333→0.336); LR+RF improve
+- Lending Club GB: worsens (0.053→0.060); LR+RF no change
 
 ### 5.4 Disparate Impact Ratio (DIR)
 - DIR computed per domain using domain-specific sensitive attribute groups
-- Law School GB: DIR 0.643→0.964 — passes EEOC 4/5ths rule post-constraint
+- Law School GB: DIR 0.643→0.945 — passes EEOC 4/5ths rule post-constraint
 - Lending Club: DIR>1 at baseline (1.4x actual, 2.8x predicted) — proxy-based audit
 - Agricultural GB: DIR overcorrects (0.653→1.095) — surpasses parity threshold
 - COMPAS: DIR remains below EEOC threshold across all models — 6-group challenge
@@ -176,16 +182,21 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 ### 5.5 Cross-Domain Comparison
 - Core empirical finding: effectiveness threshold
-  - DPD > 0.2 at baseline → ThresholdOptimizer effective
+  - DPD > 0.2 at baseline → ThresholdOptimizer effective (GB most reliable)
   - DPD < 0.05 at baseline → ThresholdOptimizer counterproductive
-- No single model dominates — domain-specific selection required
-- LR most stable: smallest accuracy cost under both constraints
-- GB highest baseline accuracy but most aggressive fairness intervention
+- Effectiveness is model-dependent within domains — not just domain-dependent
+- No single model dominates across all domains — domain-specific selection required
+- LR most stable: smallest accuracy cost, fewest counterproductive outcomes
+- GB highest baseline accuracy but most aggressive — highest accuracy cost in FairGround (0.159)
 
 ### 5.6 Accuracy-Fairness Tradeoff
-- FairGround GB: highest accuracy cost (0.159) — strongest fairness gain
-- Law School: minimal accuracy cost despite large fairness improvement
-- Agricultural: accuracy cost without fairness benefit — counterproductive case
+- FairGround GB: highest accuracy cost (0.159 ⚠️) — strongest fairness gain
+- FairGround LR: also high cost (0.072 ⚠️) with weaker fairness gain
+- Lending Club GB: unexpected high cost (0.062 ⚠️) despite near-fair baseline
+- Student GB: meaningful cost (0.063 ⚠️) with strong fairness improvement
+- Law School: minimal accuracy cost (0.003) despite largest fairness improvement — best tradeoff
+- Agricultural: accuracy cost without fairness benefit — worst case
+- LR most stable: no high-cost outcomes across all 7 domains
 
 ### 5.7 Drift Detection Results
 - Law School + FairGround + Student: earliest CUSUM alerts in v3
