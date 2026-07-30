@@ -11,7 +11,7 @@
 
 The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-There are ten decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+There are eleven decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
 
 ---
 
@@ -25,13 +25,15 @@ There are ten decisions here. Some were obvious. Some took real thought. A few I
 
 ---
 
-## Decision 2 — Default XGBoost Hyperparameters Across All Domains
+## Decision 2 — Default Hyperparameters for LR, RF, GB Across All Domains
 
-**Decision:** Use identical XGBoost configuration across all nine datasets with no domain-specific tuning.
+**Decision:** Use identical default hyperparameters for LogisticRegression, RandomForestClassifier, and GradientBoostingClassifier (sklearn) across all seven domains with no domain-specific tuning.
 
-**Why:** The research question is Causal — does the fairness intervention cause bias reduction? If I tune separately per domain, accuracy differences across domains could reflect tuning rather than genuine domain variation. Default hyperparameters keep the experimental design clean.
+**Why:** The research question is causal — does the fairness intervention cause bias reduction? If I tune separately per domain, accuracy differences across domains could reflect tuning rather than genuine domain variation. Default hyperparameters keep the experimental design clean and isolate the fairness intervention as the variable of interest.
 
 **What I gave up:** Accuracy numbers will be lower than they could be with tuning. A reviewer might push back on this. The response is that optimized accuracy is not the variable of interest — the fairness intervention is. Domain-specific accuracy comparison is a different paper.
+
+**Note:** XGBoost was considered but excluded — sklearn GradientBoostingClassifier provides sufficient performance with simpler reproducibility and no additional dependency.
 
 ---
 
@@ -47,7 +49,7 @@ There are ten decisions here. Some were obvious. Some took real thought. A few I
 
 ## Decision 4 — Four Metrics Reported Simultaneously, No Primary Metric
 
-**Decision:** Report demographic parity difference, equalized odds difference, disparate impact ratio, and individual fairness score for every experiment. No single metric designated as primary.
+**Decision:** Report demographic parity difference (DPD), equalized odds difference (EOD), disparate impact ratio (DIR), and accuracy cost for every experiment. No single metric designated as primary. Individual fairness score excluded — see Decision 9.
 
 **Why:** Sariola et al. (2026) showed optimizing for one metric can mask 10% disparity on another. Designating a primary metric would invite the paper to be read as optimizing for that metric specifically — which would make the results misleading. All four reported, practitioners decide which matters in their regulatory context.
 
@@ -95,13 +97,15 @@ There are ten decisions here. Some were obvious. Some took real thought. A few I
 
 ---
 
-## Decision 9 — Individual Fairness Included With Explicit Uncertainty
+## Decision 9 — Individual Fairness Score Excluded; Replaced with Accuracy Cost
 
-**Decision:** Report individual fairness scores using a default distance metric, with explicit acknowledgment that the similarity metric is not domain-validated.
+**Decision:** Exclude individual fairness score (IFS) from FAPE's evaluation metrics. Replace with accuracy cost (baseline_acc minus constrained_acc) as the fourth metric alongside DPD, EOD, and DIR.
 
-**Why:** Ignoring individual fairness entirely would be a gap in the framework — Dwork et al. (2012) is foundational and excluding it would invite reviewer questions. Including it with a caveat is more honest than either excluding it or presenting it as fully validated.
+**Why:** IFS requires a validated similarity metric between individuals — a domain-specific requirement that cannot be generalized across FAPE's seven domains without introducing domain-specific assumptions that undermine the cross-domain comparison. Computing IFS on COMPAS requires a different similarity function than on Lending Club or Student Performance. Including IFS would force domain-specific methodology that contradicts FAPE's central contribution.
 
-**Comfort level:** Medium. The individual fairness results are the ones I'm least confident defending in a deep methodological discussion. The paper will frame these as preliminary and call for domain-specific similarity metric development as future work.
+**What I gave up:** IFS is foundational (Dwork et al. 2012) and excluding it may invite reviewer questions. The response is that accuracy cost is a more practically meaningful fourth metric for production ML auditing — it directly quantifies the fairness-accuracy tradeoff that practitioners face.
+
+**Comfort level:** High. Accuracy cost is computed directly from committed results, fully reproducible, and maps to a real deployment concern. IFS is deferred to future work with domain-specific similarity metrics.
 
 ---
 
@@ -117,7 +121,7 @@ There are ten decisions here. Some were obvious. Some took real thought. A few I
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these ten decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+Phase 4 begins with these eleven decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
 
