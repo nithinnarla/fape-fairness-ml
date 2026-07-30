@@ -11,7 +11,7 @@
 
 Design decisions made in February look obvious in May and completely mysterious in September. I've watched research projects lose track of why they made specific choices, then spend weeks in paper writing trying to reconstruct reasoning that should have been captured when it was fresh. This document is insurance against that.
 
-The other reason: I need to be able to defend every decision in a review or across a table from a professor. "We used XGBoost because everyone uses XGBoost" is not a defense. Every choice in FAPE's design has a specific reason and I want to be able to articulate it without hesitation.
+The other reason: I need to be able to defend every decision in a review or across a table from a professor. "We used GradientBoostingClassifier because everyone uses it" is not a defense. (Note: XGBoost was considered but sklearn GradientBoostingClassifier was chosen for reproducibility — see Decision 2.) Every choice in FAPE's design has a specific reason and I want to be able to articulate it without hesitation.
 
 ---
 
@@ -23,7 +23,7 @@ The easy version of this question is Descriptive: document what fairness looks l
 
 The Causal framing is harder to defend and more valuable if it holds: does applying post-processing fairness constraints cause measurable bias reduction across heterogeneous high-stakes deployment domains simultaneously, at acceptable accuracy cost? This is the question practitioners actually need answered. They're not asking whether bias exists — Angwin et al. (2016) answered that. They're asking whether an intervention works, and whether it works consistently across the contexts they actually deploy in.
 
-The causal framing has a real constraint: the baseline model has to be identical across all domains. Same XGBoost architecture, same hyperparameters, same training procedure. If I let domain-specific tuning creep in, I can't attribute fairness differences to the intervention — they could be model configuration artifacts. That's a constraint I'm accepting because it's the only way to make the cross-domain comparison clean.
+The causal framing has a real constraint: the baseline model has to be identical across all domains. Same LR/RF/GB architecture (sklearn), same hyperparameters, same training procedure. If I let domain-specific tuning creep in, I can't attribute fairness differences to the intervention — they could be model configuration artifacts. That's a constraint I'm accepting because it's the only way to make the cross-domain comparison clean.
 
 ---
 
@@ -35,9 +35,9 @@ The Obermeyer et al. (2019) finding is what drove Stage 1 into the design. Healt
 
 Stage 1 runs Cramér's V correlation analysis across all feature pairs before anything else. It adds overhead and complexity. But if I skip it, FAPE becomes a framework that audits bias in outputs while potentially having proxy bias baked into every input. That's not a framework I want to build.
 
-**Stage 2 — Why XGBoost and why default hyperparameters**
+**Stage 2 — Why LR/RF/GB and why default hyperparameters**
 
-XGBoost because it's the field standard for tabular classification and I need comparability with prior work. This isn't an interesting decision — it's the right boring choice. Using a novel architecture in Stage 2 would make the results incomparable to everything else in the literature.
+LogisticRegression, RandomForestClassifier, and GradientBoostingClassifier (sklearn) across all seven domains. Three architectures capture the spectrum from linear to ensemble — LR as interpretable baseline, RF as bagging ensemble, GB as boosting ensemble. XGBoost was considered but excluded for simpler reproducibility with no additional dependency.
 
 Default hyperparameters is the more interesting constraint. Domain-specific tuning would improve accuracy numbers — probably meaningfully. But tuned models across domains would mean I can't isolate the fairness intervention as the variable being tested. Any fairness difference across domains could be a tuning artifact rather than a genuine domain difference. Default hyperparameters keeps the experimental design clean at the cost of headline accuracy numbers.
 
@@ -47,7 +47,7 @@ In eight years of production ML I have never worked in an environment where I ow
 
 Fairlearn's ThresholdOptimizer is the specific implementation because it's the cleanest operationalization of Hardt et al.'s (2016) equalized odds approach. It applies the constraint post-training without modifying the underlying model. The limitation — which Ajarra et al. (2026) made explicit — is that the constraint has to be reapplied every time the model updates. Stage 4 exists partly because of this limitation.
 
-Four metrics simultaneously — demographic parity, equalized odds, disparate impact ratio, individual fairness — because after Sariola et al. (2026) I can't in good conscience report one metric and call it done. Optimizing for one can mask 10% disparity on another. The paper shows all four and shows the tradeoffs. Which metric matters most in a specific context is a values and regulatory question, not a technical one, and I'm not going to answer it for practitioners by only reporting the metric that makes FAPE look best.
+Four metrics simultaneously — demographic parity, equalized odds, disparate impact ratio, and accuracy cost — because after Sariola et al. (2026) I can't in good conscience report one metric and call it done. Optimizing for one can mask 10% disparity on another. The paper shows all four and shows the tradeoffs. Individual fairness score excluded — requires domain-specific similarity metric incompatible with cross-domain comparison. See Decision 9.
 
 **Stage 4 — Why deployment monitoring exists at all**
 
@@ -103,7 +103,7 @@ Three datasets covering different terrain. USDA NASS provides aggregate racial b
 
 **Disparate impact ratio** — positive outcome rate for disadvantaged group divided by advantaged group. Below 0.8 triggers ECOA adverse impact standard in financial services. Including this gives FAPE direct regulatory mapping for Lending Club and SBA 7(a) results.
 
-**Individual fairness score** — similar individuals should receive similar predictions. I include it because ignoring individual fairness would be a gap in the framework. I include it with low confidence because Dwork et al. (2012) identified the core problem: defining "similar" requires a task-specific similarity metric nobody agrees on. The paper will acknowledge this limitation directly rather than presenting the individual fairness results as if the similarity metric is settled.
+**Accuracy cost** — baseline_acc minus constrained_acc. The practical price paid for applying a fairness constraint. This is the metric practitioners actually face in deployment decisions. Individual fairness score (IFS) was originally planned here but excluded — Dwork et al. (2012) identified that defining "similar" requires a task-specific similarity metric that cannot be generalized across FAPE's seven domains. See Decision 9.
 
 ---
 

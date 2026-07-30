@@ -93,7 +93,7 @@ Complete gap. No paper has tested whether equalized odds post-processing that wo
 Sculley (2015) identified the problem. Ajarra (2026) confirmed it applies specifically to fairness. AIF360, Fairlearn, What-If Tool — none address continuous monitoring. FAPE Stage 4 is the first attempt in a multi-domain context.
 
 **Gap 3 — Multi-metric reporting is treated as optional.**
-Sariola et al. (2026) showed single-metric optimization creates illusions. FAPE reports demographic parity, equalized odds, disparate impact ratio, and individual fairness simultaneously — making the Chouldechova tradeoffs visible rather than hidden.
+Sariola et al. (2026) showed single-metric optimization creates illusions. FAPE reports demographic parity, equalized odds, disparate impact ratio, and accuracy cost simultaneously — making the Chouldechova tradeoffs visible rather than hidden. Individual fairness score excluded — see methodology_decisions.md Decision 9.
 
 **Gap 4 — Agricultural domain has never appeared in fairness research.**
 I went looking for fairness papers on agricultural lending or farm household outcomes. Nothing. Criminal justice, healthcare, education, financial services — all represented. The populations most affected by algorithmic decisions in agricultural contexts are invisible in the fairness literature. FAPE adds this domain with three datasets now verified: USDA NASS Census 2022, SBA 7(a) NAICS-11 loans, LSMS-ISA Nigeria Wave 4.
@@ -136,7 +136,7 @@ The full dataset pipeline is now complete. Student Performance (1,044 records), 
 
 FairGround (Fabris et al. 2025) is now verified — 1,964,010 records across 44 fairness-annotated datasets. This changes the benchmark picture meaningfully. FAPE is the first paper to use FairGround as part of a multi-domain evaluation framework rather than as a standalone benchmark.
 
-What FAPE can legitimately claim: cross-domain evaluation at a scale nobody has run, continuous monitoring infrastructure that doesn't exist elsewhere, multi-metric reporting that makes the Chouldechova constraints visible. What it cannot claim: solving the impossibility, generalizing from five domains to all contexts, or removing the need for human judgment about which metric matters in which regulatory setting.
+What FAPE can legitimately claim: cross-domain evaluation at a scale nobody has run, continuous monitoring infrastructure that doesn't exist elsewhere, multi-metric reporting that makes the Chouldechova constraints visible. What it cannot claim: solving the impossibility, generalizing from seven domains to all contexts, or removing the need for human judgment about which metric matters in which regulatory setting.
 
 ---
 
@@ -177,7 +177,7 @@ FAIRNESS THEORY CLUSTER
 ├── Hardt et al. 2016 — equalized odds + ThresholdOptimizer
 │   └── FAPE Stage 3 intervention backbone
 └── Dwork et al. 2012 — individual fairness
-    └── FAPE Stage 3 individual fairness component
+    └── IFS excluded from FAPE — see Decision 9; DIR (disparate impact ratio) is FAPE Stage 3 metric
 
 PRODUCTION FAILURE CLUSTER
 ├── Sculley et al. 2015 — ML technical debt
@@ -228,8 +228,8 @@ FAPE CORE CONTRIBUTION
 - Stage 4 CUSUM detection will catch drift a one-time audit misses — but Stage 4 hasn't run yet.
 
 **What I'm genuinely uncertain about:**
-- Whether nine datasets across five domains is enough for cross-domain generalization claims — the agricultural domain addition (USDA NASS, SBA 7(a), LSMS-ISA Nigeria) adds a population that has never appeared in fairness literature.
-- Whether individual fairness in Stage 3 will be defensible without a domain-specific similarity metric.
+- Whether seven domains is enough for cross-domain generalization claims — the agricultural domain addition (SBA 7(a)) adds a population that has never appeared in fairness literature. USDA NASS and LSMS-ISA Nigeria excluded from ML pipeline — see Decision 11.
+- Individual fairness score excluded from evaluation — replaced with accuracy cost. See Decision 9. This uncertainty is resolved.
 - How to handle MIMIC-III if PhysioNet access takes longer than expected.
 
 ---
