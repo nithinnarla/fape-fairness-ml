@@ -17,7 +17,6 @@ Key notes:
 - MS dominates (23%) due to poultry farming concentration
 """
 
-import pandas as pd
 import numpy as np
 import sys
 import os

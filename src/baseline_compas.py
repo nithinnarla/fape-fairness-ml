@@ -22,7 +22,7 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import (accuracy_score, precision_score, recall_score,
-                              f1_score, roc_auc_score, classification_report)
+                              f1_score, roc_auc_score)
 
 SENSITIVE_ATTRS = ["race", "sex"]
 MODELS = {

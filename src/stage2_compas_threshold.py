@@ -27,7 +27,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+from sklearn.metrics import accuracy_score, f1_score
 from fairlearn.postprocessing import ThresholdOptimizer
 from fairlearn.metrics import (demographic_parity_difference,
                                 equalized_odds_difference,

@@ -13,7 +13,6 @@ metadata eliminates arbitrary preprocessing choices.
 """
 
 import pandas as pd
-import numpy as np
 import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))

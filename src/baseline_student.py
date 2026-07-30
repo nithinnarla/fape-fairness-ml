@@ -21,7 +21,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import roc_auc_score, f1_score, confusion_matrix
+from sklearn.metrics import roc_auc_score, f1_score
 
 MODELS = {
     'LogisticRegression': LogisticRegression(max_iter=1000, random_state=42),
