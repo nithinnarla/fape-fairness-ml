@@ -231,6 +231,8 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - ThresholdOptimizer only — pre/in-processing comparison out of scope
 - COMPAS 6-group racial categorization reflects data collection, not endorsement
 - Lending Club uses income/housing as socioeconomic proxies — no direct race/gender
+- Agricultural domain inclusion outside traditional fairness literature scope — justified by consequential algorithmic decisions in agricultural lending
+- Cross-domain comparison validity requires identical model architecture and hyperparameters across all domains — any domain-specific tuning would make results uninterpretable
 
 ---
 
