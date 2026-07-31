@@ -99,13 +99,17 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 | Domain | Dataset | Sensitive attr | N | Regulatory context |
 |--------|---------|----------------|---|-------------------|
-| Criminal justice | COMPAS | Race (6 groups) | 7,214 | ECOA |
-| Income prediction | Folktables ACS | Race, Sex | 378,817 | ECOA |
-| Legal profession | Law School | Race, Sex | 20,798 | Title VII |
-| Credit risk | Lending Club | Income band | 1,110,171 | ECOA/FCRA |
-| Agricultural lending | SBA 7(a) | Business type | 899,164 | ECOA/FCA |
-| Synthetic bias | FairGround | Multiple | 50,000 | EEOC |
-| Education | Student Performance | Sex | 649 | Title IX |
+| Criminal justice | COMPAS | Race (6 groups) | 6,172 | ECOA |
+| Income prediction | Folktables ACS | Race, Sex | 1,589,032¹ | ECOA |
+| Legal profession | Law School | Race, Sex | 18,692 | Title VII |
+| Credit risk | Lending Club | Income band | 1,348,099² | ECOA/FCRA |
+| Agricultural lending | SBA 7(a) | Business type | 15,845 | ECOA/FCA |
+| Synthetic bias | FairGround | Multiple | 1,964,010 | EEOC |
+| Education | Student Performance | Sex | 1,044 (395+649)³ | Title IX |
+
+¹ Full ACS national sample across 50 states; 100K stratified sample used for model training (50K per income group)
+² After binary outcome filter (paid off vs charged off) from 2,260,701 raw records; 500K stratified sample used for model training
+³ Two subjects: Math (395) and Portuguese (649); both used independently
 
 ### 3.3 Baseline Models
 - LR, RF, GB with default hyperparameters across all domains
