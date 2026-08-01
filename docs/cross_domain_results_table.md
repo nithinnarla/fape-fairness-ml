@@ -109,6 +109,22 @@ COMPAS 6-group racial categorization reflects data collection, not endorsement.
 
 ---
 
+## Paper Outline Section 5
+
+**Section 5.1 Baseline Accuracy:** Reference Table 1. Add: "GB achieves highest baseline accuracy across all 7 domains, with Agricultural (0.938) and FairGround (0.910) highest and COMPAS (0.674) lowest."
+
+**Section 5.2 Post-DP DPD:** Reference Table 2. Add: "ThresholdOptimizer effectiveness is model-dependent within domains — COMPAS LR and RF worsen while GB improves; FairGround LR and RF worsen while GB achieves strongest reduction (92.4%). Effectiveness threshold: DPD>0.2 → GB effective; DPD<0.05 → counterproductive."
+
+**Section 5.3 Post-EO EOD:** Reference Table 3. Add: "Law School achieves strongest EOD reduction across all models (94.1% for GB). COMPAS RF worsens (0.686→0.734). Agricultural GB counterproductive (0.073→0.194). Multiple domains show model-dependent outcomes."
+
+**Section 5.4 DIR:** Reference Table 5. Note: not aggregated cross-domain — sensitive attributes differ per domain.
+
+**Section 5.5 Accuracy Cost:** Reference Table 4. Add: "FairGround GB highest cost (0.159). LR most stable — no high-cost flags across all domains. Lending Club GB shows unexpected high cost (0.062) despite near-fair baseline."
+
+**Section 5.6 Cross-Domain Comparison:** Add: "Effectiveness is model-dependent within domains, not just domain-dependent. No single model dominates across all contexts."
+
+---
+
 ## Notes for Paper Writing — Section 5
 
 These are my working notes for when I sit down to write Section 5. Not instructions — just reminders of what the data actually showed so I don't have to go back and re-read the tables while writing.
@@ -124,3 +140,6 @@ These are my working notes for when I sit down to write Section 5. Not instructi
 5.5 — FairGround has the worst accuracy-fairness tradeoff: GB loses 0.159 accuracy points to get the 92.4% DPD reduction. That's a real cost. LR is the most stable model across all domains — no high-cost flags anywhere. The surprise is Lending Club GB at 0.062 cost despite a near-fair baseline — the optimizer is paying accuracy without delivering fairness improvement.
 
 5.6 — The through-line across all results: effectiveness varies by model AND by domain. It's not enough to say "ThresholdOptimizer works" or "ThresholdOptimizer doesn't work." The honest answer is GB works when baseline DPD is high, and nothing works well when baseline DPD is already near-fair.
+
+---
+
