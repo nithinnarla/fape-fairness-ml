@@ -11,7 +11,7 @@
 
 The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-There are sixteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+There are seventeen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
 
 ---
 
@@ -121,7 +121,7 @@ There are sixteen decisions here. Some were obvious. Some took real thought. A f
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these sixteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+Phase 4 begins with these seventeen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
 
@@ -216,3 +216,21 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 
 **Given the volume of findings tonight (Decisions 12-16) and to avoid runaway investigation on writing day, this is being logged rather than chased further right now.** Recommend a dedicated, focused session before Aug 19 to resolve this specific item, ideally starting from git blame/log history on stage2_lawschool_threshold.py to check whether RandomForest was ever present and removed.
 
+## Decision 17 — Table 1 (Baseline Model Performance) Required a Full Rebuild From Verified Live Output, Not Incremental Patching
+
+**Investigation (Aug 2 2026):** After resolving Decision 15 (ThresholdOptimizer determinism), attempted to systematically re-verify every domain's Table 1 entry against live script output before propagating corrected numbers. Found discrepancies far more widespread than Decisions 13/14/16 had already documented:
+
+- Folktables LR: documented 0.791, live Stage 2 shows 0.819
+- Law School LR: documented 0.745, live Stage 2 shows AUC=0.872 (not comparable -- different metric, see Decision 13)
+- Law School RF: documented 0.801, script has no RandomForest at all (see Decision 16)
+- Lending Club LR: documented 0.649, live Stage 2 shows AUC=0.706
+- Agricultural LR: documented 0.904, live Stage 2 shows AUC=0.727; standalone baseline_agricultural.py shows AUC=0.759 -- neither matches
+- Agricultural RF: documented 0.921, script has no RandomForest at all (same pattern as Law School)
+- FairGround: SELECTED_DATASETS contains 5 sub-corpora (adult, compas_2_years, creditcard, law_school_lequy, meps_panel_19_fy2015), each with distinct baseline results per model. Matching all 5 blocks against the documented Table 1 row (LR=0.819, RF=0.871, GB=0.910) found no single sub-dataset matches all three models -- GB=0.910 matches law_school_lequy exactly (as Decision 14 found), but RF=0.871 actually matches adult's RF value, and LR=0.819 matches creditcard's LR value. The documented FairGround row is a composite of three different sub-datasets' individual model columns, not one coherent sub-dataset row as Decision 14 originally concluded, and not an aggregate across all five either.
+- Student: script evaluates two sub-subjects (math, portuguese) with different results; documented Table 1 values match "math" specifically, but this was not previously stated anywhere
+
+**Conclusion:** GradientBoosting values were reliably accurate across every domain checked (COMPAS, Folktables, Law School, Lending Club, Agricultural all matched exactly). LogisticRegression values were wrong or mismatched in the majority of non-COMPAS domains. RandomForest is entirely absent from 2 of 7 domains' Stage 2 scripts despite having documented values. The likely explanation is that Table 1 was assembled at different points across the project's history from a mix of sources (different script versions, standalone baseline scripts, possibly manual entry) rather than generated in one consistent pass -- consistent with Decision 12's finding that the aggregation script itself is a hardcoded dictionary, not a live computation.
+
+**Decision:** Rather than continue tracing each individual number's uncertain provenance, Table 1 is being fully rebuilt from scratch using only today's (Aug 2 2026) verified, deterministic live script output -- the same data captured while resolving Decision 15. Where a script does not compute a given model (RandomForest missing for Law School and Agricultural), that cell will be marked as not available rather than populated with an unverifiable historical number. Where a domain has multiple sub-datasets or sub-subjects (FairGround, Student), the specific one used will be explicitly named in the table rather than left implicit.
+
+**This is the correct and final data source going forward.** Any future changes to the Stage 2 scripts should trigger a full Table 1 re-verification, not a patch to individual cells, given how much implicit assumption-drift accumulated the first time.
