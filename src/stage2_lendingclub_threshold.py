@@ -114,14 +114,14 @@ def run_stage2():
                 to = ThresholdOptimizer(estimator=base, constraints="demographic_parity",
                                         objective="balanced_accuracy_score", predict_method="predict_proba")
                 to.fit(X_tr_sc, y_train, sensitive_features=inc_train)
-                y_pred = to.predict(X_te_sc, sensitive_features=inc_test)
+                y_pred = to.predict(X_te_sc, sensitive_features=inc_test, random_state=42)
             else:
                 base = GradientBoostingClassifier(n_estimators=100, random_state=42)
                 base.fit(X_train, y_train)
                 to = ThresholdOptimizer(estimator=base, constraints="demographic_parity",
                                         objective="balanced_accuracy_score", predict_method="predict_proba")
                 to.fit(X_train, y_train, sensitive_features=inc_train)
-                y_pred = to.predict(X_test, sensitive_features=inc_test)
+                y_pred = to.predict(X_test, sensitive_features=inc_test, random_state=42)
             dp_val = demographic_parity_difference(y_test, y_pred, sensitive_features=inc_test)
             eo_val = equalized_odds_difference(y_test, y_pred, sensitive_features=inc_test)
             acc = accuracy_score(y_test, y_pred)
@@ -142,14 +142,14 @@ def run_stage2():
                 to = ThresholdOptimizer(estimator=base, constraints="equalized_odds",
                                         objective="balanced_accuracy_score", predict_method="predict_proba")
                 to.fit(X_tr_sc, y_train, sensitive_features=inc_train)
-                y_pred = to.predict(X_te_sc, sensitive_features=inc_test)
+                y_pred = to.predict(X_te_sc, sensitive_features=inc_test, random_state=42)
             else:
                 base = GradientBoostingClassifier(n_estimators=100, random_state=42)
                 base.fit(X_train, y_train)
                 to = ThresholdOptimizer(estimator=base, constraints="equalized_odds",
                                         objective="balanced_accuracy_score", predict_method="predict_proba")
                 to.fit(X_train, y_train, sensitive_features=inc_train)
-                y_pred = to.predict(X_test, sensitive_features=inc_test)
+                y_pred = to.predict(X_test, sensitive_features=inc_test, random_state=42)
             dp_val = demographic_parity_difference(y_test, y_pred, sensitive_features=inc_test)
             eo_val = equalized_odds_difference(y_test, y_pred, sensitive_features=inc_test)
             acc = accuracy_score(y_test, y_pred)

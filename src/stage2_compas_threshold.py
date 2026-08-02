@@ -112,7 +112,7 @@ def run_stage2():
                 objective="balanced_accuracy_score"
             )
             to.fit(res['X_tr'], y_train, sensitive_features=race_train)
-            y_pred_to = to.predict(res['X_te'], sensitive_features=race_test)
+            y_pred_to = to.predict(res['X_te'], sensitive_features=race_test, random_state=42)
             acc = accuracy_score(y_test, y_pred_to)
             f1 = f1_score(y_test, y_pred_to)
             dpd = demographic_parity_difference(y_test, y_pred_to, sensitive_features=race_test)
@@ -137,7 +137,7 @@ def run_stage2():
                 objective="balanced_accuracy_score"
             )
             to.fit(res['X_tr'], y_train, sensitive_features=race_train)
-            y_pred_to = to.predict(res['X_te'], sensitive_features=race_test)
+            y_pred_to = to.predict(res['X_te'], sensitive_features=race_test, random_state=42)
             acc = accuracy_score(y_test, y_pred_to)
             f1 = f1_score(y_test, y_pred_to)
             dpd = demographic_parity_difference(y_test, y_pred_to, sensitive_features=race_test)
@@ -179,7 +179,7 @@ def run_stage2():
                 objective="balanced_accuracy_score"
             )
             to.fit(res['X_tr'], y_train, sensitive_features=sex_train)
-            y_pred_to = to.predict(res['X_te'], sensitive_features=sex_test)
+            y_pred_to = to.predict(res['X_te'], sensitive_features=sex_test, random_state=42)
             dpd = demographic_parity_difference(y_test, y_pred_to, sensitive_features=sex_test)
             eod = equalized_odds_difference(y_test, y_pred_to, sensitive_features=sex_test)
             acc = accuracy_score(y_test, y_pred_to)

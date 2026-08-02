@@ -66,7 +66,7 @@ def run_threshold(model, X_tr, y_tr, X_te, y_te, s_tr, s_te, constraint):
             objective="balanced_accuracy_score"
         )
         to.fit(X_tr, y_tr, sensitive_features=s_tr)
-        yp = to.predict(X_te, sensitive_features=s_te)
+        yp = to.predict(X_te, sensitive_features=s_te, random_state=42)
         return {
             "acc": accuracy_score(y_te, yp),
             "f1": f1_score(y_te, yp, zero_division=0),

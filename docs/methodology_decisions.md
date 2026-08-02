@@ -11,7 +11,7 @@
 
 The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-There are fifteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+There are sixteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
 
 ---
 
@@ -121,7 +121,7 @@ There are fifteen decisions here. Some were obvious. Some took real thought. A f
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these fifteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+Phase 4 begins with these sixteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
 
@@ -179,7 +179,7 @@ Individual-level agricultural household survey — 30,312 individuals, sex and e
 
 **Not yet checked:** Whether this same silent single-sub-dataset-selection issue exists elsewhere, or whether FairGround is the only domain in FAPE built from a multi-sub-dataset corpus (fairground_loader.py itself contains many more than 5 datasets per earlier EDA work -- SELECTED_DATASETS is a curated subset of 5 chosen for Stage 2 specifically).
 
-## Decision 15 — ThresholdOptimizer Post-Constraint Values Are Non-Deterministic Despite random_state=42; Single-Run Point Estimates Are Not Reliable
+## Decision 15 — ThresholdOptimizer Post-Constraint Values Are Non-Deterministic Despite random_state=42; RESOLVED by Adding random_state to .predict()
 
 **Investigation (Aug 2 2026):** While verifying Decision 13's Law School AUC/DIR figures, live re-execution of stage2_lawschool_threshold.py was run twice in immediate succession. Baseline values (pre-constraint) were identical both times: GB AUC=0.878, DP_diff=0.351, EO_diff=0.528 -- confirming the underlying LR/RF/GB models train deterministically with random_state=42, as expected.
 
@@ -199,3 +199,20 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 **Required fix before Aug 19 pre-submission audit:** Replace every single-run post-constraint point estimate throughout paper_outline.md, cross_domain_results_table.md, and the Abstract with a mean +/- standard deviation computed across N repeated ThresholdOptimizer runs (e.g. N=10 or N=20) per domain per model per constraint type. This is standard practice for reporting results from any non-deterministic optimization procedure and is the only academically defensible way to present these numbers. A single run's numbers should not be published as if they were exact and reproducible when they are not.
 
 **Not optional, not a stylistic choice:** unlike Decisions 12 and 13 (where AUC-vs-accuracy was a reasonable, defensible choice either way) and Decision 14 (where renaming vs. recomputing FairGround were both legitimate paths), this finding has exactly one correct fix. Presenting known-nondeterministic single-run numbers as fixed point estimates in a submitted paper is a genuine methodological error that a careful reviewer could flag.
+
+**RESOLUTION (Aug 2 2026, same day):** Root cause found -- ThresholdOptimizer.predict() accepts an optional random_state parameter (confirmed via inspect.signature) that was not being passed in any of the 20 .predict() call sites across all 7 stage2_*_threshold.py scripts. Added random_state=42 to every call. Verified via 2 consecutive full-script runs per domain (all 7 domains checked) that every single reported number (baseline and post-constraint DPD, EOD, DIR, accuracy) is now exactly identical across repeated runs. This is a genuine fix, not a statistical workaround -- results are now truly deterministic and reproducible, matching the standard already achieved for model training via random_state=42 on the estimators themselves. The mean+/-std approach originally proposed above is no longer needed. All previously-documented single-run numbers throughout paper_outline.md and cross_domain_results_table.md need to be re-verified against these newly-deterministic values, since several point estimates (e.g. Law School DIR, previously observed as 0.945/0.951/0.964 across different pre-fix runs) will now differ from what was documented before this fix -- confirmed new deterministic Law School DIR after=0.957.
+
+---
+
+## Decision 16 — Law School RandomForest Baseline Value (0.801) Does Not Match Any Current Script Output; Source Unresolved
+
+**Investigation (Aug 2 2026):** While rebuilding the full 7-domain results table after fixing Decision 15 (ThresholdOptimizer determinism), discovered that stage2_lawschool_threshold.py's MODELS dict contains only LogisticRegression and GradientBoosting -- RandomForest is entirely absent from this script. Yet threshold_aggregation.py's Law School row reports RF=0.801, and paper_outline.md/cross_domain_results_table.md both cite this figure.
+
+**Ruled out:** Checked baseline_lawschool.py (the standalone baseline script) as a possible source -- its RandomForest AUC is 0.854, which does not match 0.801 either. So the documented RF=0.801 does not correspond to Stage 2 output (RF doesn't exist there) and does not correspond to the standalone baseline script's RF output (0.854, not 0.801).
+
+**Status: Open, unresolved.** The actual source of 0.801 is not currently known. Possible explanations not yet checked: (1) an earlier version of stage2_lawschool_threshold.py may have included RandomForest and was later removed, with the aggregation dict never updated to match; (2) 0.801 may originate from a notebook run, an ad-hoc script, or a manual calculation not currently in the committed codebase; (3) simple transcription error with no traceable source.
+
+**Required before Aug 19 pre-submission audit:** Either (a) add RandomForest to stage2_lawschool_threshold.py's MODELS dict, re-run, and use the genuinely-produced value, replacing 0.801 with whatever RF actually produces once added, or (b) if RF is intentionally excluded from Law School's Stage 2 analysis for a specific reason, remove the RF column/value for Law School throughout all tables rather than reporting an unverifiable number. Do not carry 0.801 forward into the final paper without resolving this.
+
+**Given the volume of findings tonight (Decisions 12-16) and to avoid runaway investigation on writing day, this is being logged rather than chased further right now.** Recommend a dedicated, focused session before Aug 19 to resolve this specific item, ideally starting from git blame/log history on stage2_lawschool_threshold.py to check whether RandomForest was ever present and removed.
+
