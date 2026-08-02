@@ -165,6 +165,8 @@ Individual-level agricultural household survey — 30,312 individuals, sex and e
 
 **Status:** The metric-mislabeling problem is real and confirmed (see Decision 14 for the FairGround sub-dataset issue found during this same investigation). The original transcription-error hypothesis was incorrect and is retracted here for the record.
 
+**Audit closure (Aug 2 2026, later same day):** All three affected domains individually re-verified live -- Law School AUC=0.878, Lending Club AUC=0.712, Agricultural AUC=0.938 -- each an exact match to threshold_aggregation.py's stored baseline_acc. Confirmed the DPD/EOD metrics carry no equivalent divergence risk: baseline_compas.py (and, by structural pattern, the other standalone baseline_*.py scripts) never compute DPD/EOD at all -- only the Stage2 scripts do, so there is no competing "other" DPD/EOD source to diverge from the way baseline accuracy had two independent sources. This closes the investigation: exactly 3 of 7 domains (Law School, Lending Club, Agricultural) need their baseline_acc column relabeled as AUC or their scripts extended to compute true accuracy before Aug 19 pre-submission audit; the other 4 (COMPAS, Folktables, FairGround, Student) are genuine accuracy and need no change on this front.
+
 ## Decision 14 — FairGround's Reported Baseline Is Silently One Sub-Dataset Out of Five (law_school_lequy), Not an Aggregate
 
 **Investigation (Aug 2 2026):** stage2_fairground_threshold.py iterates over five internal sub-datasets defined in SELECTED_DATASETS: adult (Income), compas_2_years (Criminal Justice), creditcard (Credit), law_school_lequy (Education), and meps_panel_19_fy2015 (Healthcare) -- each gets its own independently-trained baseline model and its own printed ACC/DPD/EOD block.
