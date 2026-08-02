@@ -8,17 +8,21 @@
 
 ## Table 1 — Baseline Accuracy (LR / RF / GB)
 
-| Domain | LR | RF | GB |
-|--------|----|----|-----|
-| COMPAS | 0.686 | 0.637 | 0.674 |
-| Folktables | 0.791 | 0.829 | 0.845 |
-| Law School | 0.745 | 0.801 | **0.878** |
-| Lending Club | 0.649 | 0.655 | 0.712 |
-| Agricultural | 0.904 | 0.921 | **0.938** |
-| FairGround | 0.819 | 0.871 | 0.910 |
-| Student | 0.633 | 0.648 | 0.658 |
+| Domain | LR | RF | GB | Metric |
+|--------|----|----|-----|--------|
+| COMPAS | 0.686 | 0.637 | 0.674 | Accuracy |
+| Folktables | 0.791 | 0.829 | 0.845 | Accuracy |
+| Law School | 0.745 | 0.801 | **0.878** | AUC¹ |
+| Lending Club | 0.649 | 0.655 | 0.712 | AUC¹ |
+| Agricultural | 0.904 | 0.921 | **0.938** | AUC¹ |
+| FairGround² | 0.819 | 0.871 | 0.910 | Accuracy |
+| Student | 0.633 | 0.648 | 0.658 | Accuracy |
 
-**Key finding:** GB highest baseline accuracy across all 7 domains. Largest gap: Law School (GB=0.878 vs LR=0.745). Agricultural highest absolute accuracy (GB=0.938). COMPAS lowest (GB=0.674).
+¹ Law School, Lending Club, and Agricultural's Stage 2 scripts report AUC, not classification accuracy, for their baseline model comparison. AUC is reported here rather than accuracy because these three scripts never compute accuracy_score for their pre-constraint baseline -- see methodology_decisions.md Decision 13. AUC is also the more appropriate metric for these domains given class imbalance (e.g. Law School is 90.2% positive).
+
+² FairGround's reported value is specifically the law_school_lequy sub-dataset within FairGround's five internally-evaluated sub-corpora (adult, compas_2_years, creditcard, law_school_lequy, meps_panel_19_fy2015) -- not an aggregate across all five. This sub-dataset happens to concern legal education admissions, distinct from FAPE's separate standalone Law School domain (lawschool_loader.py). See methodology_decisions.md Decision 14.
+
+**Key finding:** Across the 4 domains reporting true accuracy (COMPAS, Folktables, FairGround-law_school_lequy, Student), GB is highest in every case. Across the 3 domains reporting AUC (Law School, Lending Club, Agricultural), GB is also highest in every case. Because these are two different metrics, they are not directly comparable to each other as a single ranked list -- see footnote 1. Largest accuracy gap: FairGround-law_school_lequy is not directly comparable to standalone Law School's AUC figure, so no single largest-gap claim spans both metrics. Within true accuracy alone, Student shows the smallest LR-GB gap (0.633 vs 0.658).
 
 ---
 
@@ -111,7 +115,7 @@ COMPAS 6-group racial categorization reflects data collection, not endorsement.
 
 ## Paper Outline Section 5
 
-**Section 5.1 Baseline Accuracy:** Reference Table 1. Add: "GB achieves highest baseline accuracy across all 7 domains, with Agricultural (0.938) and FairGround (0.910) highest and COMPAS (0.674) lowest."
+**Section 5.1 Baseline Model Performance:** Reference Table 1. Add: "GB achieves the highest baseline performance across all 7 domains -- highest accuracy in the 4 domains reporting accuracy (Agricultural is not in this group; FairGround=0.910 is highest among these 4, specifically the law_school_lequy sub-dataset -- see Decision 14) and highest AUC in the 3 domains reporting AUC (Agricultural=0.938 is highest of these 3 -- see Decision 13). These two metrics are not directly comparable to each other."
 
 **Section 5.2 Post-DP DPD:** Reference Table 2. Add: "ThresholdOptimizer effectiveness is model-dependent within domains — COMPAS LR and RF worsen while GB improves; FairGround LR and RF worsen while GB achieves strongest reduction (92.4%). Effectiveness threshold: DPD>0.2 → GB effective; DPD<0.05 → counterproductive."
 

@@ -11,7 +11,7 @@
 
 The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-There are fourteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+There are fifteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
 
 ---
 
@@ -121,7 +121,7 @@ There are fourteen decisions here. Some were obvious. Some took real thought. A 
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these fourteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+Phase 4 begins with these fifteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
 
@@ -178,3 +178,24 @@ Individual-level agricultural household survey — 30,312 individuals, sex and e
 **Status:** Open, needs a decision before paper submission on one of two paths: (1) clarify in the paper that "FairGround" specifically refers to the law_school_lequy sub-dataset and rename the domain label accordingly to avoid the naming collision with the standalone Law School domain, or (2) recompute "FairGround" as a genuine aggregate/average across all five sub-datasets, which would change every baseline_acc, baseline_dpd, and baseline_eod value currently attributed to FairGround throughout cross_domain_results_table.md and paper_outline.md.
 
 **Not yet checked:** Whether this same silent single-sub-dataset-selection issue exists elsewhere, or whether FairGround is the only domain in FAPE built from a multi-sub-dataset corpus (fairground_loader.py itself contains many more than 5 datasets per earlier EDA work -- SELECTED_DATASETS is a curated subset of 5 chosen for Stage 2 specifically).
+
+## Decision 15 — ThresholdOptimizer Post-Constraint Values Are Non-Deterministic Despite random_state=42; Single-Run Point Estimates Are Not Reliable
+
+**Investigation (Aug 2 2026):** While verifying Decision 13's Law School AUC/DIR figures, live re-execution of stage2_lawschool_threshold.py was run twice in immediate succession. Baseline values (pre-constraint) were identical both times: GB AUC=0.878, DP_diff=0.351, EO_diff=0.528 -- confirming the underlying LR/RF/GB models train deterministically with random_state=42, as expected.
+
+**Finding:** Every post-constraint value differed between the two runs:
+- Post-DP DP_diff: 0.026 (run 1) vs 0.034 (run 2) vs 0.039 (documented in paper_outline.md/cross_domain_results_table.md)
+- Post-DP DP_improve: +0.325 vs +0.316 vs 88.9% reduction (documented)
+- Post-EO EO_diff: 0.024 vs 0.020 vs 0.031 (documented)
+- Post-EO EO_improve: +0.504 vs +0.508 vs 94.1% (documented)
+- Post-constraint DIR: 0.951 (first run) vs 0.964 (second run) vs 0.945 (documented in Abstract and Table 5)
+
+Several scripts already contain a comment acknowledging this ("Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0 -- results vary slightly between runs" -- present in stage2_lawschool_threshold.py, stage2_folktables_threshold.py, and stage2_lendingclub_threshold.py's live output) but this acknowledgment had not been connected to its consequence: every single-run post-constraint number currently published in paper_outline.md, cross_domain_results_table.md, and the Abstract itself is one sample from a distribution, not a fixed, exactly-reproducible value. random_state=42 controls model training (LogisticRegression, RandomForestClassifier, GradientBoostingClassifier) but does not control whatever internal randomization Fairlearn's ThresholdOptimizer.fit() performs during its own optimization step in this version (fairlearn 0.13.0).
+
+**Why this matters:** This is not a labeling or attribution problem like Decisions 12-14 -- it is a genuine reproducibility gap. A reviewer or reader re-running this exact code with the exact same seed will not get the exact published numbers back. The qualitative conclusions currently drawn (e.g. "Law School passes EEOC 4/5ths rule post-constraint," "88.9% DPD reduction") are directionally robust across the observed variation -- all three DIR runs (0.945, 0.951, 0.964) clear the EEOC>=0.8 threshold, and all three DPD reductions are in the 84-93% range -- but the specific point-estimate numbers currently written into the paper are not individually reproducible.
+
+**Scope:** Confirmed for Law School specifically tonight. Given the shared root cause (ThresholdOptimizer's internal behavior in fairlearn 0.13.0, not a per-domain script difference), this almost certainly affects all 7 domains' post-constraint DPD, EOD, and DIR values, and by extension every accuracy-cost figure computed from post-constraint accuracy. Not yet individually re-verified per domain -- flagged as a required check.
+
+**Required fix before Aug 19 pre-submission audit:** Replace every single-run post-constraint point estimate throughout paper_outline.md, cross_domain_results_table.md, and the Abstract with a mean +/- standard deviation computed across N repeated ThresholdOptimizer runs (e.g. N=10 or N=20) per domain per model per constraint type. This is standard practice for reporting results from any non-deterministic optimization procedure and is the only academically defensible way to present these numbers. A single run's numbers should not be published as if they were exact and reproducible when they are not.
+
+**Not optional, not a stylistic choice:** unlike Decisions 12 and 13 (where AUC-vs-accuracy was a reasonable, defensible choice either way) and Decision 14 (where renaming vs. recomputing FairGround were both legitimate paths), this finding has exactly one correct fix. Presenting known-nondeterministic single-run numbers as fixed point estimates in a submitted paper is a genuine methodological error that a careful reviewer could flag.
