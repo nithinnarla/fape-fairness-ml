@@ -11,7 +11,7 @@
 
 The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-There are eleven decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+There are fourteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
 
 ---
 
@@ -121,7 +121,7 @@ There are eleven decisions here. Some were obvious. Some took real thought. A fe
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these eleven decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+Phase 4 begins with these fourteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
 
@@ -142,3 +142,37 @@ Individual-level agricultural household survey — 30,312 individuals, sex and e
 **Future use:** Loader committed at src/lsms_loader.py for potential future international extension of FAPE's methodology to non-US agricultural contexts.
 
 **What USDA NASS descriptive figures show:** White producers hold 78.2M of total producers and 4.1B acres operated — structural dominance that contextualizes why agricultural lending fairness matters for minority farming communities despite the SBA loan proxy-based audit showing near-fair business type predictions.
+
+## Decision 12 — Key Findings Summary Lines Are Hardcoded, Not Recomputed
+
+**Decision:** Accept that threshold_aggregation.py's printed "Key Findings" summary (e.g. "GB best DP improvement: Law School", "LR most stable under constraints") are static strings written after one-time manual inspection of the results, not values computed dynamically from the results DataFrame.
+
+**Why this matters:** Live re-execution on Aug 1 2026 confirmed these five summary lines (lines 112-116, 236-237 of threshold_aggregation.py) currently match the underlying numbers exactly. But because they are hardcoded print statements rather than `df.idxmax()`/`df.idxmin()`-style dynamic assertions, they carry no structural guarantee of staying correct if the underlying data, seed, or sklearn version ever changes and the script is re-run. A future re-run with different results would still print the same conclusion text regardless of whether it remained true.
+
+**Why not fixed now:** Making these lines dynamic requires editing an already-verified, currently-correct script, which introduces its own re-verification burden for a benefit (protection against *future* drift) that doesn't change tonight's finding (the *current* claims are accurate). Deferred rather than risked mid-audit.
+
+**Action for future work:** Before final JASIST submission (Aug 19 pre-submission audit), either convert these five print statements to compute their claims dynamically from the results DataFrame, or explicitly note in the paper that these are researcher-verified single-run observations rather than programmatically asserted invariants.
+
+## Decision 13 — Aggregation Table Sources Metrics From stage2_*_threshold.py, Not baseline_*.py (Initially Misdiagnosed)
+
+**Original finding (Aug 2 2026, morning):** COMPAS's aggregation dict baseline_acc (0.674) did not match live output from baseline_compas.py (acc=0.703, auc=0.751), and was initially logged as a likely transcription error.
+
+**Correction (Aug 2 2026, afternoon):** Systematic re-verification across all 7 domains' stage2_*_threshold.py scripts found that threshold_aggregation.py's values match each domain's Stage 2 script's own internally-retrained baseline model -- NOT the standalone baseline_*.py script. COMPAS: stage2_compas_threshold.py prints baseline GradientBoosting ACC=0.674, an exact match. Folktables: stage2_folktables_threshold.py prints ACC=0.845, exact match. Student: stage2_student_threshold.py prints ACC=0.658, exact match.
+
+**Why this happens:** baseline_*.py and stage2_*_threshold.py are two independently-written scripts per domain that each fit their own baseline model (same random_state=42, but not necessarily identical train/test split construction or feature preprocessing). They can and do produce different accuracy figures for what is conceptually "the same" baseline. The aggregation table was built from Stage 2's internally-computed baseline, which is appropriate since Stage 2's before/after comparison needs its own consistent baseline -- but this means baseline_*.py's separately-reported numbers (used elsewhere, e.g. in EDA or standalone baseline discussion) are not always identical to the aggregation table's figures, even though both claim to describe "the baseline model" for that domain.
+
+**Remaining open issue (see Decision 14):** three domains' Stage 2 scripts (Law School, Lending Club, Agricultural) print AUC, not accuracy, for their baseline block -- meaning threshold_aggregation.py's "baseline_acc" column is genuinely accuracy for 4 domains (COMPAS, Folktables, FairGround, Student) and genuinely AUC for 3 domains (Law School, Lending Club, Agricultural), despite being presented under one column header and compared directly against each other in paper_outline.md Section 5.1's cross-domain ranking claim.
+
+**Status:** The metric-mislabeling problem is real and confirmed (see Decision 14 for the FairGround sub-dataset issue found during this same investigation). The original transcription-error hypothesis was incorrect and is retracted here for the record.
+
+## Decision 14 — FairGround's Reported Baseline Is Silently One Sub-Dataset Out of Five (law_school_lequy), Not an Aggregate
+
+**Investigation (Aug 2 2026):** stage2_fairground_threshold.py iterates over five internal sub-datasets defined in SELECTED_DATASETS: adult (Income), compas_2_years (Criminal Justice), creditcard (Credit), law_school_lequy (Education), and meps_panel_19_fy2015 (Healthcare) -- each gets its own independently-trained baseline model and its own printed ACC/DPD/EOD block.
+
+**Finding:** threshold_aggregation.py's single "FairGround" row (baseline_acc=0.910, baseline_dpd=0.342, baseline_eod=0.518) is an exact match to only the law_school_lequy sub-dataset's GradientBoosting results. It is not an average, weighted combination, or representative summary across the five sub-datasets -- it is specifically and only the Education/law-school sub-corpus's numbers, silently presented under the "FairGround" domain label.
+
+**Why this matters:** The other four sub-datasets produce meaningfully different baseline accuracy (adult=0.871, compas_2_years=0.995, creditcard=0.819, meps_panel_19_fy2015=0.992) -- so which sub-dataset gets reported as "FairGround" materially changes the number that appears in the cross-domain comparison table and any paper claims built on it. Additionally, law_school_lequy as FairGround's representative sub-dataset creates a naming collision with FAPE's separate, standalone Law School domain (a different dataset, loaded via lawschool_loader.py, not FairGround's internal law_school_lequy) -- two different datasets both touching on legal education admissions data, one reported as "Law School" and one silently embedded inside "FairGround," is a source of real confusion in interpreting the paper's 7-domain claim.
+
+**Status:** Open, needs a decision before paper submission on one of two paths: (1) clarify in the paper that "FairGround" specifically refers to the law_school_lequy sub-dataset and rename the domain label accordingly to avoid the naming collision with the standalone Law School domain, or (2) recompute "FairGround" as a genuine aggregate/average across all five sub-datasets, which would change every baseline_acc, baseline_dpd, and baseline_eod value currently attributed to FairGround throughout cross_domain_results_table.md and paper_outline.md.
+
+**Not yet checked:** Whether this same silent single-sub-dataset-selection issue exists elsewhere, or whether FairGround is the only domain in FAPE built from a multi-sub-dataset corpus (fairground_loader.py itself contains many more than 5 datasets per earlier EDA work -- SELECTED_DATASETS is a curated subset of 5 chosen for Stage 2 specifically).
