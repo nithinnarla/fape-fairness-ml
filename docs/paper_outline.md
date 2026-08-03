@@ -114,7 +114,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 ### 3.3 Baseline Models
 - LR, RF, GB with default hyperparameters across all domains
 - Identical architecture isolates fairness intervention as the variable
-- GB achieves the highest baseline performance across all 7 domains: highest classification accuracy in the 4 domains where accuracy is computed (COMPAS, Folktables, FairGround, Student), and highest AUC in the 3 domains where AUC is the only baseline metric available (Law School, Lending Club, Agricultural) -- see Section 5.1 and methodology_decisions.md Decision 13
+- Baseline performance is model-dependent, not uniformly GB-dominant: GB achieves highest AUC in all 3 AUC-only domains (Law School, Lending Club, Agricultural), but among the 4 true-accuracy domains GB wins in 2 (Folktables, Student) while LogisticRegression wins in 2 (COMPAS, FairGround/law_school_lequy) -- see Section 5.1 and methodology_decisions.md Decisions 13 and 18
 
 ### 3.4 Fairness Intervention
 - ThresholdOptimizer (Fairlearn) — post-processing threshold optimization
@@ -153,7 +153,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 ## 5. Results (~1200 words)
 
 ### 5.1 Baseline Model Performance
-- GB > RF > LR across all 7 domains, on whichever metric that domain's Stage 2 script reports
+- No single model dominates across all 7 domains -- GB wins baseline AUC in all 3 AUC-only domains, but among the 4 true-accuracy domains GB wins 2 (Folktables, Student) and LR wins 2 (COMPAS, FairGround/law_school_lequy); RF is never highest in any domain -- see Decision 18
 - 4 domains report true classification accuracy: COMPAS (GB=0.674, lowest of these 4 -- 6-group racial classification challenge), Folktables (GB=0.845), FairGround (GB=0.910, specifically the law_school_lequy sub-dataset -- see Decision 14), Student (GB=0.658)
 - 3 domains report AUC rather than accuracy, since their Stage 2 scripts never compute accuracy_score for the baseline model -- see Decision 13: Law School (GB=0.878, largest LR-GB gap within this group at GB=0.878 vs LR=0.745), Lending Club (GB=0.712), Agricultural (GB=0.938, highest AUC of these 3)
 - These two groups use different metrics and are not directly ranked against each other as a single ordered list; within-group comparisons (accuracy-to-accuracy, AUC-to-AUC) are valid, cross-group comparisons are not
@@ -191,7 +191,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - Effectiveness is model-dependent within domains — not just domain-dependent
 - No single model dominates across all domains — domain-specific selection required
 - LR most stable: smallest accuracy cost, fewest counterproductive outcomes
-- GB highest baseline performance across metric groups but most aggressive — highest accuracy cost in FairGround (0.159, law_school_lequy sub-dataset)
+- GB is not uniformly highest baseline performance (see Decision 18) but is the most aggressive under constraints — highest accuracy cost in FairGround (0.159, law_school_lequy sub-dataset)
 
 ### 5.6 Accuracy-Fairness Tradeoff
 - FairGround GB: highest accuracy cost (0.159 ⚠️) — strongest fairness gain

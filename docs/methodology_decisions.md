@@ -11,7 +11,7 @@
 
 The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-There are seventeen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+There are eighteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
 
 ---
 
@@ -121,7 +121,7 @@ There are seventeen decisions here. Some were obvious. Some took real thought. A
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these seventeen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+Phase 4 begins with these eighteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
 
@@ -242,3 +242,13 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 **Rebuild attempt and final scope finding (Aug 3 2026):** Captured complete, verified, deterministic LR/RF/GB baseline+DP+EO output for all 7 domains directly from the now-fixed Stage 2 scripts (post Decision 15 fix). This data is confirmed correct and ready to use -- see git history for the full captured dataset. Attempted to write it into threshold_aggregation.py's RESULTS dict, marking RandomForest as None for Law School/Lending Club/Agricultural and renaming FairGround and Student to their specific sub-dataset/sub-subject. Two structural problems surfaced during this attempt, beyond just updating the dict: (1) every downstream loop in threshold_aggregation.py assumes all 3 models exist for every domain -- fixed via a safe_get()/fmt() helper pair for the print-statement logic. (2) Figure 1 (baseline accuracy bar chart) cannot be patched the same way -- it plots 'accuracy' as a single unified y-axis metric across all 7 domains, but 3 of those domains store AUC, not accuracy (Decision 13), so plotting them on the same axis would be scientifically misleading even after fixing the None-handling crash. This requires an actual figure redesign (e.g. splitting into two panels, one for the 4 true-accuracy domains and one for the 3 AUC domains), not a data fix.
 
 **Decision:** Reverted threshold_aggregation.py to its original (pre-fix) state rather than ship a partially-patched script with a scientifically confusing figure. The verified 7-domain dataset captured tonight is preserved in this document's git history and is ready to be dropped into a properly redesigned script. Full script + figure rebuild remains correctly scoped to a dedicated pre-Aug-19 session, now with the complete data already in hand and the exact structural blockers identified precisely -- the next session should not need to re-derive any of tonight's numbers, only implement the None-safe logic throughout the script and redesign Figure 1 to correctly separate the two metric types.
+
+## Decision 18 — "GB Achieves Highest Baseline Accuracy Across All 7 Domains" Is False; Never Actually Verified Until Tonight
+
+**Investigation (Aug 3 2026):** While finishing the threshold_aggregation.py rebuild (adding computed Key Findings logic to replace the hardcoded strings flagged in Decision 12), the new computed check revealed that GB does NOT win baseline accuracy/AUC in all 7 domains -- it wins in 2 of 4 true-accuracy domains (Folktables, Student) and all 3 AUC-only domains (Law School, Lending Club, Agricultural), but LOSES to LogisticRegression in COMPAS (LR=0.686 vs GB=0.674) and FairGround/law_school_lequy (LR=0.913 vs GB=0.910).
+
+**Why this was never caught:** Every prior check tonight (Decisions 13, 16, 17) verified whether GB's specific documented NUMBER matched live script output -- it never checked whether GB was actually the BEST-performing model in each domain. The claim "GB achieves highest baseline accuracy across all 7 domains" (present in paper_outline.md Section 3.3, Section 5.1, and cross_domain_results_table.md's Key Finding) is a comparative claim across models, not a single-number verification, and nothing in tonight's audit -- or apparently at any point before tonight -- actually computed this comparison. GB's individual numbers were correct; the comparative claim built on top of them was not.
+
+**Status:** Confirmed false as currently written. paper_outline.md and cross_domain_results_table.md both need this claim corrected to reflect the real pattern: GB wins 5 of 7 domains (or however the comparison should be properly framed given the accuracy/AUC split from Decision 13), LR wins 2 of 7 (COMPAS, FairGround/law_school_lequy). This is not a rebuild-scope item like Decision 17 -- it is a direct, false claim in the paper's current text that must be corrected before Aug 19, independent of whether the full Table 1 rebuild is finished.
+
+**Broader implication:** This raises real doubt about whether other comparative claims in paper_outline.md (e.g. "LR most stable under constraints," "RF intermediate performance") were ever actually verified computationally, or were similarly asserted without checking. All comparative claims in Section 5 should be treated as unverified until each is checked the same way this one just was.

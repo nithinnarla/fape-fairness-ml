@@ -115,7 +115,7 @@ COMPAS 6-group racial categorization reflects data collection, not endorsement.
 
 ## Paper Outline Section 5
 
-**Section 5.1 Baseline Model Performance:** Reference Table 1. Add: "GB achieves the highest baseline performance across all 7 domains -- highest accuracy in the 4 domains reporting accuracy (Agricultural is not in this group; FairGround=0.910 is highest among these 4, specifically the law_school_lequy sub-dataset -- see Decision 14) and highest AUC in the 3 domains reporting AUC (Agricultural=0.938 is highest of these 3 -- see Decision 13). These two metrics are not directly comparable to each other."
+**Section 5.1 Baseline Model Performance:** Reference Table 1. Add: "Baseline performance is model-dependent, not uniformly GB-dominant. GB achieves the highest AUC in all 3 AUC-only domains (Law School, Lending Club, Agricultural=0.938 highest of these 3 -- see Decision 13). Among the 4 true-accuracy domains, GB wins in 2 (Folktables=0.845, Student/math=0.658) while LogisticRegression wins in 2 (COMPAS: LR=0.686 vs GB=0.674; FairGround/law_school_lequy: LR=0.913 vs GB=0.910 -- see Decisions 14 and 18). Accuracy and AUC are not directly comparable to each other, and no single model dominates across the full 7-domain comparison."
 
 **Section 5.2 Post-DP DPD:** Reference Table 2. Add: "ThresholdOptimizer effectiveness is model-dependent within domains — COMPAS LR and RF worsen while GB improves; FairGround LR and RF worsen while GB achieves strongest reduction (92.4%). Effectiveness threshold: DPD>0.2 → GB effective; DPD<0.05 → counterproductive."
 
