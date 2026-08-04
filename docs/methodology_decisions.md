@@ -11,7 +11,7 @@
 
 The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-There are eighteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+There are nineteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
 
 ---
 
@@ -121,7 +121,7 @@ There are eighteen decisions here. Some were obvious. Some took real thought. A 
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these eighteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+Phase 4 begins with these nineteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
 
@@ -252,3 +252,17 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 **Status:** Confirmed false as currently written. paper_outline.md and cross_domain_results_table.md both need this claim corrected to reflect the real pattern: GB wins 5 of 7 domains (or however the comparison should be properly framed given the accuracy/AUC split from Decision 13), LR wins 2 of 7 (COMPAS, FairGround/law_school_lequy). This is not a rebuild-scope item like Decision 17 -- it is a direct, false claim in the paper's current text that must be corrected before Aug 19, independent of whether the full Table 1 rebuild is finished.
 
 **Broader implication:** This raises real doubt about whether other comparative claims in paper_outline.md (e.g. "LR most stable under constraints," "RF intermediate performance") were ever actually verified computationally, or were similarly asserted without checking. All comparative claims in Section 5 should be treated as unverified until each is checked the same way this one just was.
+
+## Decision 19 — "DPD>0.2 Effective, DPD<0.05 Counterproductive" Effectiveness Threshold Is False as a Clean Rule; Has Real Exceptions in 2 of 7 Domains
+
+**Investigation (Aug 4 2026):** While verifying claims for the paper's Introduction section, checked the outline's stated "core empirical finding" -- ThresholdOptimizer is effective when baseline DPD > 0.2 and counterproductive when baseline DPD < 0.05 -- against GB's genuine baseline and post-DP DPD values across all 7 domains, extracted directly from the rebuilt RESULTS dictionary (see Decision 17).
+
+**Finding:** The rule holds for 5 of 7 domains but has two direct exceptions:
+- Folktables: baseline DPD=0.320 (>0.2, predicted effective) -> post-DP DPD=0.339, a +5.9% INCREASE. The intervention made fairness worse despite baseline DPD exceeding the "effective" threshold.
+- Lending Club: baseline DPD=0.024 (<0.05, predicted counterproductive) -> post-DP DPD=0.018, a -25% IMPROVEMENT. The intervention helped despite baseline DPD falling below the "counterproductive" threshold.
+
+Domains where the rule does hold: COMPAS (0.857->0.571, improved), Law School (0.351->0.030, improved), FairGround (0.342->0.014, improved), Agricultural (0.009->0.031, worsened as predicted). Student (0.237->0.215) is a weak, borderline improvement (-9.3%) that technically fits but doesn't strongly confirm the rule either.
+
+**Why this matters:** Like Decision 18, this is a claim about a pattern across the 7-domain comparison that was asserted as a clean empirical finding without the actual baseline-DPD-vs-post-DP-DPD comparison being run domain-by-domain against the real, deterministic (Decision 15-fixed) data. 2 of 7 exceptions is a real failure rate for a rule being presented as a general threshold in the paper's Introduction and Results sections.
+
+**Status:** The threshold is a real, directionally useful heuristic for roughly 5 of 7 domains, not a universal rule. paper_outline.md (Introduction Section 1.3, Results Section 5.2) and the drafted Introduction text need to state this with the correct caveat -- effectiveness depends on domain-specific factors beyond baseline DPD alone, with Folktables and Lending Club as documented exceptions -- rather than presenting a clean two-threshold rule as if it held universally across all 7 domains.

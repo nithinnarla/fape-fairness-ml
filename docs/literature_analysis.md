@@ -182,7 +182,7 @@ FAIRNESS THEORY CLUSTER
 PRODUCTION FAILURE CLUSTER
 ├── Sculley et al. 2015 — ML technical debt
 │   └── production systems degrade silently
-├── Ajarra et al. 2023 — fairness drift in production
+├── Ajarra et al. 2026 — fairness drift in production
 │   └── confirms Sculley for fairness specifically
 └── Obermeyer et al. 2019 — proxy variable bias
     └── bias propagates through cost proxies — healthcare

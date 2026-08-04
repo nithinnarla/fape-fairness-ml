@@ -51,7 +51,7 @@ cross-domain monitoring rather than point-in-time evaluation.
 1. First systematic cross-domain evaluation of ThresholdOptimizer across 7 real deployment contexts
 2. Simultaneous 4-metric evaluation (DPD, EOD, DIR, accuracy cost) — single-metric papers miss tradeoffs
 3. CUSUM-based continuous drift detection for post-deployment fairness monitoring
-4. Empirical effectiveness threshold: DPD > 0.2 effective; DPD < 0.05 counterproductive
+4. Empirical effectiveness pattern: DPD > 0.2 effective and DPD < 0.05 counterproductive in 5 of 7 domains, with Folktables and Lending Club as documented exceptions -- see Decision 19
 
 ### 1.4 Paper Organization
 Section 2: Related work. Section 3: Methodology. Section 4: Experimental setup.
@@ -185,9 +185,9 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - Note: DIR not aggregated cross-domain — sensitive attributes differ per domain
 
 ### 5.5 Cross-Domain Comparison
-- Core empirical finding: effectiveness threshold
-  - DPD > 0.2 at baseline → ThresholdOptimizer effective (GB most reliable)
-  - DPD < 0.05 at baseline → ThresholdOptimizer counterproductive
+- Core empirical finding: effectiveness pattern, not a universal rule (Decision 19)
+  - DPD > 0.2 at baseline → ThresholdOptimizer effective in 3 of 4 such domains (COMPAS, Law School, FairGround); Folktables is the exception, where it got worse (+5.9%)
+  - DPD < 0.05 at baseline → ThresholdOptimizer counterproductive in 1 of 2 such domains (Agricultural); Lending Club is the exception, where it improved (-25%)
 - Effectiveness is model-dependent within domains — not just domain-dependent
 - No single model dominates across all domains — domain-specific selection required
 - LR most stable: smallest accuracy cost, fewest counterproductive outcomes
@@ -243,7 +243,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 ## 7. Conclusion (~300 words)
 - FAPE: first systematic cross-domain fairness evaluation across 7 real deployment contexts
 - ThresholdOptimizer effectiveness is domain-dependent — not universally applicable
-- Empirical effectiveness threshold: DPD > 0.2 effective; DPD < 0.05 counterproductive
+- Empirical effectiveness pattern: DPD > 0.2 effective and DPD < 0.05 counterproductive in 5 of 7 domains, with Folktables and Lending Club as documented exceptions -- see Decision 19
 - No single model dominates — domain-specific model selection required
 - DIR reveals overcorrection cases that DPD alone misses
 - CUSUM drift detection: production fairness requires continuous monitoring
