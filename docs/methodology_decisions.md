@@ -1,9 +1,9 @@
-# FAPE — Methodology Decisions Log
+# FAPE, Methodology Decisions Log
 ## Key Decisions Before Phase 4 Implementation
 
-**Period:** February 2026 — May 2026
+**Period:** February 2026, May 2026
 **Researcher:** Nithin Narla
-**Status:** Complete — decisions locked before Phase 4 experiments begin
+**Status:** Complete, decisions locked before Phase 4 experiments begin
 
 ---
 
@@ -11,35 +11,35 @@
 
 The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-There are nineteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with — I've noted those explicitly.
+There are nineteen decisions here. Some were obvious. Some took real thought. A few I'm still not fully comfortable with, I've noted those explicitly.
 
 ---
 
-## Decision 1 — Post-Processing Over In-Processing or Pre-Processing
+## Decision 1, Post-Processing Over In-Processing or Pre-Processing
 
 **Decision:** Use Fairlearn ThresholdOptimizer (post-processing) as the fairness intervention.
 
-**Why:** In-processing requires modifying the training pipeline — which assumes you own the training pipeline. In eight years of production ML I have never inherited a system where I could modify training. Post-processing works on any model regardless of how it was built. That's the only approach deployable in the environments FAPE is designed for.
+**Why:** In-processing requires modifying the training pipeline, which assumes you own the training pipeline. In eight years of production ML I have never inherited a system where I could modify training. Post-processing works on any model regardless of how it was built. That's the only approach deployable in the environments FAPE is designed for.
 
-**What I gave up:** In-processing can achieve better accuracy-fairness tradeoffs because the fairness constraint is built into training. Post-processing applies the constraint after the fact and can only adjust decision thresholds — it can't change what the model learned. The paper will acknowledge this tradeoff explicitly.
+**What I gave up:** In-processing can achieve better accuracy-fairness tradeoffs because the fairness constraint is built into training. Post-processing applies the constraint after the fact and can only adjust decision thresholds, it can't change what the model learned. The paper will acknowledge this tradeoff explicitly.
 
 ---
 
-## Decision 2 — Default Hyperparameters for LR, RF, GB Across All Domains
+## Decision 2, Default Hyperparameters for LR, RF, GB Across All Domains
 
 **Decision:** Use identical default hyperparameters for LogisticRegression, RandomForestClassifier, and GradientBoostingClassifier (sklearn) across all seven domains with no domain-specific tuning.
 
-**Why:** The research question is causal — does the fairness intervention cause bias reduction? If I tune separately per domain, accuracy differences across domains could reflect tuning rather than genuine domain variation. Default hyperparameters keep the experimental design clean and isolate the fairness intervention as the variable of interest.
+**Why:** The research question is causal, does the fairness intervention cause bias reduction? If I tune separately per domain, accuracy differences across domains could reflect tuning rather than genuine domain variation. Default hyperparameters keep the experimental design clean and isolate the fairness intervention as the variable of interest.
 
-**What I gave up:** Accuracy numbers will be lower than they could be with tuning. A reviewer might push back on this. The response is that optimized accuracy is not the variable of interest — the fairness intervention is. Domain-specific accuracy comparison is a different paper.
+**What I gave up:** Accuracy numbers will be lower than they could be with tuning. A reviewer might push back on this. The response is that optimized accuracy is not the variable of interest, the fairness intervention is. Domain-specific accuracy comparison is a different paper.
 
-**Note:** XGBoost was considered but excluded — sklearn GradientBoostingClassifier provides sufficient performance with simpler reproducibility and no additional dependency.
+**Note:** XGBoost was considered but excluded, sklearn GradientBoostingClassifier provides sufficient performance with simpler reproducibility and no additional dependency.
 
 ---
 
-## Decision 3 — Chouldechova Constraint Acknowledged Throughout
+## Decision 3, Chouldechova Constraint Acknowledged Throughout
 
-**Decision:** Every result section explicitly acknowledges the impossibility theorem constraint — cannot simultaneously satisfy equalized odds and calibration when base rates differ.
+**Decision:** Every result section explicitly acknowledges the impossibility theorem constraint, cannot simultaneously satisfy equalized odds and calibration when base rates differ.
 
 **Why:** The COMPAS data shows different recidivism base rates by race. The impossibility theorem applies. Any experiment that reports improved equalized odds is implicitly reporting degraded calibration. Hiding this would mean claiming fairness achievement in a situation where the math proves it's impossible to achieve all fairness properties simultaneously.
 
@@ -47,73 +47,73 @@ There are nineteen decisions here. Some were obvious. Some took real thought. A 
 
 ---
 
-## Decision 4 — Four Metrics Reported Simultaneously, No Primary Metric
+## Decision 4, Four Metrics Reported Simultaneously, No Primary Metric
 
-**Decision:** Report demographic parity difference (DPD), equalized odds difference (EOD), disparate impact ratio (DIR), and accuracy cost for every experiment. No single metric designated as primary. Individual fairness score excluded — see Decision 9.
+**Decision:** Report demographic parity difference (DPD), equalized odds difference (EOD), disparate impact ratio (DIR), and accuracy cost for every experiment. No single metric designated as primary. Individual fairness score excluded, see Decision 9.
 
-**Why:** Sariola et al. (2026) showed optimizing for one metric can mask 10% disparity on another. Designating a primary metric would invite the paper to be read as optimizing for that metric specifically — which would make the results misleading. All four reported, practitioners decide which matters in their regulatory context.
+**Why:** Sariola et al. (2026) showed optimizing for one metric can mask 10% disparity on another. Designating a primary metric would invite the paper to be read as optimizing for that metric specifically, which would make the results misleading. All four reported, practitioners decide which matters in their regulatory context.
 
 **What I gave up:** Clean headline results. "FAPE improves demographic parity by X%" is a cleaner claim than four tradeoff curves. The paper will be harder to summarize in an abstract. That's the right tradeoff.
 
 ---
 
-## Decision 5 — Cross-Domain Comparison as Central Contribution
+## Decision 5, Cross-Domain Comparison as Central Contribution
 
 **Decision:** The primary empirical contribution is cross-domain comparison of fairness metric behavior, not within-domain improvement over a baseline.
 
-**Why:** Within-domain improvement over a baseline is what every other fairness paper does. The gap FAPE fills is the cross-domain question — do interventions that work in criminal justice also work in education, financial services, and agricultural contexts? That's the question nobody has answered empirically.
+**Why:** Within-domain improvement over a baseline is what every other fairness paper does. The gap FAPE fills is the cross-domain question, do interventions that work in criminal justice also work in education, financial services, and agricultural contexts? That's the question nobody has answered empirically.
 
-**Risk:** Cross-domain comparison requires the experimental design to hold constant everything except the domain — which is why Decisions 2 and 1 above are locked in. If I loosen those constraints, the cross-domain comparison becomes uninterpretable.
+**Risk:** Cross-domain comparison requires the experimental design to hold constant everything except the domain, which is why Decisions 2 and 1 above are locked in. If I loosen those constraints, the cross-domain comparison becomes uninterpretable.
 
 ---
 
-## Decision 6 — Agricultural Domain Included Despite Literature Absence
+## Decision 6, Agricultural Domain Included Despite Literature Absence
 
 **Decision:** Include three agricultural datasets as a distinct domain in the cross-domain evaluation.
 
-**Why:** I searched for fairness papers on agricultural lending and farm household outcomes. Nothing exists. The populations affected — small farmers, agricultural loan applicants, LSMS-ISA farm households in Nigeria — are invisible in a literature that claims to address fairness in high-stakes algorithmic decisions. Including this domain is both a methodological contribution and a statement about whose fairness the field has been ignoring.
+**Why:** I searched for fairness papers on agricultural lending and farm household outcomes. Nothing exists. The populations affected, small farmers, agricultural loan applicants, LSMS-ISA farm households in Nigeria, are invisible in a literature that claims to address fairness in high-stakes algorithmic decisions. Including this domain is both a methodological contribution and a statement about whose fairness the field has been ignoring.
 
 **Risk:** Reviewers may push back on agricultural domain inclusion as outside FAPE's stated scope. The response is that the scope is defined by where consequential algorithmic decisions are being made, not by where previous fairness papers have looked.
 
 ---
 
-## Decision 7 — Synthetic Distribution Shift for Stage 4 Validation
+## Decision 7, Synthetic Distribution Shift for Stage 4 Validation
 
 **Decision:** Use synthetic distribution shift to validate Stage 4 CUSUM drift detection rather than real production data.
 
-**Why:** I don't have access to a live production system. This is a real limitation — Stage 4 validation is controlled rather than real-world. The drift detection results are proof-of-concept.
+**Why:** I don't have access to a live production system. This is a real limitation, Stage 4 validation is controlled rather than real-world. The drift detection results are proof-of-concept.
 
-**Comfort level:** Low. This is the weakest methodological choice in FAPE. The paper will acknowledge it directly. The alternative was to not include Stage 4 at all — which would mean not addressing the production monitoring gap that motivated Stage 4's existence. Proof-of-concept is better than absence.
+**Comfort level:** Low. This is the weakest methodological choice in FAPE. The paper will acknowledge it directly. The alternative was to not include Stage 4 at all, which would mean not addressing the production monitoring gap that motivated Stage 4's existence. Proof-of-concept is better than absence.
 
 ---
 
-## Decision 8 — Folktables ACS Over Adult Income
+## Decision 8, Folktables ACS Over Adult Income
 
 **Decision:** Use Folktables ACS as the socioeconomic benchmark, not Adult Income.
 
 **Why:** Ding et al. (2021) documented Adult Income's methodological flaws. Using it in 2026 after that finding is indefensible. Folktables ACS uses US Census data, covers all 50 states, provides multiple prediction tasks, and is 30x larger.
 
-**What I gave up:** Comparability with prior work. Results on Folktables ACS cannot be directly compared to results on Adult Income — different data, different task framing, different population. The paper will acknowledge this rather than treating the benchmark switch as costless.
+**What I gave up:** Comparability with prior work. Results on Folktables ACS cannot be directly compared to results on Adult Income, different data, different task framing, different population. The paper will acknowledge this rather than treating the benchmark switch as costless.
 
 ---
 
-## Decision 9 — Individual Fairness Score Excluded; Replaced with Accuracy Cost
+## Decision 9, Individual Fairness Score Excluded; Replaced with Accuracy Cost
 
 **Decision:** Exclude individual fairness score (IFS) from FAPE's evaluation metrics. Replace with accuracy cost (baseline_acc minus constrained_acc) as the fourth metric alongside DPD, EOD, and DIR.
 
-**Why:** IFS requires a validated similarity metric between individuals — a domain-specific requirement that cannot be generalized across FAPE's seven domains without introducing domain-specific assumptions that undermine the cross-domain comparison. Computing IFS on COMPAS requires a different similarity function than on Lending Club or Student Performance. Including IFS would force domain-specific methodology that contradicts FAPE's central contribution.
+**Why:** IFS requires a validated similarity metric between individuals, a domain-specific requirement that cannot be generalized across FAPE's seven domains without introducing domain-specific assumptions that undermine the cross-domain comparison. Computing IFS on COMPAS requires a different similarity function than on Lending Club or Student Performance. Including IFS would force domain-specific methodology that contradicts FAPE's central contribution.
 
-**What I gave up:** IFS is foundational (Dwork et al. 2012) and excluding it may invite reviewer questions. The response is that accuracy cost is a more practically meaningful fourth metric for production ML auditing — it directly quantifies the fairness-accuracy tradeoff that practitioners face.
+**What I gave up:** IFS is foundational (Dwork et al. 2012) and excluding it may invite reviewer questions. The response is that accuracy cost is a more practically meaningful fourth metric for production ML auditing, it directly quantifies the fairness-accuracy tradeoff that practitioners face.
 
 **Comfort level:** High. Accuracy cost is computed directly from committed results, fully reproducible, and maps to a real deployment concern. IFS is deferred to future work with domain-specific similarity metrics.
 
 ---
 
-## Decision 10 — MIMIC-III Included as Pending
+## Decision 10, MIMIC-III Included as Pending
 
 **Decision:** Include MIMIC-III healthcare domain in the framework design with a pending access note rather than excluding healthcare entirely.
 
-**Why:** Obermeyer et al. (2019) documented the most consequential fairness failure mechanism in the healthcare domain — cost as proxy for health need. Excluding healthcare from FAPE entirely because of access delays would mean the framework doesn't address the domain where the evidence for its value is strongest.
+**Why:** Obermeyer et al. (2019) documented the most consequential fairness failure mechanism in the healthcare domain, cost as proxy for health need. Excluding healthcare from FAPE entirely because of access delays would mean the framework doesn't address the domain where the evidence for its value is strongest.
 
 **Implementation:** MIMIC-III loader is built and tested. PhysioNet access is pending. If access comes through before writing time, healthcare results are included. If not, the paper includes the loader, describes the methodology, and notes the access gap explicitly. Either way the framework design includes healthcare.
 
@@ -121,29 +121,29 @@ There are nineteen decisions here. Some were obvious. Some took real thought. A 
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these nineteen decisions fixed. The experiments cannot change the methodology — they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
+Phase 4 begins with these nineteen decisions fixed. The experiments cannot change the methodology, they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
 
 That's the standard I'm holding FAPE to.
 
-## Decision 11 — Agricultural Dataset Scope: USDA NASS and LSMS-ISA Nigeria Evaluated and Excluded from ML Pipeline
+## Decision 11, Agricultural Dataset Scope: USDA NASS and LSMS-ISA Nigeria Evaluated and Excluded from ML Pipeline
 
 **Decision:** Include only SBA 7(a) Agricultural Loans in FAPE's ML fairness pipeline. USDA NASS 2022 Census included descriptively in EDA only. LSMS-ISA Nigeria excluded entirely from ML pipeline.
 
 **USDA NASS 2022 Agricultural Census:**
-USDA NASS provides aggregate census counts of US agricultural producers by race group — 6 race groups including American Indian/Alaska Native (1,533,317 producers), Asian (601,476), Black/African American (1,049,156), Hispanic (2,114,132), White (78,199,536), and Native Hawaiian/Pacific Islander (71,197 operations). This is the only US dataset with direct race data for agricultural producers. However, USDA NASS is aggregate summary data — not individual records. Cannot run logistic regression, gradient boosting, or ThresholdOptimizer on 6 rows of race group counts. Included descriptively in EDA notebook (Figure 12) to characterize racial composition of US agricultural producers and motivate why agricultural lending fairness matters. Loader committed at src/usda_nass_loader.py.
+USDA NASS provides aggregate census counts of US agricultural producers by race group, 6 race groups including American Indian/Alaska Native (1,533,317 producers), Asian (601,476), Black/African American (1,049,156), Hispanic (2,114,132), White (78,199,536), and Native Hawaiian/Pacific Islander (71,197 operations). This is the only US dataset with direct race data for agricultural producers. However, USDA NASS is aggregate summary data, not individual records. Cannot run logistic regression, gradient boosting, or ThresholdOptimizer on 6 rows of race group counts. Included descriptively in EDA notebook (Figure 12) to characterize racial composition of US agricultural producers and motivate why agricultural lending fairness matters. Loader committed at src/usda_nass_loader.py.
 
 **Why not ML:** ThresholdOptimizer requires one row per individual with a binary outcome. USDA NASS has one row per race group with aggregate counts. Mathematically incompatible with any ML fairness intervention.
 
 **LSMS-ISA Nigeria GHS-Panel Wave 4 (World Bank):**
-Individual-level agricultural household survey — 30,312 individuals, sex and education as sensitive attributes, food security as binary target (48.9% positive rate). Data loads correctly via src/lsms_loader.py. ML pipeline is technically feasible.
+Individual-level agricultural household survey, 30,312 individuals, sex and education as sensitive attributes, food security as binary target (48.9% positive rate). Data loads correctly via src/lsms_loader.py. ML pipeline is technically feasible.
 
-**Why excluded:** FAPE's scope is US production ML pipeline fairness auditing under ECOA/EEOC regulatory frameworks. LSMS Nigeria targets food security outcomes in Nigeria — a different regulatory context (no ECOA, no EEOC), different country, different outcome variable. Including it would require reframing FAPE's contribution away from US regulatory compliance auditing. A reviewer would correctly ask: "Why is a Nigeria household survey in a paper about US ML fairness?" No defensible answer exists within FAPE's current framing.
+**Why excluded:** FAPE's scope is US production ML pipeline fairness auditing under ECOA/EEOC regulatory frameworks. LSMS Nigeria targets food security outcomes in Nigeria, a different regulatory context (no ECOA, no EEOC), different country, different outcome variable. Including it would require reframing FAPE's contribution away from US regulatory compliance auditing. A reviewer would correctly ask: "Why is a Nigeria household survey in a paper about US ML fairness?" No defensible answer exists within FAPE's current framing.
 
 **Future use:** Loader committed at src/lsms_loader.py for potential future international extension of FAPE's methodology to non-US agricultural contexts.
 
-**What USDA NASS descriptive figures show:** White producers hold 78.2M of total producers and 4.1B acres operated — structural dominance that contextualizes why agricultural lending fairness matters for minority farming communities despite the SBA loan proxy-based audit showing near-fair business type predictions.
+**What USDA NASS descriptive figures show:** White producers hold 78.2M of total producers and 4.1B acres operated, structural dominance that contextualizes why agricultural lending fairness matters for minority farming communities despite the SBA loan proxy-based audit showing near-fair business type predictions.
 
-## Decision 12 — Key Findings Summary Lines Are Hardcoded, Not Recomputed
+## Decision 12, Key Findings Summary Lines Are Hardcoded, Not Recomputed
 
 **Decision:** Accept that threshold_aggregation.py's printed "Key Findings" summary (e.g. "GB best DP improvement: Law School", "LR most stable under constraints") are static strings written after one-time manual inspection of the results, not values computed dynamically from the results DataFrame.
 
@@ -153,7 +153,7 @@ Individual-level agricultural household survey — 30,312 individuals, sex and e
 
 **Action for future work:** Before final JASIST submission (Aug 19 pre-submission audit), either convert these five print statements to compute their claims dynamically from the results DataFrame, or explicitly note in the paper that these are researcher-verified single-run observations rather than programmatically asserted invariants.
 
-## Decision 13 — Aggregation Table Sources Metrics From stage2_*_threshold.py, Not baseline_*.py (Initially Misdiagnosed)
+## Decision 13, Aggregation Table Sources Metrics From stage2_*_threshold.py, Not baseline_*.py (Initially Misdiagnosed)
 
 **Original finding (Aug 2 2026, morning):** COMPAS's aggregation dict baseline_acc (0.674) did not match live output from baseline_compas.py (acc=0.703, auc=0.751), and was initially logged as a likely transcription error.
 
@@ -167,7 +167,7 @@ Individual-level agricultural household survey — 30,312 individuals, sex and e
 
 **Audit closure (Aug 2 2026, later same day):** All three affected domains individually re-verified live -- Law School AUC=0.878, Lending Club AUC=0.712, Agricultural AUC=0.938 -- each an exact match to threshold_aggregation.py's stored baseline_acc. Confirmed the DPD/EOD metrics carry no equivalent divergence risk: baseline_compas.py (and, by structural pattern, the other standalone baseline_*.py scripts) never compute DPD/EOD at all -- only the Stage2 scripts do, so there is no competing "other" DPD/EOD source to diverge from the way baseline accuracy had two independent sources. This closes the investigation: exactly 3 of 7 domains (Law School, Lending Club, Agricultural) need their baseline_acc column relabeled as AUC or their scripts extended to compute true accuracy before Aug 19 pre-submission audit; the other 4 (COMPAS, Folktables, FairGround, Student) are genuine accuracy and need no change on this front.
 
-## Decision 14 — FairGround's Reported Baseline Is Silently One Sub-Dataset Out of Five (law_school_lequy), Not an Aggregate
+## Decision 14, FairGround's Reported Baseline Is Silently One Sub-Dataset Out of Five (law_school_lequy), Not an Aggregate
 
 **Investigation (Aug 2 2026):** stage2_fairground_threshold.py iterates over five internal sub-datasets defined in SELECTED_DATASETS: adult (Income), compas_2_years (Criminal Justice), creditcard (Credit), law_school_lequy (Education), and meps_panel_19_fy2015 (Healthcare) -- each gets its own independently-trained baseline model and its own printed ACC/DPD/EOD block.
 
@@ -179,7 +179,7 @@ Individual-level agricultural household survey — 30,312 individuals, sex and e
 
 **Not yet checked:** Whether this same silent single-sub-dataset-selection issue exists elsewhere, or whether FairGround is the only domain in FAPE built from a multi-sub-dataset corpus (fairground_loader.py itself contains many more than 5 datasets per earlier EDA work -- SELECTED_DATASETS is a curated subset of 5 chosen for Stage 2 specifically).
 
-## Decision 15 — ThresholdOptimizer Post-Constraint Values Are Non-Deterministic Despite random_state=42; RESOLVED by Adding random_state to .predict()
+## Decision 15, ThresholdOptimizer Post-Constraint Values Are Non-Deterministic Despite random_state=42; RESOLVED by Adding random_state to .predict()
 
 **Investigation (Aug 2 2026):** While verifying Decision 13's Law School AUC/DIR figures, live re-execution of stage2_lawschool_threshold.py was run twice in immediate succession. Baseline values (pre-constraint) were identical both times: GB AUC=0.878, DP_diff=0.351, EO_diff=0.528 -- confirming the underlying LR/RF/GB models train deterministically with random_state=42, as expected.
 
@@ -204,7 +204,7 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 
 ---
 
-## Decision 16 — Law School RandomForest Baseline Value (0.801) Does Not Match Any Current Script Output; Source Unresolved
+## Decision 16, Law School RandomForest Baseline Value (0.801) Does Not Match Any Current Script Output; Source Unresolved
 
 **Investigation (Aug 2 2026):** While rebuilding the full 7-domain results table after fixing Decision 15 (ThresholdOptimizer determinism), discovered that stage2_lawschool_threshold.py's MODELS dict contains only LogisticRegression and GradientBoosting -- RandomForest is entirely absent from this script. Yet threshold_aggregation.py's Law School row reports RF=0.801, and paper_outline.md/cross_domain_results_table.md both cite this figure.
 
@@ -216,7 +216,7 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 
 **Given the volume of findings tonight (Decisions 12-16) and to avoid runaway investigation on writing day, this is being logged rather than chased further right now.** Recommend a dedicated, focused session before Aug 19 to resolve this specific item, ideally starting from git blame/log history on stage2_lawschool_threshold.py to check whether RandomForest was ever present and removed.
 
-## Decision 17 — Table 1 (Baseline Model Performance) Required a Full Rebuild From Verified Live Output, Not Incremental Patching
+## Decision 17, Table 1 (Baseline Model Performance) Required a Full Rebuild From Verified Live Output, Not Incremental Patching
 
 **Investigation (Aug 2 2026):** After resolving Decision 15 (ThresholdOptimizer determinism), attempted to systematically re-verify every domain's Table 1 entry against live script output before propagating corrected numbers. Found discrepancies far more widespread than Decisions 13/14/16 had already documented:
 
@@ -243,7 +243,7 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 
 **Decision:** Reverted threshold_aggregation.py to its original (pre-fix) state rather than ship a partially-patched script with a scientifically confusing figure. The verified 7-domain dataset captured tonight is preserved in this document's git history and is ready to be dropped into a properly redesigned script. Full script + figure rebuild remains correctly scoped to a dedicated pre-Aug-19 session, now with the complete data already in hand and the exact structural blockers identified precisely -- the next session should not need to re-derive any of tonight's numbers, only implement the None-safe logic throughout the script and redesign Figure 1 to correctly separate the two metric types.
 
-## Decision 18 — "GB Achieves Highest Baseline Accuracy Across All 7 Domains" Is False; Never Actually Verified Until Tonight
+## Decision 18, "GB Achieves Highest Baseline Accuracy Across All 7 Domains" Is False; Never Actually Verified Until Tonight
 
 **Investigation (Aug 3 2026):** While finishing the threshold_aggregation.py rebuild (adding computed Key Findings logic to replace the hardcoded strings flagged in Decision 12), the new computed check revealed that GB does NOT win baseline accuracy/AUC in all 7 domains -- it wins in 2 of 4 true-accuracy domains (Folktables, Student) and all 3 AUC-only domains (Law School, Lending Club, Agricultural), but LOSES to LogisticRegression in COMPAS (LR=0.686 vs GB=0.674) and FairGround/law_school_lequy (LR=0.913 vs GB=0.910).
 
@@ -253,7 +253,7 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 
 **Broader implication:** This raises real doubt about whether other comparative claims in paper_outline.md (e.g. "LR most stable under constraints," "RF intermediate performance") were ever actually verified computationally, or were similarly asserted without checking. All comparative claims in Section 5 should be treated as unverified until each is checked the same way this one just was.
 
-## Decision 19 — "DPD>0.2 Effective, DPD<0.05 Counterproductive" Effectiveness Threshold Is False as a Clean Rule; Has Real Exceptions in 2 of 7 Domains
+## Decision 19, "DPD>0.2 Effective, DPD<0.05 Counterproductive" Effectiveness Threshold Is False as a Clean Rule; Has Real Exceptions in 2 of 7 Domains
 
 **Investigation (Aug 4 2026):** While verifying claims for the paper's Introduction section, checked the outline's stated "core empirical finding" -- ThresholdOptimizer is effective when baseline DPD > 0.2 and counterproductive when baseline DPD < 0.05 -- against GB's genuine baseline and post-DP DPD values across all 7 domains, extracted directly from the rebuilt RESULTS dictionary (see Decision 17).
 
