@@ -137,7 +137,7 @@ def run_cross_domain_comparison():
                label='EEOC 0.1 DPD threshold')
     ax.set_xticks(x)
     ax.set_xticklabels(domain_names, rotation=15, ha='right', fontsize=9)
-    ax.set_title('Demographic Parity Disparity, Before vs After ThresholdOptimizer\n'
+    ax.set_title('Demographic Parity Disparity - Before vs After ThresholdOptimizer\n'
                  'Across All 7 FAPE Domains (GradientBoosting)', fontsize=12)
     ax.set_ylabel('Demographic Parity Disparity (DPD)')
     ax.legend(fontsize=9)
@@ -159,7 +159,7 @@ def run_cross_domain_comparison():
                label='EEOC 0.1 EOD threshold')
     ax.set_xticks(x)
     ax.set_xticklabels(domain_names, rotation=15, ha='right', fontsize=9)
-    ax.set_title('Equalized Odds Disparity, Before vs After ThresholdOptimizer\n'
+    ax.set_title('Equalized Odds Disparity - Before vs After ThresholdOptimizer\n'
                  'Across All 7 FAPE Domains (GradientBoosting)', fontsize=12)
     ax.set_ylabel('Equalized Odds Disparity (EOD)')
     ax.legend(fontsize=9)
@@ -184,7 +184,7 @@ def run_cross_domain_comparison():
                      textcoords='offset points', xytext=(5, 5), fontsize=8)
     ax1.axhline(y=0, color='black', linestyle='--', linewidth=1)
     ax1.axvline(x=0, color='black', linestyle='--', linewidth=1)
-    ax1.set_title('DP Constraint, Accuracy Cost vs Fairness Improvement', fontsize=11)
+    ax1.set_title('DP Constraint - Accuracy Cost vs Fairness Improvement', fontsize=11)
     ax1.set_xlabel('Accuracy Cost (positive = worse)')
     ax1.set_ylabel('DPD Improvement % (positive = better)')
 
@@ -196,7 +196,7 @@ def run_cross_domain_comparison():
                      textcoords='offset points', xytext=(5, 5), fontsize=8)
     ax2.axhline(y=0, color='black', linestyle='--', linewidth=1)
     ax2.axvline(x=0, color='black', linestyle='--', linewidth=1)
-    ax2.set_title('EO Constraint, Accuracy Cost vs Fairness Improvement', fontsize=11)
+    ax2.set_title('EO Constraint - Accuracy Cost vs Fairness Improvement', fontsize=11)
     ax2.set_xlabel('Accuracy Cost (positive = worse)')
     ax2.set_ylabel('EOD Improvement % (positive = better)')
 
@@ -226,7 +226,7 @@ def run_cross_domain_comparison():
         ax.axhline(y=1.0, color='gray', linestyle=':', linewidth=1, label='Parity (DIR=1.0)')
         ax.set_xticks(x_dir)
         ax.set_xticklabels(dir_names, fontsize=10)
-        ax.set_title('Disparate Impact Ratio, Before vs After ThresholdOptimizer\n'
+        ax.set_title('Disparate Impact Ratio - Before vs After ThresholdOptimizer\n'
                      '(EEOC 80% rule: DIR ≥ 0.8 required)', fontsize=12)
         ax.set_ylabel('Disparate Impact Ratio (DIR)')
         ax.legend(fontsize=9)
@@ -253,7 +253,7 @@ def run_cross_domain_comparison():
     sns.heatmap(metrics_matrix, annot=True, fmt='.3f', cmap='RdYlGn_r',
                 ax=ax, xticklabels=domain_names, yticklabels=row_labels,
                 linewidths=0.5, cbar_kws={'label': 'Value'})
-    ax.set_title('Cross-Domain Fairness Metrics Summary, All 7 FAPE Domains\n'
+    ax.set_title('Cross-Domain Fairness Metrics Summary - All 7 FAPE Domains\n'
                  '(GradientBoosting, ThresholdOptimizer)', fontsize=12)
     plt.xticks(rotation=15, ha='right', fontsize=9)
     plt.tight_layout()
@@ -278,7 +278,7 @@ def run_cross_domain_comparison():
     for bar, val in zip(bars1, dp_vals):
         ax1.text(val + (2 if val >= 0 else -2), bar.get_y() + bar.get_height()/2,
                  f'{val:+.1f}%', va='center', ha='left' if val >= 0 else 'right', fontsize=8)
-    ax1.set_title('DP Constraint, Fairness Improvement % Ranking\n'
+    ax1.set_title('DP Constraint - Fairness Improvement % Ranking\n'
                   '(green = improvement, red = degradation)', fontsize=11)
     ax1.set_xlabel('DPD Improvement % (positive = better)')
 
@@ -294,7 +294,7 @@ def run_cross_domain_comparison():
     for bar, val in zip(bars2, eo_vals):
         ax2.text(val + (2 if val >= 0 else -2), bar.get_y() + bar.get_height()/2,
                  f'{val:+.1f}%', va='center', ha='left' if val >= 0 else 'right', fontsize=8)
-    ax2.set_title('EO Constraint, Fairness Improvement % Ranking\n'
+    ax2.set_title('EO Constraint - Fairness Improvement % Ranking\n'
                   '(green = improvement, red = degradation)', fontsize=11)
     ax2.set_xlabel('EOD Improvement % (positive = better)')
 

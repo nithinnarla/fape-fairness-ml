@@ -430,7 +430,7 @@ def run_stage2():
     for bar, val in zip(bars, dir_vals):
         ax.text(bar.get_x()+bar.get_width()/2, val+0.02, f'{val:.3f}',
                 ha='center', fontsize=10, fontweight='bold')
-    ax.set_title('Folktables ACS -- Disparate Impact Ratio by Race\n(EEOC 80% Rule: Black DIR=0.657, Am.Indian DIR=0.612, Other DIR=0.460 -- all FAIL)',
+    ax.set_title('Folktables ACS -- Disparate Impact Ratio by Race\n(EEOC 80% Rule: Black DIR=0.657 - Am.Indian DIR=0.612 - Other DIR=0.460 -- all FAIL)',
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend()
     ax.set_ylim(0, 1.35)

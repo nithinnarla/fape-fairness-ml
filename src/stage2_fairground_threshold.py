@@ -390,7 +390,7 @@ def run_stage2():
     ax.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='EEOC 4/5ths threshold (0.8)')
     ax.set_xticks(x8)
     ax.set_xticklabels(domains8, rotation=15, ha='right', fontsize=9)
-    ax.set_title('FairGround, Disparate Impact Ratio (DIR) Before vs After DP Constraint\n'
+    ax.set_title('FairGround - Disparate Impact Ratio (DIR) Before vs After DP Constraint\n'
                  '(GB model; EEOC 4/5ths rule: DIR > 0.8 = compliant)', fontsize=11)
     ax.set_ylabel('Disparate Impact Ratio (DIR)')
     ax.set_ylim(0, 1.5); ax.legend(fontsize=9)

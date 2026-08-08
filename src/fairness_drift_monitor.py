@@ -263,7 +263,7 @@ def run_fairness_drift_monitor():
         if i == 0:
             ax.legend(fontsize=7)
     axes[-1].set_visible(False)
-    fig.suptitle('DPD Timeseries Across 3 Model Versions, GB Model\n'
+    fig.suptitle('DPD Timeseries Across 3 Model Versions - GB Model\n'
                  'v1=baseline, v2=post-DP constraint, v3=distribution shift',
                  fontsize=12)
     plt.tight_layout()
@@ -291,7 +291,7 @@ def run_fairness_drift_monitor():
         if i == 0:
             ax.legend(fontsize=7)
     axes[-1].set_visible(False)
-    fig.suptitle('CUSUM Drift Detection Scores, GB Model\n'
+    fig.suptitle('CUSUM Drift Detection Scores - GB Model\n'
                  'Score exceeds threshold = fairness alert triggered',
                  fontsize=12)
     plt.tight_layout()
@@ -315,7 +315,7 @@ def run_fairness_drift_monitor():
             ax.text(j, i, str(alert_matrix[i, j]), ha='center', va='center',
                     fontsize=11, color='black' if alert_matrix[i, j] < 5 else 'white')
     plt.colorbar(im, ax=ax, label='Number of CUSUM alerts')
-    ax.set_title('Fairness Drift Alerts Heatmap, All Models × All Domains\n'
+    ax.set_title('Fairness Drift Alerts Heatmap - All Models × All Domains\n'
                  '(higher = more alerts = less stable fairness post-deployment)',
                  fontsize=11)
     plt.tight_layout()
@@ -342,7 +342,7 @@ def run_fairness_drift_monitor():
                linewidth=1, label='EEOC threshold (0.1)')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
-    ax.set_title('Model Versioning, DPD Across v1/v2/v3 Model Updates\n'
+    ax.set_title('Model Versioning - DPD Across v1/v2/v3 Model Updates\n'
                  'v1=baseline, v2=post-constraint, v3=distribution shift',
                  fontsize=12)
     ax.set_ylabel('Demographic Parity Difference (DPD)')
@@ -366,7 +366,7 @@ def run_fairness_drift_monitor():
                label='v3 start (drift begins)')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
-    ax.set_title('First CUSUM Alert Time, All Models × All Domains\n'
+    ax.set_title('First CUSUM Alert Time - All Models × All Domains\n'
                  '(earlier = faster detection; 30 = no alert triggered)',
                  fontsize=12)
     ax.set_ylabel('Time step of first alert')
@@ -396,7 +396,7 @@ def run_fairness_drift_monitor():
                linewidth=1, label='EEOC threshold (0.1)')
     ax.set_xlabel('Demographic Parity Difference (DPD)')
     ax.set_ylabel('Accuracy')
-    ax.set_title('Accuracy-Fairness Tradeoff Trajectory, GB Model\n'
+    ax.set_title('Accuracy-Fairness Tradeoff Trajectory - GB Model\n'
                  'v1=baseline → v2=post-constraint → v3=distribution shift',
                  fontsize=12)
     ax.legend(fontsize=9)
@@ -435,7 +435,7 @@ def run_fairness_drift_monitor():
         if i == 0:
             ax.legend(fontsize=7)
     axes[-1].set_visible(False)
-    fig.suptitle('EOD Timeseries Across 3 Model Versions, GB Model\n'
+    fig.suptitle('EOD Timeseries Across 3 Model Versions - GB Model\n'
                  'v1=baseline, v2=post-EO constraint, v3=distribution shift',
                  fontsize=12)
     plt.tight_layout()
@@ -454,7 +454,7 @@ def run_fairness_drift_monitor():
     sns.heatmap(drift_magnitude, annot=True, fmt='.3f', cmap='YlOrRd',
                 ax=ax, xticklabels=MODELS, yticklabels=DOMAINS,
                 linewidths=0.5, cbar_kws={'label': 'DPD Drift Magnitude (v3 - v2)'})
-    ax.set_title('Fairness Drift Magnitude Heatmap, All Models × All Domains\n'
+    ax.set_title('Fairness Drift Magnitude Heatmap - All Models × All Domains\n'
                  '(higher = more DPD regression under distribution shift)',
                  fontsize=11)
     plt.tight_layout()
@@ -481,7 +481,7 @@ def run_fairness_drift_monitor():
     sns.heatmap(eod_drift_magnitude, annot=True, fmt='.3f', cmap='YlOrRd',
                 ax=ax, xticklabels=MODELS, yticklabels=DOMAINS,
                 linewidths=0.5, cbar_kws={'label': 'EOD Drift Magnitude (v3 - v2)'})
-    ax.set_title('EOD Drift Magnitude Heatmap, All Models × All Domains\n'
+    ax.set_title('EOD Drift Magnitude Heatmap - All Models × All Domains\n'
                  '(higher = more EOD regression under distribution shift)',
                  fontsize=11)
     plt.tight_layout()

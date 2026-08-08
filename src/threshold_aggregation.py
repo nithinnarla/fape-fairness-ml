@@ -213,7 +213,7 @@ def run_threshold_aggregation():
                label='EEOC threshold (0.1)')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
-    ax.set_title('Post-ThresholdOptimizer DPD, LR vs RF vs GB\n'
+    ax.set_title('Post-ThresholdOptimizer DPD - LR vs RF vs GB\n'
                  'Across All 7 FAPE Domains (DP Constraint)', fontsize=12)
     ax.set_ylabel('Demographic Parity Disparity (DPD)')
     ax.legend(fontsize=9)
@@ -234,7 +234,7 @@ def run_threshold_aggregation():
                label='EEOC threshold (0.1)')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
-    ax.set_title('Post-ThresholdOptimizer EOD, LR vs RF vs GB\n'
+    ax.set_title('Post-ThresholdOptimizer EOD - LR vs RF vs GB\n'
                  'Across All 7 FAPE Domains (EO Constraint)', fontsize=12)
     ax.set_ylabel('Equalized Odds Disparity (EOD)')
     ax.legend(fontsize=9)
@@ -252,7 +252,7 @@ def run_threshold_aggregation():
     sns.heatmap(dpd_matrix, annot=True, fmt='.3f', cmap='RdYlGn_r',
                 ax=ax, xticklabels=DOMAINS, yticklabels=MODELS,
                 linewidths=0.5, cbar_kws={'label': 'DPD (lower = fairer)'})
-    ax.set_title('Post-DP ThresholdOptimizer DPD Heatmap, All Models × All Domains\n'
+    ax.set_title('Post-DP ThresholdOptimizer DPD Heatmap - All Models × All Domains\n'
                  '(lower = fairer; green = better)', fontsize=12)
     plt.xticks(rotation=15, ha='right', fontsize=9)
     plt.tight_layout()
@@ -270,7 +270,7 @@ def run_threshold_aggregation():
     sns.heatmap(eod_matrix, annot=True, fmt='.3f', cmap='RdYlGn_r',
                 ax=ax, xticklabels=DOMAINS, yticklabels=MODELS,
                 linewidths=0.5, cbar_kws={'label': 'EOD (lower = fairer)'})
-    ax.set_title('Post-EO ThresholdOptimizer EOD Heatmap, All Models × All Domains\n'
+    ax.set_title('Post-EO ThresholdOptimizer EOD Heatmap - All Models × All Domains\n'
                  '(lower = fairer; green = better)', fontsize=12)
     plt.xticks(rotation=15, ha='right', fontsize=9)
     plt.tight_layout()
@@ -295,7 +295,7 @@ def run_threshold_aggregation():
     sns.heatmap(acc_cost_matrix, annot=True, fmt='.3f', cmap='RdYlGn_r',
                 ax=ax, xticklabels=DOMAINS, yticklabels=MODELS,
                 linewidths=0.5, cbar_kws={'label': 'Accuracy Cost (higher = worse)'})
-    ax.set_title('Accuracy Cost Under DP Constraint, All Models × All Domains\n'
+    ax.set_title('Accuracy Cost Under DP Constraint - All Models × All Domains\n'
                  '(higher = more accuracy lost; red = high cost)', fontsize=12)
     plt.xticks(rotation=15, ha='right', fontsize=9)
     plt.tight_layout()
