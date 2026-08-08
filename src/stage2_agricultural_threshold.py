@@ -1,16 +1,16 @@
 """
-FAPE — SBA Agricultural Loans Stage 2: ThresholdOptimizer
-Phase 4 — Stage 2 Fairness Intervention
+FAPE, SBA Agricultural Loans Stage 2: ThresholdOptimizer
+Phase 4, Stage 2 Fairness Intervention
 Agricultural/Financial Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Agricultural baseline models.
 Tests demographic_parity and equalized_odds constraints.
 Primary sensitive attribute: businesstype (0=Corporation, 1=Individual, 2=Partnership)
-Secondary: borrstate (geographic proxy — state-level fairness)
+Secondary: borrstate (geographic proxy, state-level fairness)
 
 Dataset: SBA 7(a) Agricultural Loans FY1991-2024
-Records: 15,845 | default rate: 5.2% — severe class imbalance
-Note: No direct race/gender — ECOA proxy-based fairness audit
+Records: 15,845 | default rate: 5.2%, severe class imbalance
+Note: No direct race/gender, ECOA proxy-based fairness audit
 Note: businesstype -1 (Unknown, n=34) excluded from fairness metrics
 Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0
 """
@@ -49,7 +49,7 @@ MODELS = {
 
 
 def run_stage2():
-    print("FAPE Phase 4 — Agricultural Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4, Agricultural Stage 2: ThresholdOptimizer")
     print("=" * 55)
 
     result = load_sba_agricultural()
@@ -78,7 +78,7 @@ def run_stage2():
 
     print(f"\n  n={len(y_valid):,} | default_rate={y_valid.mean():.1%} | severe imbalance")
     print(f"  Primary sensitive: businesstype (0=Corp 1=Individual 2=Partnership)")
-    print(f"  Note: No direct race/gender — ECOA proxy-based audit")
+    print(f"  Note: No direct race/gender, ECOA proxy-based audit")
     print(f"  Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0")
 
     baseline = {}
@@ -99,7 +99,7 @@ def run_stage2():
         print(f"  {name:<25} AUC={auc:.3f} DP_diff={dp:.3f} EO_diff={eo:.3f}")
 
     dp_results = {}
-    print(f"\n--- ThresholdOptimizer — Demographic Parity Constraint ---")
+    print(f"\n--- ThresholdOptimizer, Demographic Parity Constraint ---")
     for name in MODELS:
         try:
             if name == "LogisticRegression":
@@ -126,7 +126,7 @@ def run_stage2():
             dp_results[name] = None
 
     eo_results = {}
-    print(f"\n--- ThresholdOptimizer — Equalized Odds Constraint ---")
+    print(f"\n--- ThresholdOptimizer, Equalized Odds Constraint ---")
     for name in MODELS:
         try:
             if name == "LogisticRegression":
@@ -152,17 +152,17 @@ def run_stage2():
             print(f"  {name:<25} FAILED: {str(e)[:60]}")
             eo_results[name] = None
 
-    print(f"\n--- Fairness Improvement Summary — Business Type (DP) ---")
+    print(f"\n--- Fairness Improvement Summary, Business Type (DP) ---")
     for name in MODELS:
         if dp_results.get(name):
             print(f"  {name:<25} DP before={abs(baseline[name]['dp']):.3f} after={abs(dp_results[name]['dp']):.3f} improve={abs(baseline[name]['dp'])-abs(dp_results[name]['dp']):+.3f}")
 
-    print(f"\n--- Fairness Improvement Summary — Business Type (EO) ---")
+    print(f"\n--- Fairness Improvement Summary, Business Type (EO) ---")
     for name in MODELS:
         if eo_results.get(name):
             print(f"  {name:<25} EO before={abs(baseline[name]['eo']):.3f} after={abs(eo_results[name]['eo']):.3f} improve={abs(baseline[name]['eo'])-abs(eo_results[name]['eo']):+.3f}")
 
-    print(f"\n--- Business Type Prediction Rates — GB Before vs After DP ---")
+    print(f"\n--- Business Type Prediction Rates, GB Before vs After DP ---")
     gb_base = baseline['GradientBoosting']['y_pred']
     gb_dp = dp_results['GradientBoosting']['y_pred'] if dp_results.get('GradientBoosting') else None
     for bv, label in [(0,'Corporation'),(1,'Individual'),(2,'Partnership')]:
@@ -172,7 +172,7 @@ def run_stage2():
         after = gb_dp[mask].mean() if gb_dp is not None else float('nan')
         print(f"  {label:<15} n={mask.sum():,} before={before:.3f} after={after:.3f} change={after-before:+.3f}")
 
-    print(f"\n--- DIR — Partnership vs Corporation Before vs After DP ---")
+    print(f"\n--- DIR, Partnership vs Corporation Before vs After DP ---")
     for name in MODELS:
         if dp_results.get(name):
             corp_b = baseline[name]['y_pred'][btype_test==0].mean()
@@ -184,16 +184,16 @@ def run_stage2():
             print(f"  {name:<25} DIR before={dir_b:.3f} after={dir_a:.3f} EEOC=0.8")
 
     print(f"\n--- Key Findings ---")
-    print(f"  Baseline DP gap minimal (0.005-0.009) — smallest in FAPE across all domains")
-    print(f"  ThresholdOptimizer worsens fairness — negative improvement across all models")
-    print(f"  GB DIR 0.653→1.095 — overcorrects past parity after DP constraint")
+    print(f"  Baseline DP gap minimal (0.005-0.009), smallest in FAPE across all domains")
+    print(f"  ThresholdOptimizer worsens fairness, negative improvement across all models")
+    print(f"  GB DIR 0.653→1.095, overcorrects past parity after DP constraint")
     print(f"  Cross-domain finding: agricultural lending near-fair on business type proxy")
-    print(f"  No direct race/gender — ECOA proxy-based audit; USDA NASS race in EDA")
-    print(f"  LSMS Nigeria considered and excluded — outside US regulatory scope")
+    print(f"  No direct race/gender, ECOA proxy-based audit; USDA NASS race in EDA")
+    print(f"  LSMS Nigeria considered and excluded, outside US regulatory scope")
 
     names = list(MODELS.keys()); x = np.arange(len(names)); width = 0.25
 
-    # Figure 1 — Accuracy-Fairness Tradeoff
+    # Figure 1, Accuracy-Fairness Tradeoff
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14,5))
     base_accs = [accuracy_score(y_test, baseline[n]['y_pred']) for n in names]
     dp_accs = [dp_results[n]['acc'] if dp_results.get(n) else 0 for n in names]
@@ -209,12 +209,12 @@ def run_stage2():
     ax2.bar(x, dp_dps, width, label='DP Constraint', color='coral', edgecolor='black', linewidth=0.5)
     ax2.bar(x+width, eo_dps, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax2.set_xticks(x); ax2.set_xticklabels(['LR','GB']); ax2.set_title('DP Difference (lower=fairer)'); ax2.legend(fontsize=8)
-    plt.suptitle('SBA Agricultural — Accuracy-Fairness Tradeoff (Business Type)', fontsize=13)
+    plt.suptitle('SBA Agricultural, Accuracy-Fairness Tradeoff (Business Type)', fontsize=13)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_accuracy_fairness_tradeoff.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 2 — Fairness Improvement
+    # Figure 2, Fairness Improvement
     fig, ax = plt.subplots(figsize=(10,5))
     dp_imp = [abs(baseline[n]['dp'])-abs(dp_results[n]['dp']) if dp_results.get(n) else 0 for n in names]
     eo_imp = [abs(baseline[n]['eo'])-abs(eo_results[n]['eo']) if eo_results.get(n) else 0 for n in names]
@@ -222,13 +222,13 @@ def run_stage2():
     ax.bar(x+width/2, eo_imp, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax.axhline(y=0, color='black', linewidth=1)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Fairness Improvement — Business Type\n(positive = fairness improved)', fontsize=12)
+    ax.set_title('Fairness Improvement, Business Type\n(positive = fairness improved)', fontsize=12)
     ax.set_ylabel('DP/EO Reduction'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_fairness_improvement.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 3 — Cost-Gain Scatter
+    # Figure 3, Cost-Gain Scatter
     fig, ax = plt.subplots(figsize=(8,6))
     colors = {'LogisticRegression': 'steelblue', 'GradientBoosting': '#5cb85c'}
     for name in names:
@@ -242,13 +242,13 @@ def run_stage2():
     ax.axhline(y=0, color='gray', linestyle='--', linewidth=1)
     ax.axvline(x=0, color='gray', linestyle='--', linewidth=1)
     ax.set_xlabel('Accuracy Cost'); ax.set_ylabel('Fairness Gain')
-    ax.set_title('Cost-Gain Scatter — Agricultural\n(top-left = best tradeoff)', fontsize=12)
+    ax.set_title('Cost-Gain Scatter, Agricultural\n(top-left = best tradeoff)', fontsize=12)
     ax.legend(fontsize=8)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_cost_gain_scatter.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 4 — Business Type Prediction Rates
+    # Figure 4, Business Type Prediction Rates
     btype_labels_plot = ['Corporation', 'Individual', 'Partnership']
     btype_vals = [0, 1, 2]
     base_rates = [gb_base[btype_test==b].mean() for b in btype_vals]
@@ -261,13 +261,13 @@ def run_stage2():
     for bar, val, n in zip(bars1, base_rates, ns):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.002, f'{val:.3f}\n(n={n:,})', ha='center', fontsize=9)
     ax.set_xticks(xi); ax.set_xticklabels(btype_labels_plot)
-    ax.set_title('Business Type Prediction Rates — GB Before vs After DP Constraint', fontsize=12)
+    ax.set_title('Business Type Prediction Rates, GB Before vs After DP Constraint', fontsize=12)
     ax.set_ylabel('Default Prediction Rate'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_btype_prediction_rates.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 5 — DIR Before vs After
+    # Figure 5, DIR Before vs After
     dir_b = []; dir_a = []
     for name in names:
         cb = baseline[name]['y_pred'][btype_test==0].mean()
@@ -286,13 +286,13 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
     ax.axhline(y=0.8, color='red', linestyle='--', linewidth=2, label='EEOC 0.8 threshold')
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('DIR — Partnership vs Corporation\n(Before vs After DP Constraint)', fontsize=12)
+    ax.set_title('DIR, Partnership vs Corporation\n(Before vs After DP Constraint)', fontsize=12)
     ax.set_ylabel('DIR (Partnership/Corporation)'); ax.set_ylim(0, 1.5); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 6 — F1 Comparison
+    # Figure 6, F1 Comparison
     fig, ax = plt.subplots(figsize=(10,5))
     base_f1s = [f1_score(y_test, baseline[n]['y_pred']) for n in names]
     dp_f1s = [f1_score(y_test, dp_results[n]['y_pred']) if dp_results.get(n) else 0 for n in names]
@@ -301,13 +301,13 @@ def run_stage2():
     for bar, val in zip(ax.patches, base_f1s+dp_f1s):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.003, f'{val:.3f}', ha='center', fontsize=10)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('F1 Comparison — Baseline vs DP Constraint\n(5.2% default rate affects F1)', fontsize=12)
+    ax.set_title('F1 Comparison, Baseline vs DP Constraint\n(5.2% default rate affects F1)', fontsize=12)
     ax.set_ylabel('F1'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_f1_comparison.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 7 — FPR/FNR by Business Type
+    # Figure 7, FPR/FNR by Business Type
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14,5))
     btype_short = ['Corp', 'Indiv', 'Partner']
     for ax, y_pred_col, title in [
@@ -326,13 +326,13 @@ def run_stage2():
         ax.set_xticks(xi2); ax.set_xticklabels(btype_short)
         ax.set_title(f'FPR/FNR by Business Type\n{title}', fontsize=11)
         ax.set_ylabel('Rate'); ax.legend(fontsize=8)
-    plt.suptitle('Agricultural — FPR/FNR by Business Type Before vs After DP Constraint', fontsize=12)
+    plt.suptitle('Agricultural, FPR/FNR by Business Type Before vs After DP Constraint', fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_fpr_fnr_by_btype.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
 
-    # Figure 8 — Geographic State Default Prediction Rates
+    # Figure 8, Geographic State Default Prediction Rates
     from sba_agricultural_loader import load_sba_agricultural as _load_sba
     from sklearn.model_selection import train_test_split as tts2
     result2 = _load_sba()
@@ -366,7 +366,7 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.001,
                 f'{val:.3f}\n(n={n})', ha='center', fontsize=7)
     ax.set_xticks(range(len(top_states))); ax.set_xticklabels(state_labels, rotation=45)
-    ax.set_title('Top 15 States by Default Prediction Rate — GB Baseline\n(red = above overall mean; geographic proxy for demographic disparities)',
+    ax.set_title('Top 15 States by Default Prediction Rate, GB Baseline\n(red = above overall mean; geographic proxy for demographic disparities)',
                  fontsize=12)
     ax.set_ylabel('Default Prediction Rate'); ax.legend()
     plt.tight_layout()
@@ -377,7 +377,7 @@ def run_stage2():
 
     print(f"\n--- Agricultural Stage 2 complete ---")
     print(f"  7 figures saved to figures/stage2/")
-    print(f"  Business type fairness intervention applied — ECOA proxy-based audit")
+    print(f"  Business type fairness intervention applied, ECOA proxy-based audit")
 
     return baseline, dp_results, eo_results, btype_test
 

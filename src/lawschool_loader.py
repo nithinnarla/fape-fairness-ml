@@ -1,6 +1,6 @@
 """
-Law School Admissions Loader — FAPE Phase 4
-Wightman (1998) — LSAC National Longitudinal Bar Passage Study
+Law School Admissions Loader, FAPE Phase 4
+Wightman (1998), LSAC National Longitudinal Bar Passage Study
 
 Source: FairGround Corpus (law_school_lequy)
 LeQuy et al. adaptation of the Wightman LSAC dataset.
@@ -8,7 +8,7 @@ LeQuy et al. adaptation of the Wightman LSAC dataset.
 
 Why use the LeQuy version over the TensorFlow version:
 The TensorFlow Datasets hosted version (law_school_tensorflow)
-returns HTTP 403 — Google Storage access blocked. The LeQuy
+returns HTTP 403, Google Storage access blocked. The LeQuy
 version is hosted on GitHub and loads cleanly. Both trace back
 to the same Wightman (1998) LSAC source data.
 
@@ -25,7 +25,7 @@ def load_law_school() -> dict:
     """
     Load Law School Admissions dataset via FairGround corpus.
 
-    Uses the law_school_lequy variant — the LeQuy et al. adaptation
+    Uses the law_school_lequy variant, the LeQuy et al. adaptation
     of Wightman's LSAC dataset. Documented racial and gender disparities
     in bar passage rates make this a well-understood fairness benchmark
     for FAPE's education/legal domain evaluation.
@@ -33,7 +33,7 @@ def load_law_school() -> dict:
     Why this matters for FAPE:
     The law school dataset captures a different fairness challenge than
     COMPAS. COMPAS bias operates through risk score assignment.
-    Law school bias operates through selection and credentialing —
+    Law school bias operates through selection and credentialing.
     the fairness intervention must hold across both mechanisms
     to justify FAPE's cross-domain generalization claim.
 
@@ -70,7 +70,7 @@ def load_law_school() -> dict:
     for col in cat_cols:
         X[col] = pd.Categorical(X[col]).codes
 
-    # pass_bar stored as object dtype — convert to numeric
+    # pass_bar stored as object dtype, convert to numeric
     if not pd.api.types.is_numeric_dtype(y):
         y = pd.to_numeric(y, errors='coerce').fillna(0).astype(int)
     positive_rate = float(y.mean())
@@ -78,18 +78,18 @@ def load_law_school() -> dict:
     metadata = {
         'name': 'law_school_admissions',
         'source': 'FairGround law_school_lequy',
-        'citation': 'Wightman (1998) — LSAC National Longitudinal Bar Passage Study',
+        'citation': 'Wightman (1998), LSAC National Longitudinal Bar Passage Study',
         'n_samples': len(X),
         'n_features': len(feature_cols),
         'sensitive_cols': sensitive_cols,
         'target': target_col,
         'positive_rate': positive_rate,
         'domain': 'Education/Legal',
-        'note': 'LeQuy et al. adaptation of Wightman LSAC data — '
+        'note': 'LeQuy et al. adaptation of Wightman LSAC data, '
                 'law_school_tensorflow unavailable (HTTP 403)'
     }
 
-    print(f"  ✓ law_school_admissions: {len(X):,} rows | "
+    print(f"  OK: law_school_admissions: {len(X):,} rows | "
           f"{len(feature_cols)} features | "
           f"sensitive: {sensitive_cols} | "
           f"positive rate: {positive_rate:.3f}")

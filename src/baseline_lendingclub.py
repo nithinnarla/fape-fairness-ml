@@ -1,15 +1,15 @@
 """
-FAPE — Lending Club Baseline Models
-Phase 4 — Baseline Fairness Evaluation
+FAPE, Lending Club Baseline Models
+Phase 4, Baseline Fairness Evaluation
 
-Dataset: Lending Club 2007-2018 Q4 (Kaggle — wordsforthewise/lending-club)
+Dataset: Lending Club 2007-2018 Q4 (Kaggle, wordsforthewise/lending-club)
 1,348,099 records | socioeconomic proxy sensitive attributes
 Sensitive attributes: annual_inc_band, home_ownership, emp_length, addr_state
 Target: loan_default_binary (1=default, 0=fully paid)
 Models: Logistic Regression, Random Forest, Gradient Boosting
 
 Key notes:
-- No direct race/gender data — ECOA-compliant proxy-based fairness audit
+- No direct race/gender data, ECOA-compliant proxy-based fairness audit
 - Uses 500K sample for baseline speed; full dataset for final results
 - Income band proxy: low/lower_mid/upper_mid/high quartiles
 - Follows Kozodoi et al. (2022) financial fairness evaluation protocol
@@ -65,7 +65,7 @@ def fairness_metrics(y_true, y_pred, sensitive):
 
 
 def run_baselines():
-    print("FAPE Phase 4 — Lending Club Baseline Models")
+    print("FAPE Phase 4, Lending Club Baseline Models")
     print("=" * 55)
 
     result = load_lending_club(sample_size=500000)
@@ -91,7 +91,7 @@ def run_baselines():
 
     print(f"\n  n={len(y):,} | features={X.shape[1]} | default_rate={y.mean():.1%}")
     print(f"  sensitive=annual_inc_band, home_ownership, emp_length")
-    print(f"  Note: No direct race/gender — ECOA proxy-based audit per Kozodoi et al. (2022)")
+    print(f"  Note: No direct race/gender, ECOA proxy-based audit per Kozodoi et al. (2022)")
 
     all_results = {}
 
@@ -171,10 +171,10 @@ def run_baselines():
             pos_rate = y_pred_gb[mask].mean()
             true_rate = y_test[mask].mean()
             print(f"  {inc_label:<12} {home_label:<10}: n={n:,} | pred_default={pos_rate:.1%} | true_default={true_rate:.1%}")
-    print(f"  Note: Low income renters highest predicted default — income proxy captures socioeconomic risk")
+    print(f"  Note: Low income renters highest predicted default, income proxy captures socioeconomic risk")
 
     print(f"\n--- Lending Club Baseline complete ---")
-    print(f"  Income band proxy captures fairness gap — low income predicted default rate higher")
+    print(f"  Income band proxy captures fairness gap, low income predicted default rate higher")
     print(f"  Stage 2 ThresholdOptimizer needed to reduce income-based disparities")
 
     return all_results, inc_test, home_test, y_test

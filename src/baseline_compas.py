@@ -1,6 +1,6 @@
 """
-FAPE — COMPAS Baseline Models
-Phase 4 — Baseline Modeling
+FAPE, COMPAS Baseline Models
+Phase 4, Baseline Modeling
 Criminal Justice Domain
 
 Baseline models for COMPAS recidivism dataset.
@@ -59,7 +59,7 @@ def fairness_metrics(y_true, y_pred, group_series, group_name):
         pos_rate = group_pred.mean()
         # Demographic parity difference vs overall
         dp_diff = pos_rate - base_rate
-        # Equalized odds — TPR and FPR
+        # Equalized odds, TPR and FPR
         tp_mask = group_true == 1
         fp_mask = group_true == 0
         tpr = group_pred[tp_mask].mean() if tp_mask.sum() > 0 else 0
@@ -76,7 +76,7 @@ def fairness_metrics(y_true, y_pred, group_series, group_name):
 
 
 def run_baselines():
-    print("FAPE Phase 4 — COMPAS Baseline Models")
+    print("FAPE Phase 4, COMPAS Baseline Models")
     print("=" * 50)
 
     df_raw = load_compas()
@@ -149,7 +149,7 @@ def run_baselines():
             if mask.sum() < 10: continue
             rate = res["y_pred"][mask].mean()
             dir_val = rate / cauc_rate
-            flag = " ⚠️ >1.25 threshold" if dir_val > 1.25 else ""
+            flag = " (!) >1.25 threshold" if dir_val > 1.25 else ""
             print(f"    {race:<20} rate={rate:.1%} DIR={dir_val:.2f}{flag}")
     print(f"  Note: DIR>1.25 is legally actionable under EEOC disparate impact doctrine")
 
@@ -157,7 +157,7 @@ def run_baselines():
     best = max(results.items(), key=lambda x: x[1]["auc"])
     print(f"  Best model: {best[0]} (AUC={best[1]['auc']:.3f})")
     print(f"  Note: Fairness Stage 2 will apply ThresholdOptimizer to equalize FPR by race")
-    print(f"  Note: African-American FPR expected ~2x Caucasian FPR — see EDA findings")
+    print(f"  Note: African-American FPR expected ~2x Caucasian FPR, see EDA findings")
 
     print(f"\n--- COMPAS Baseline complete ---")
     return results

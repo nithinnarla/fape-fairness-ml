@@ -1,6 +1,6 @@
 """
-FAPE — Law School Admissions Stage 2: ThresholdOptimizer
-Phase 4 — Stage 2 Fairness Intervention
+FAPE, Law School Admissions Stage 2: ThresholdOptimizer
+Phase 4, Stage 2 Fairness Intervention
 Education/Legal Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Law School baseline models.
@@ -8,11 +8,11 @@ Tests demographic_parity and equalized_odds constraints.
 Compares fairness-accuracy tradeoff: baseline vs constrained models.
 
 Sensitive attribute: racetxt (0=minority, 1=white), male (0=female, 1=male)
-Target: pass_bar (binary) — 90.2% positive rate (severe class imbalance)
-Key finding from baseline: DIR=0.643 below EEOC 0.8 — strongest racial violation in FAPE
+Target: pass_bar (binary), 90.2% positive rate (severe class imbalance)
+Key finding from baseline: DIR=0.643 below EEOC 0.8, strongest racial violation in FAPE
 
-Note: Minority group only 6.4% of data (n=1,201) — fairness metrics noisy but reliable (n>=10 guard)
-Note: 90.2% positive rate inflates F1 — AUC is primary metric
+Note: Minority group only 6.4% of data (n=1,201), fairness metrics noisy but reliable (n>=10 guard)
+Note: 90.2% positive rate inflates F1, AUC is primary metric
 Note: Sex float64 dtype handled explicitly throughout
 """
 
@@ -48,7 +48,7 @@ MODELS = {
 
 
 def run_stage2():
-    print("FAPE Phase 4 — Law School Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4, Law School Stage 2: ThresholdOptimizer")
     print("=" * 55)
 
     result = load_law_school()
@@ -71,9 +71,9 @@ def run_stage2():
     X_te_sc = scaler.transform(X_test)
 
     print(f"\n  n={len(y):,} | pos_rate={y.mean():.1%} | minority_n={( race==0).sum():,} ({(race==0).mean():.1%})")
-    print(f"  Note: AUC primary metric — F1 inflated by 90.2% positive rate")
-    print(f"  Baseline DIR=0.643 — target improvement toward EEOC 0.8")
-    print(f"  Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0 — results vary slightly between runs")
+    print(f"  Note: AUC primary metric, F1 inflated by 90.2% positive rate")
+    print(f"  Baseline DIR=0.643, target improvement toward EEOC 0.8")
+    print(f"  Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0, results vary slightly between runs")
 
     baseline = {}
     print(f"\n--- Baseline Results (Stage 1 reference) ---")
@@ -93,7 +93,7 @@ def run_stage2():
         print(f"  {name:<25} AUC={auc:.3f} DP_diff={dp:.3f} EO_diff={eo:.3f}")
 
     dp_results = {}
-    print(f"\n--- ThresholdOptimizer — Demographic Parity Constraint ---")
+    print(f"\n--- ThresholdOptimizer, Demographic Parity Constraint ---")
     for name, model in MODELS.items():
         try:
             if name == "LogisticRegression":
@@ -121,7 +121,7 @@ def run_stage2():
             dp_results[name] = None
 
     eo_results = {}
-    print(f"\n--- ThresholdOptimizer — Equalized Odds Constraint ---")
+    print(f"\n--- ThresholdOptimizer, Equalized Odds Constraint ---")
     for name, model in MODELS.items():
         try:
             if name == "LogisticRegression":
@@ -148,7 +148,7 @@ def run_stage2():
             print(f"  {name:<25} FAILED: {str(e)[:60]}")
             eo_results[name] = None
 
-    print(f"\n--- Fairness Improvement Summary — Race (Demographic Parity) ---")
+    print(f"\n--- Fairness Improvement Summary, Race (Demographic Parity) ---")
     for name in MODELS:
         if dp_results.get(name):
             dp_before = abs(baseline[name]['dp'])
@@ -156,7 +156,7 @@ def run_stage2():
             improve = dp_before - dp_after
             print(f"  {name:<25} DP before={dp_before:.3f} after={dp_after:.3f} improve={improve:+.3f}")
 
-    print(f"\n--- Fairness Improvement Summary — Race (Equalized Odds) ---")
+    print(f"\n--- Fairness Improvement Summary, Race (Equalized Odds) ---")
     for name in MODELS:
         if eo_results.get(name):
             eo_before = abs(baseline[name]['eo'])
@@ -164,13 +164,13 @@ def run_stage2():
             improve = eo_before - eo_after
             print(f"  {name:<25} EO before={eo_before:.3f} after={eo_after:.3f} improve={improve:+.3f}")
 
-    print(f"\n--- Sex Fairness — ThresholdOptimizer (Demographic Parity) ---")
+    print(f"\n--- Sex Fairness, ThresholdOptimizer (Demographic Parity) ---")
     for name in MODELS:
         if dp_results.get(name):
             dp_sex = demographic_parity_difference(y_test, dp_results[name]['y_pred'], sensitive_features=sex_test)
             print(f"  {name:<25} Sex DP_diff={dp_sex:.3f}")
 
-    print(f"\n--- Race Prediction Rates — GB Before vs After DP Constraint ---")
+    print(f"\n--- Race Prediction Rates, GB Before vs After DP Constraint ---")
     gb_base = baseline['GradientBoosting']['y_pred']
     for grp, label in [(0,'Minority'),(1,'White')]:
         mask = race_test == grp
@@ -179,13 +179,13 @@ def run_stage2():
         print(f"  {label:<10} before={before:.3f} after={after:.3f}")
 
     print(f"\n--- Key Findings ---")
-    print(f"  Baseline DIR=0.643 — below EEOC 0.8 threshold (strongest violation in FAPE)")
+    print(f"  Baseline DIR=0.643, below EEOC 0.8 threshold (strongest violation in FAPE)")
     print(f"  Race gap dominant: minority 6.4% of data, fairness metrics noisy but reliable")
-    print(f"  Sex gap minimal (DP<0.015) — race dominates fairness concern")
+    print(f"  Sex gap minimal (DP<0.015), race dominates fairness concern")
     print(f"  ThresholdOptimizer applied demographic_parity + equalized_odds constraints")
     print(f"  Cross-domain: largest racial gap in FAPE education domain")
 
-    # Figure 1 — Accuracy-Fairness Tradeoff
+    # Figure 1, Accuracy-Fairness Tradeoff
     names = list(MODELS.keys())
     x = np.arange(len(names)); width = 0.25
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14,5))
@@ -203,12 +203,12 @@ def run_stage2():
     ax2.bar(x, dp_dps, width, label='DP Constraint', color='coral', edgecolor='black', linewidth=0.5)
     ax2.bar(x+width, eo_dps, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax2.set_xticks(x); ax2.set_xticklabels(['LR','GB']); ax2.set_title('DP Difference (lower=fairer)'); ax2.legend(fontsize=8)
-    plt.suptitle('Law School — Accuracy-Fairness Tradeoff', fontsize=13)
+    plt.suptitle('Law School, Accuracy-Fairness Tradeoff', fontsize=13)
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_accuracy_fairness_tradeoff.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 2 — Fairness Improvement
+    # Figure 2, Fairness Improvement
     fig, ax = plt.subplots(figsize=(10,5))
     dp_improvements = [abs(baseline[n]['dp']) - abs(dp_results[n]['dp']) if dp_results.get(n) else 0 for n in names]
     eo_improvements = [abs(baseline[n]['eo']) - abs(eo_results[n]['eo']) if eo_results.get(n) else 0 for n in names]
@@ -216,13 +216,13 @@ def run_stage2():
     ax.bar(x+width/2, eo_improvements, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax.axhline(y=0, color='black', linewidth=1)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Fairness Improvement — Race\n(positive = fairness improved)', fontsize=12)
+    ax.set_title('Fairness Improvement, Race\n(positive = fairness improved)', fontsize=12)
     ax.set_ylabel('DP/EO Difference Reduction'); ax.legend()
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_fairness_improvement.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 3 — Cost-Gain Scatter
+    # Figure 3, Cost-Gain Scatter
     fig, ax = plt.subplots(figsize=(8,6))
     colors = {'LogisticRegression': 'steelblue', 'GradientBoosting': '#5cb85c'}
     markers = {'dp': 'o', 'eo': '^'}
@@ -239,26 +239,26 @@ def run_stage2():
     ax.axhline(y=0, color='gray', linestyle='--', linewidth=1)
     ax.axvline(x=0, color='gray', linestyle='--', linewidth=1)
     ax.set_xlabel('Accuracy Cost'); ax.set_ylabel('Fairness Gain')
-    ax.set_title('Cost-Gain Scatter — Law School\n(top-left = best tradeoff)', fontsize=12)
+    ax.set_title('Cost-Gain Scatter, Law School\n(top-left = best tradeoff)', fontsize=12)
     ax.legend(fontsize=8)
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_cost_gain_scatter.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 4 — Sex Fairness
+    # Figure 4, Sex Fairness
     fig, ax = plt.subplots(figsize=(8,5))
     sex_dps_base = [demographic_parity_difference(y_test, baseline[n]['y_pred'], sensitive_features=sex_test) for n in names]
     sex_dps_dp = [demographic_parity_difference(y_test, dp_results[n]['y_pred'], sensitive_features=sex_test) if dp_results.get(n) else 0 for n in names]
     ax.bar(x-width/2, [abs(v) for v in sex_dps_base], width, label='Baseline', color='steelblue', edgecolor='black', linewidth=0.5)
     ax.bar(x+width/2, [abs(v) for v in sex_dps_dp], width, label='DP Constraint', color='coral', edgecolor='black', linewidth=0.5)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Sex Fairness — DP Difference\n(sex gap minimal vs race gap)', fontsize=12)
+    ax.set_title('Sex Fairness, DP Difference\n(sex gap minimal vs race gap)', fontsize=12)
     ax.set_ylabel('|DP Difference|'); ax.legend()
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_sex_fairness.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 5 — F1 Comparison
+    # Figure 5, F1 Comparison
     fig, ax = plt.subplots(figsize=(10,5))
     from sklearn.metrics import f1_score
     base_f1s = [f1_score(y_test, baseline[n]['y_pred']) for n in names]
@@ -268,13 +268,13 @@ def run_stage2():
     for bar, val in zip(ax.patches[:len(names)], base_f1s):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.003, f'{val:.3f}', ha='center', fontsize=9)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('F1 Comparison — Baseline vs DP Constraint\n(F1 inflated by 90.2% positive rate)', fontsize=12)
+    ax.set_title('F1 Comparison, Baseline vs DP Constraint\n(F1 inflated by 90.2% positive rate)', fontsize=12)
     ax.set_ylabel('F1'); ax.legend(); ax.set_ylim(0.8, 1.05)
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_f1_comparison.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 6 — Race Prediction Rates
+    # Figure 6, Race Prediction Rates
     fig, ax = plt.subplots(figsize=(10,5))
     groups = ['Minority\n(n=233)', 'White\n(n=3506)']
     xg = np.arange(len(groups))
@@ -285,13 +285,13 @@ def run_stage2():
     for bar, val in zip(ax.patches, gb_base_rates+gb_dp_rates):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
     ax.set_xticks(xg); ax.set_xticklabels(groups)
-    ax.set_title('Race Prediction Rates — GB Before vs After DP Constraint', fontsize=12)
+    ax.set_title('Race Prediction Rates, GB Before vs After DP Constraint', fontsize=12)
     ax.set_ylabel('Positive Prediction Rate'); ax.legend(); ax.set_ylim(0, 1.2)
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_race_prediction_rates.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 7 — FPR/FNR by Race
+    # Figure 7, FPR/FNR by Race
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12,5))
     for grp, label, color in [(0,'Minority','#d9534f'),(1,'White','#5cb85c')]:
         mask = race_test == grp
@@ -317,15 +317,15 @@ def run_stage2():
         ax.bar(xg-width/2, fprs, width, label='FPR', color='#d9534f', edgecolor='black', linewidth=0.5)
         ax.bar(xg+width/2, fnrs, width, label='FNR', color='steelblue', edgecolor='black', linewidth=0.5)
         ax.set_xticks(xg); ax.set_xticklabels(groups_labels)
-        ax.set_title(f'FPR/FNR by Race — {title}', fontsize=11)
+        ax.set_title(f'FPR/FNR by Race, {title}', fontsize=11)
         ax.set_ylabel('Rate'); ax.legend(fontsize=8)
-    plt.suptitle('Law School — FPR/FNR by Race Before vs After DP Constraint', fontsize=12)
+    plt.suptitle('Law School, FPR/FNR by Race Before vs After DP Constraint', fontsize=12)
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_fpr_fnr_by_race.png', dpi=150, bbox_inches='tight')
     plt.close()
 
 
-    print(f"\n--- Disparate Impact Ratio — Before vs After DP Constraint ---")
+    print(f"\n--- Disparate Impact Ratio, Before vs After DP Constraint ---")
     for name in MODELS:
         if dp_results.get(name):
             base_pred = baseline[name]['y_pred']
@@ -336,9 +336,9 @@ def run_stage2():
             maj_after = dp_pred[race_test==1].mean()
             dir_before = min_before/maj_before if maj_before > 0 else 0
             dir_after = min_after/maj_after if maj_after > 0 else 0
-            print(f"  {name:<25} DIR before={dir_before:.3f} after={dir_after:.3f} EEOC=0.8 {'✓ passes' if dir_after >= 0.8 else '✗ fails'}")
+            print(f"  {name:<25} DIR before={dir_before:.3f} after={dir_after:.3f} EEOC=0.8 {'OK: passes' if dir_after >= 0.8 else 'FAIL: fails'}")
 
-    print(f"\n--- Intersectional Analysis — Race x Sex (GB DP Constraint) ---")
+    print(f"\n--- Intersectional Analysis, Race x Sex (GB DP Constraint) ---")
     gb_base = baseline['GradientBoosting']['y_pred']
     gb_dp = dp_results['GradientBoosting']['y_pred'] if dp_results.get('GradientBoosting') else None
     for r, rl in [(0,'Minority'),(1,'White')]:
@@ -352,7 +352,7 @@ def run_stage2():
             print(f"  {rl} {sl:<8} n={n:,} before={before:.3f} after={after:.3f} change={after-before:+.3f}")
 
 
-    # Figure 8 — DIR Before vs After
+    # Figure 8, DIR Before vs After
     names_list = list(MODELS.keys())
     dir_befores = []
     dir_afters = []
@@ -374,13 +374,13 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
     ax.axhline(y=0.8, color='red', linestyle='--', linewidth=2, label='EEOC 0.8 threshold')
     ax.set_xticks(xd); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Disparate Impact Ratio — Before vs After DP Constraint\n(both models cross EEOC 0.8 threshold after intervention)', fontsize=12)
+    ax.set_title('Disparate Impact Ratio, Before vs After DP Constraint\n(both models cross EEOC 0.8 threshold after intervention)', fontsize=12)
     ax.set_ylabel('DIR'); ax.set_ylim(0, 1.2); ax.legend()
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_dir_before_after.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 9 — Intersectional Race x Sex
+    # Figure 9, Intersectional Race x Sex
     intersect_groups = ['Minority\nFemale', 'Minority\nMale', 'White\nFemale', 'White\nMale']
     ns = [152, 81, 1518, 1988]
     befores = [0.645, 0.605, 0.977, 0.985]
@@ -396,14 +396,14 @@ def run_stage2():
     for bar, val in zip(bars2, afters_dp):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=9)
     ax.set_xticks(xi); ax.set_xticklabels(intersect_groups)
-    ax.set_title('Intersectional Analysis — Race x Sex\n(Minority groups improve; White groups converge toward parity)', fontsize=12)
+    ax.set_title('Intersectional Analysis, Race x Sex\n(Minority groups improve; White groups converge toward parity)', fontsize=12)
     ax.set_ylabel('Positive Prediction Rate'); ax.set_ylim(0, 1.2); ax.legend()
     plt.tight_layout()
     plt.savefig('figures/stage2/lawschool_intersectional_stage2.png', dpi=150, bbox_inches='tight')
     plt.close()
 
     print(f"\n--- Law School Stage 2 complete ---")
-    print(f"  ThresholdOptimizer applied — racial gap targeted")
+    print(f"  ThresholdOptimizer applied, racial gap targeted")
     print(f"  Cross-domain: Law School has largest racial gap in FAPE (DIR=0.643)")
     print(f"  Stage 3 fairness audit will evaluate drift detection on constrained models")
 

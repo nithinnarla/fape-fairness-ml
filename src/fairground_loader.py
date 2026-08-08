@@ -1,6 +1,6 @@
 """
-FairGround Corpus Loader — FAPE Phase 4
-Fabris et al. (2025) — Bias Begins with Data: The FairGround Corpus
+FairGround Corpus Loader, FAPE Phase 4
+Fabris et al. (2025), Bias Begins with Data: The FairGround Corpus
 arXiv: 2510.22363
 Package: fairml-datasets (github.com/reliable-ai/fairground)
 
@@ -24,7 +24,7 @@ def load_fairground_corpus(
 
     Uses dataset.load() and dataset.to_pandas() to retrieve each
     of the 38 fairness-annotated tabular datasets. Sensitive
-    attribute metadata is pre-validated by FairGround — eliminates
+    attribute metadata is pre-validated by FairGround, eliminates
     the arbitrary preprocessing choices Fabris et al. (2025)
     identified as the core reproducibility problem in fair ML.
 
@@ -95,13 +95,13 @@ def load_fairground_corpus(
 
             total_records += n_samples
             count += 1
-            print(f"  ✓ {dataset_id}: {n_samples:,} rows | "
+            print(f"  OK: {dataset_id}: {n_samples:,} rows | "
                   f"{n_features} features | "
                   f"sensitive: {sensitive_cols}")
 
         except Exception as e:
             failed.append((dataset_id, str(e)))
-            print(f"  ✗ {dataset_id}: {str(e)[:80]}")
+            print(f"  FAIL: {dataset_id}: {str(e)[:80]}")
             count += 1
 
     print(f"\nFairGround load complete:")

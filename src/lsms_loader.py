@@ -1,5 +1,5 @@
 """
-LSMS-ISA Nigeria GHS-Panel Wave 4 Loader — FAPE Phase 4
+LSMS-ISA Nigeria GHS-Panel Wave 4 Loader, FAPE Phase 4
 Source: World Bank Living Standards Measurement Study (LSMS-ISA)
 Survey: Nigeria General Household Survey Panel 2018-2019, Wave 4
 Reference: Azzarri et al. (2025) Scientific Data, Nature
@@ -10,7 +10,7 @@ individual-level agricultural fairness evaluation dataset.
 
 Why LSMS-ISA for agricultural fairness:
 No publicly available US individual-level agricultural dataset
-with demographic attributes exists — USDA NASS and ARMS are
+with demographic attributes exists, USDA NASS and ARMS are
 aggregate only due to CIPSEA confidentiality protections.
 LSMS-ISA provides the only large-scale publicly downloadable
 individual-level agricultural dataset with sex, age, and
@@ -39,14 +39,14 @@ def load_lsms_nigeria(data_dir: str = DATA_DIR) -> dict:
     Merges household roster (demographics) with consumption outcome
     to create an individual-level dataset suitable for fairness
     metric computation. Binary target: household above/below
-    median per-capita consumption — proxy for food security.
+    median per-capita consumption, proxy for food security.
 
     Why median consumption as target:
     Direct farm outcome variables (crop yields, sales) are at
     plot level and require complex aggregation. Per-capita
     consumption is the standard welfare outcome in agricultural
     development economics and directly reflects farm productivity
-    and household food security — the core outcome AIFARMS and
+    and household food security, the core outcome AIFARMS and
     agricultural AI advisory systems affect.
 
     Args:
@@ -58,11 +58,11 @@ def load_lsms_nigeria(data_dir: str = DATA_DIR) -> dict:
     data_path = Path(data_dir)
     print(f"Loading LSMS-ISA Nigeria GHS-Panel Wave 4...")
 
-    # Load household roster — individual demographics
+    # Load household roster, individual demographics
     roster = pd.read_csv(data_path / 'sect1_harvestw4.csv', low_memory=False)
     print(f"  Household roster: {len(roster):,} individuals")
 
-    # Load consumption outcome — household welfare
+    # Load consumption outcome, household welfare
     consumption = pd.read_csv(data_path / 'totcons_final.csv', low_memory=False)
     print(f"  Consumption data: {len(consumption):,} households")
 
@@ -93,7 +93,7 @@ def load_lsms_nigeria(data_dir: str = DATA_DIR) -> dict:
     # Compute per-capita consumption proxy
     df['food_pc'] = df['food_own1'] / df['hhsize']
 
-    # Binary target — above median per-capita food consumption = 1
+    # Binary target, above median per-capita food consumption = 1
     median_food = df['food_pc'].median()
     y = (df['food_pc'] > median_food).astype(int)
 
@@ -122,7 +122,7 @@ def load_lsms_nigeria(data_dir: str = DATA_DIR) -> dict:
     edu_counts = df['education'].value_counts().head(5)
     print(f"  Education levels (top 5): {edu_counts.to_dict()}")
 
-    print(f"\n  ✓ lsms_nigeria_wave4: {len(X):,} individuals | "
+    print(f"\n  OK: lsms_nigeria_wave4: {len(X):,} individuals | "
           f"{len(feature_cols)} features | "
           f"positive rate: {positive_rate:.3f} | "
           f"sensitive: {sensitive_attrs}")
@@ -140,7 +140,7 @@ def load_lsms_nigeria(data_dir: str = DATA_DIR) -> dict:
         'note': (
             'Individual-level agricultural household survey. '
             'No publicly available US individual-level agricultural '
-            'fairness dataset exists due to CIPSEA confidentiality — '
+            'fairness dataset exists due to CIPSEA confidentiality, '
             'LSMS-ISA provides the only large-scale alternative. '
             'Target: household food security proxy via per-capita consumption.'
         )

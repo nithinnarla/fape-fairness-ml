@@ -1,18 +1,18 @@
 """
-FAPE — Fairness Drift Detection and Deployment Monitoring
-Phase 4 — Stage 4: CUSUM-Based Fairness Drift Detection
+FAPE, Fairness Drift Detection and Deployment Monitoring
+Phase 4, Stage 4: CUSUM-Based Fairness Drift Detection
 
 Simulates production deployment fairness monitoring using:
-1. Synthetic distribution shift — 3 model versions per domain
+1. Synthetic distribution shift, 3 model versions per domain
 2. CUSUM (Cumulative Sum) algorithm for drift detection
 3. EEOC threshold (0.1 DPD) as alert boundary
-4. Model versioning — tracks fairness across simulated model updates
+4. Model versioning, tracks fairness across simulated model updates
 
 Key methodological decision (Decision 7):
-- Synthetic distribution shift used — no access to live production system
+- Synthetic distribution shift used, no access to live production system
 - Drift simulation uses actual Stage 2 ThresholdOptimizer results as v1/v2 anchors
 - v3 simulates distribution shift causing fairness regression
-- Proof-of-concept validation — acknowledged limitation in paper
+- Proof-of-concept validation, acknowledged limitation in paper
 
 All DPD, EOD, and accuracy values sourced directly from threshold_aggregation.py RESULTS dict.
 
@@ -176,9 +176,9 @@ def simulate_drift_timeseries(v1_dpd, v2_dpd, n_points=30):
     """
     Simulate DPD/EOD timeseries across 3 model versions.
 
-    v1: baseline — stable around v1_dpd
-    v2: post-constraint — stable around v2_dpd
-    v3: distribution shift — gradual drift upward from v2_dpd
+    v1: baseline, stable around v1_dpd
+    v2: post-constraint, stable around v2_dpd
+    v3: distribution shift, gradual drift upward from v2_dpd
 
     Returns: array of metric values over n_points time steps
     """
@@ -217,7 +217,7 @@ def cusum_detect(timeseries, threshold=EEOC_THRESHOLD, slack=0.01):
 
 
 def run_fairness_drift_monitor():
-    print("FAPE Phase 4 — Stage 4: Fairness Drift Detection")
+    print("FAPE Phase 4, Stage 4: Fairness Drift Detection")
     print("=" * 55)
 
     print("\n--- Simulating Distribution Shift ---")
@@ -242,7 +242,7 @@ def run_fairness_drift_monitor():
         total_alerts = sum(len(all_alerts[domain][m]) for m in MODELS)
         print(f"  {domain:<15} alerts: {total_alerts}")
 
-    # Figure 1 — DPD timeseries across model versions (GB)
+    # Figure 1, DPD timeseries across model versions (GB)
     fig, axes = plt.subplots(2, 4, figsize=(20, 8))
     axes = axes.flatten()
     for i, domain in enumerate(DOMAINS):
@@ -263,7 +263,7 @@ def run_fairness_drift_monitor():
         if i == 0:
             ax.legend(fontsize=7)
     axes[-1].set_visible(False)
-    fig.suptitle('DPD Timeseries Across 3 Model Versions — GB Model\n'
+    fig.suptitle('DPD Timeseries Across 3 Model Versions, GB Model\n'
                  'v1=baseline, v2=post-DP constraint, v3=distribution shift',
                  fontsize=12)
     plt.tight_layout()
@@ -272,7 +272,7 @@ def run_fairness_drift_monitor():
     plt.close()
     print("  Fig 1 saved -- drift_dpd_timeseries.png")
 
-    # Figure 2 — CUSUM scores (GB)
+    # Figure 2, CUSUM scores (GB)
     fig, axes = plt.subplots(2, 4, figsize=(20, 8))
     axes = axes.flatten()
     for i, domain in enumerate(DOMAINS):
@@ -291,7 +291,7 @@ def run_fairness_drift_monitor():
         if i == 0:
             ax.legend(fontsize=7)
     axes[-1].set_visible(False)
-    fig.suptitle('CUSUM Drift Detection Scores — GB Model\n'
+    fig.suptitle('CUSUM Drift Detection Scores, GB Model\n'
                  'Score exceeds threshold = fairness alert triggered',
                  fontsize=12)
     plt.tight_layout()
@@ -300,7 +300,7 @@ def run_fairness_drift_monitor():
     plt.close()
     print("  Fig 2 saved -- drift_cusum_scores.png")
 
-    # Figure 3 — Alert heatmap
+    # Figure 3, Alert heatmap
     alert_matrix = np.array([
         [len(all_alerts[d][m]) for m in MODELS] for d in DOMAINS
     ])
@@ -315,7 +315,7 @@ def run_fairness_drift_monitor():
             ax.text(j, i, str(alert_matrix[i, j]), ha='center', va='center',
                     fontsize=11, color='black' if alert_matrix[i, j] < 5 else 'white')
     plt.colorbar(im, ax=ax, label='Number of CUSUM alerts')
-    ax.set_title('Fairness Drift Alerts Heatmap — All Models × All Domains\n'
+    ax.set_title('Fairness Drift Alerts Heatmap, All Models × All Domains\n'
                  '(higher = more alerts = less stable fairness post-deployment)',
                  fontsize=11)
     plt.tight_layout()
@@ -324,7 +324,7 @@ def run_fairness_drift_monitor():
     plt.close()
     print("  Fig 3 saved -- drift_alert_heatmap.png")
 
-    # Figure 4 — Model versioning DPD v1/v2/v3
+    # Figure 4, Model versioning DPD v1/v2/v3
     x = np.arange(len(DOMAINS))
     w = 0.25
     fig, ax = plt.subplots(figsize=(16, 6))
@@ -342,7 +342,7 @@ def run_fairness_drift_monitor():
                linewidth=1, label='EEOC threshold (0.1)')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
-    ax.set_title('Model Versioning — DPD Across v1/v2/v3 Model Updates\n'
+    ax.set_title('Model Versioning, DPD Across v1/v2/v3 Model Updates\n'
                  'v1=baseline, v2=post-constraint, v3=distribution shift',
                  fontsize=12)
     ax.set_ylabel('Demographic Parity Difference (DPD)')
@@ -353,7 +353,7 @@ def run_fairness_drift_monitor():
     plt.close()
     print("  Fig 4 saved -- drift_model_versioning.png")
 
-    # Figure 5 — First alert time
+    # Figure 5, First alert time
     first_alert = np.array([
         [all_alerts[d][m][0] if all_alerts[d][m] else 30 for m in MODELS]
         for d in DOMAINS
@@ -366,7 +366,7 @@ def run_fairness_drift_monitor():
                label='v3 start (drift begins)')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
-    ax.set_title('First CUSUM Alert Time — All Models × All Domains\n'
+    ax.set_title('First CUSUM Alert Time, All Models × All Domains\n'
                  '(earlier = faster detection; 30 = no alert triggered)',
                  fontsize=12)
     ax.set_ylabel('Time step of first alert')
@@ -377,7 +377,7 @@ def run_fairness_drift_monitor():
     plt.close()
     print("  Fig 5 saved -- drift_first_alert_time.png")
 
-    # Figure 6 — Accuracy-fairness trajectory v1→v2→v3 (GB)
+    # Figure 6, Accuracy-fairness trajectory v1→v2→v3 (GB)
     fig, ax = plt.subplots(figsize=(14, 8))
     for domain in DOMAINS:
         v1_acc = ACC_RESULTS[domain]['GB']['v1']
@@ -396,7 +396,7 @@ def run_fairness_drift_monitor():
                linewidth=1, label='EEOC threshold (0.1)')
     ax.set_xlabel('Demographic Parity Difference (DPD)')
     ax.set_ylabel('Accuracy')
-    ax.set_title('Accuracy-Fairness Tradeoff Trajectory — GB Model\n'
+    ax.set_title('Accuracy-Fairness Tradeoff Trajectory, GB Model\n'
                  'v1=baseline → v2=post-constraint → v3=distribution shift',
                  fontsize=12)
     ax.legend(fontsize=9)
@@ -406,7 +406,7 @@ def run_fairness_drift_monitor():
     plt.close()
     print("  Fig 6 saved -- drift_acc_fairness_trajectory.png")
 
-    # Figure 7 — EOD timeseries (GB)
+    # Figure 7, EOD timeseries (GB)
     eod_timeseries = {}
     for domain in DOMAINS:
         eod_timeseries[domain] = {}
@@ -435,7 +435,7 @@ def run_fairness_drift_monitor():
         if i == 0:
             ax.legend(fontsize=7)
     axes[-1].set_visible(False)
-    fig.suptitle('EOD Timeseries Across 3 Model Versions — GB Model\n'
+    fig.suptitle('EOD Timeseries Across 3 Model Versions, GB Model\n'
                  'v1=baseline, v2=post-EO constraint, v3=distribution shift',
                  fontsize=12)
     plt.tight_layout()
@@ -445,7 +445,7 @@ def run_fairness_drift_monitor():
     print("  Fig 7 saved -- drift_eod_timeseries.png")
 
 
-    # Figure 8 — Drift magnitude heatmap: v3_mean - v2_dpd per model per domain
+    # Figure 8, Drift magnitude heatmap: v3_mean - v2_dpd per model per domain
     drift_magnitude = np.array([
         [max(0, np.mean(all_timeseries[d][m][20:]) - STAGE2_RESULTS[d][m]['v2'])
          for m in MODELS] for d in DOMAINS
@@ -454,7 +454,7 @@ def run_fairness_drift_monitor():
     sns.heatmap(drift_magnitude, annot=True, fmt='.3f', cmap='YlOrRd',
                 ax=ax, xticklabels=MODELS, yticklabels=DOMAINS,
                 linewidths=0.5, cbar_kws={'label': 'DPD Drift Magnitude (v3 - v2)'})
-    ax.set_title('Fairness Drift Magnitude Heatmap — All Models × All Domains\n'
+    ax.set_title('Fairness Drift Magnitude Heatmap, All Models × All Domains\n'
                  '(higher = more DPD regression under distribution shift)',
                  fontsize=11)
     plt.tight_layout()
@@ -464,7 +464,7 @@ def run_fairness_drift_monitor():
     print("  Fig 8 saved -- drift_magnitude_heatmap.png")
 
 
-    # Figure 9 — EOD drift magnitude heatmap: v3_mean - v2_eod per model per domain
+    # Figure 9, EOD drift magnitude heatmap: v3_mean - v2_eod per model per domain
     eod_timeseries_all = {}
     for domain in DOMAINS:
         eod_timeseries_all[domain] = {}
@@ -481,7 +481,7 @@ def run_fairness_drift_monitor():
     sns.heatmap(eod_drift_magnitude, annot=True, fmt='.3f', cmap='YlOrRd',
                 ax=ax, xticklabels=MODELS, yticklabels=DOMAINS,
                 linewidths=0.5, cbar_kws={'label': 'EOD Drift Magnitude (v3 - v2)'})
-    ax.set_title('EOD Drift Magnitude Heatmap — All Models × All Domains\n'
+    ax.set_title('EOD Drift Magnitude Heatmap, All Models × All Domains\n'
                  '(higher = more EOD regression under distribution shift)',
                  fontsize=11)
     plt.tight_layout()
@@ -494,8 +494,8 @@ def run_fairness_drift_monitor():
     print(f"  9 figures saved to figures/stage2/")
     print(f"  CUSUM detects drift in domains with low post-constraint DPD")
     print(f"  Law School + FairGround + Student show earliest alerts")
-    print(f"  Lending Club + Agricultural near-fair baseline — minimal drift detected")
-    print(f"  Synthetic distribution shift — proof-of-concept (Decision 7)")
+    print(f"  Lending Club + Agricultural near-fair baseline, minimal drift detected")
+    print(f"  Synthetic distribution shift, proof-of-concept (Decision 7)")
 
 
 if __name__ == "__main__":

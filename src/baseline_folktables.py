@@ -1,6 +1,6 @@
 """
-FAPE — Folktables ACS Baseline Models
-Phase 4 — Baseline Modeling
+FAPE, Folktables ACS Baseline Models
+Phase 4, Baseline Modeling
 Socioeconomic Domain
 
 Baseline models for Folktables ACS income prediction.
@@ -59,7 +59,7 @@ def fairness_metrics(y_true, y_pred, group_series):
 
 
 def run_baselines():
-    print("FAPE Phase 4 — Folktables ACS Baseline Models")
+    print("FAPE Phase 4, Folktables ACS Baseline Models")
     print("=" * 50)
 
     df_full = load_folktables_acs()
@@ -133,7 +133,7 @@ def run_baselines():
             if mask.sum() < 50: continue
             rate = res["y_pred"][mask].mean()
             dir_val = rate / white_rate
-            flag = " ⚠️ <0.8 threshold" if dir_val < 0.8 else ""
+            flag = " (!) <0.8 threshold" if dir_val < 0.8 else ""
             print(f"    {RAC1P_LABELS.get(group,'?'):<20} rate={rate:.1%} DIR={dir_val:.2f}{flag}")
 
     print(f"\n--- Cross-Validation (5-fold) ---")
@@ -147,7 +147,7 @@ def run_baselines():
     print(f"  Best model: {best[0]} (AUC={best[1]['auc']:.3f})")
     print(f"  Male-Female income gap: Male {df[df['SEX']==1]['label'].mean():.1%} vs Female {df[df['SEX']==2]['label'].mean():.1%}")
     print(f"  Black-White income gap: Black {df[df['RAC1P']==2]['label'].mean():.1%} vs White {df[df['RAC1P']==1]['label'].mean():.1%}")
-    print(f"  Note: Asian income rate (51.1%) exceeds White (46.7%) — intersectional analysis needed")
+    print(f"  Note: Asian income rate (51.1%) exceeds White (46.7%), intersectional analysis needed")
     print(f"  Note: FAPE Stage 2 ThresholdOptimizer targets equalized opportunity by race and sex")
 
     print(f"\n--- Folktables Baseline complete ---")

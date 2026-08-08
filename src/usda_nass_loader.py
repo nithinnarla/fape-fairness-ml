@@ -68,7 +68,7 @@ def load_usda_nass(data_path=DATA_PATH):
 
     summary_df = pd.DataFrame(outcomes)
 
-    print(f"\n  USDA NASS 2022 — Producer Demographics Summary:")
+    print(f"\n  USDA NASS 2022, Producer Demographics Summary:")
     print(f"  {'Race Group':<45} {'Producers':>12} {'Operations':>12}")
     print(f"  {'-'*72}")
     for _, row in summary_df.iterrows():

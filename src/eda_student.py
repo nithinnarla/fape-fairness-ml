@@ -1,14 +1,14 @@
 """
-FAPE — Student Performance EDA
-Phase 4 — Exploratory Data Analysis
+FAPE, Student Performance EDA
+Phase 4, Exploratory Data Analysis
 Education Domain
 
-EDA on Student Performance dataset — 1,044 records across two subjects.
+EDA on Student Performance dataset, 1,044 records across two subjects.
 Math (395 students) and Portuguese (649 students) from two Portuguese schools.
 Understanding demographic distributions, family background effects,
 and educational fairness patterns before baseline model training.
 
-Source: Cortez & Silva (2008) — UCI ML Repository ID: 320
+Source: Cortez & Silva (2008), UCI ML Repository ID: 320
 Sensitive attributes: sex (F=0, M=1), age
 Target: G3 final grade binarized at median (above median = 1)
 """
@@ -24,7 +24,7 @@ SEX_LABELS = {0: "Female", 1: "Male"}
 
 
 def run_eda():
-    print("FAPE Phase 4 — Student Performance EDA")
+    print("FAPE Phase 4, Student Performance EDA")
     print("=" * 50)
 
     datasets = load_student_performance()
@@ -98,7 +98,7 @@ def run_eda():
             rate_0 = df[df[col] == 0]["label"].mean()
             rate_1 = df[df[col] == 1]["label"].mean()
             print(f"  {col:<12} no={rate_0:.1%} yes={rate_1:.1%} | diff={abs(rate_1-rate_0):.1%}")
-        print(f"  Note: schoolsup paradox — students WITH support perform worse.")
+        print(f"  Note: schoolsup paradox, students WITH support perform worse.")
         print(f"  This is a selection effect: struggling students receive more support,")
         print(f"  not evidence that support causes poor performance.")
 
@@ -130,9 +130,9 @@ def run_eda():
         print(f"  Sex gap:                  {abs(female_rate - male_rate):.1%}")
         print(f"  Zero failures above median: {df[df['failures']==0]['label'].mean():.1%}")
         print(f"  1+ failures above median:   {df[df['failures']>0]['label'].mean():.1%}")
-        print(f"  Note: Ages 20-22 have very small samples (n<=6) — interpret with caution")
+        print(f"  Note: Ages 20-22 have very small samples (n<=6), interpret with caution")
         if subject == 'portuguese':
-            print(f"  Note: Sex gap reverses vs math — females outperform males in Portuguese")
+            print(f"  Note: Sex gap reverses vs math, females outperform males in Portuguese")
 
 
     print(f"\n--- Subject Comparison (Math vs Portuguese) ---")
@@ -146,11 +146,11 @@ def run_eda():
         else:
             por_df = df
 
-    print(f"  Sex gap — Math:       Male {math_df[math_df['sex']==1]['label'].mean():.1%} vs Female {math_df[math_df['sex']==0]['label'].mean():.1%} (Male higher)")
-    print(f"  Sex gap — Portuguese: Female {por_df[por_df['sex']==0]['label'].mean():.1%} vs Male {por_df[por_df['sex']==1]['label'].mean():.1%} (Female higher)")
+    print(f"  Sex gap, Math:       Male {math_df[math_df['sex']==1]['label'].mean():.1%} vs Female {math_df[math_df['sex']==0]['label'].mean():.1%} (Male higher)")
+    print(f"  Sex gap, Portuguese: Female {por_df[por_df['sex']==0]['label'].mean():.1%} vs Male {por_df[por_df['sex']==1]['label'].mean():.1%} (Female higher)")
     print(f"  Key finding: Sex performance gap reverses between subjects")
-    print(f"  Failures impact — Math:       0 failures {math_df[math_df['failures']==0]['label'].mean():.1%} vs 1+ failures {math_df[math_df['failures']>0]['label'].mean():.1%}")
-    print(f"  Failures impact — Portuguese: 0 failures {por_df[por_df['failures']==0]['label'].mean():.1%} vs 1+ failures {por_df[por_df['failures']>0]['label'].mean():.1%}")
+    print(f"  Failures impact, Math:       0 failures {math_df[math_df['failures']==0]['label'].mean():.1%} vs 1+ failures {math_df[math_df['failures']>0]['label'].mean():.1%}")
+    print(f"  Failures impact, Portuguese: 0 failures {por_df[por_df['failures']==0]['label'].mean():.1%} vs 1+ failures {por_df[por_df['failures']>0]['label'].mean():.1%}")
 
     print(f"\n--- Student Performance EDA complete ---")
     print(f"  Total records: 1,044 (math: 395 + portuguese: 649)")

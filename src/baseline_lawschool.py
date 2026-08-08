@@ -1,17 +1,17 @@
 """
-FAPE — Law School Admissions Baseline Models
-Phase 4 — Baseline Fairness Evaluation
+FAPE, Law School Admissions Baseline Models
+Phase 4, Baseline Fairness Evaluation
 
 Dataset: Law School Admissions (Wightman 1998) via FairGround law_school_lequy
 18,692 records | 11 features
 Sensitive attributes: racetxt (0=minority, 1=white), male (1=male, 0=female)
-Target: pass_bar (binary) — 90.2% positive rate (severe class imbalance)
+Target: pass_bar (binary), 90.2% positive rate (severe class imbalance)
 Models: Logistic Regression, Random Forest, Gradient Boosting
 
 Key notes:
-- 90.2% positive rate inflates F1 — AUC is primary metric
-- Minority group (racetxt=0) only 6.4% of data — fairness metrics noisy
-- Race gap: White 92.1% pass rate vs Minority 61.8% — 30.3% gap from EDA
+- 90.2% positive rate inflates F1, AUC is primary metric
+- Minority group (racetxt=0) only 6.4% of data, fairness metrics noisy
+- Race gap: White 92.1% pass rate vs Minority 61.8%, 30.3% gap from EDA
 """
 
 import pandas as pd
@@ -64,7 +64,7 @@ def fairness_metrics(y_true, y_pred, sensitive):
 
 
 def run_baselines():
-    print("FAPE Phase 4 — Law School Admissions Baseline Models")
+    print("FAPE Phase 4, Law School Admissions Baseline Models")
     print("=" * 55)
 
     result = load_law_school()
@@ -88,7 +88,7 @@ def run_baselines():
 
     print(f"\n  n={len(y):,} | features={X.shape[1]} | pos_rate={y.mean():.1%}")
     print(f"  sensitive=racetxt (0=minority/1=white), male")
-    print(f"  Note: 90.2% positive rate — AUC primary metric; F1 inflated")
+    print(f"  Note: 90.2% positive rate, AUC primary metric; F1 inflated")
 
     all_results = {}
 
@@ -160,15 +160,15 @@ def run_baselines():
             mask = (race_test==r) & (sex_test==s)
             n = mask.sum()
             if n < 10:
-                print(f"  {r_label} {s_label}: n={n} — too sparse")
+                print(f"  {r_label} {s_label}: n={n}, too sparse")
                 continue
             pos_rate = y_pred_gb[mask].mean()
             true_rate = y_test[mask].mean()
             print(f"  {r_label} {s_label}: n={n} | pred_pos={pos_rate:.1%} | true_pos={true_rate:.1%}")
-    print(f"  Note: Race dominates — Minority 60-65% vs White 97-99%; sex effect minimal within groups")
+    print(f"  Note: Race dominates, Minority 60-65% vs White 97-99%; sex effect minimal within groups")
 
     print(f"\n--- Law School Baseline complete ---")
-    print(f"  Race gap confirmed — minority FPR and TPR systematically different")
+    print(f"  Race gap confirmed, minority FPR and TPR systematically different")
     print(f"  Stage 2 ThresholdOptimizer needed to reduce racial disparities")
 
     return all_results, race_test, sex_test, y_test

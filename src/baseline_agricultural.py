@@ -1,6 +1,6 @@
 """
-FAPE — SBA Agricultural Loans Baseline Models
-Phase 4 — Baseline Fairness Evaluation
+FAPE, SBA Agricultural Loans Baseline Models
+Phase 4, Baseline Fairness Evaluation
 
 Dataset: SBA 7(a) Agricultural Loans FY1991-2024
 15,845 records | geographic and business-type proxy sensitive attributes
@@ -9,10 +9,10 @@ Target: loan_default_binary (1=Charged Off, 0=Paid In Full)
 Models: Logistic Regression, Random Forest, Gradient Boosting
 
 Key notes:
-- No direct race/ethnicity/sex data — SBA FOIA redacts demographics
+- No direct race/ethnicity/sex data, SBA FOIA redacts demographics
 - Geographic proxy: borrstate captures regional economic disparities
 - Business type proxy: Individual vs Corporation vs Partnership
-- 5.2% default rate — severe class imbalance; class_weight='balanced'
+- 5.2% default rate, severe class imbalance; class_weight='balanced'
 - Follows ECOA fair lending audit standard per CFPB methodology
 - MS dominates (23%) due to poultry farming concentration
 """
@@ -69,7 +69,7 @@ def fairness_metrics(y_true, y_pred, sensitive):
 
 
 def run_baselines():
-    print("FAPE Phase 4 — SBA Agricultural Loans Baseline Models")
+    print("FAPE Phase 4, SBA Agricultural Loans Baseline Models")
     print("=" * 55)
 
     result = load_sba_agricultural()
@@ -93,7 +93,7 @@ def run_baselines():
 
     print(f"\n  n={len(y):,} | features={X.shape[1]} | default_rate={y.mean():.1%}")
     print(f"  sensitive=borrstate (geographic proxy), businesstype")
-    print(f"  Note: No direct race/ethnicity/sex — SBA FOIA redacts demographics")
+    print(f"  Note: No direct race/ethnicity/sex, SBA FOIA redacts demographics")
     print(f"  Note: class_weight=balanced due to 5.2% default rate")
 
     all_results = {}

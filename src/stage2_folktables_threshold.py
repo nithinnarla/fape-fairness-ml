@@ -1,6 +1,6 @@
 """
-FAPE — Folktables ACS Stage 2: ThresholdOptimizer
-Phase 4 — Stage 2 Fairness Intervention
+FAPE, Folktables ACS Stage 2: ThresholdOptimizer
+Phase 4, Stage 2 Fairness Intervention
 Socioeconomic Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Folktables ACS baseline.

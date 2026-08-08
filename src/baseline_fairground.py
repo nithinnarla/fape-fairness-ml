@@ -1,14 +1,14 @@
 """
-FAPE — FairGround Corpus Baseline Models
-Phase 4 — Baseline Modeling
+FAPE, FairGround Corpus Baseline Models
+Phase 4, Baseline Modeling
 Cross-Domain Evaluation
 
 Baseline models across 5 representative FairGround datasets:
-- adult (income) — race sensitive
-- compas_2_years (criminal justice) — age sensitive
-- creditcard (credit) — sex sensitive
-- law_school_lequy (education) — race + sex sensitive
-- meps_panel_19_fy2015 (healthcare) — race sensitive
+- adult (income), race sensitive
+- compas_2_years (criminal justice), age sensitive
+- creditcard (credit), sex sensitive
+- law_school_lequy (education), race + sex sensitive
+- meps_panel_19_fy2015 (healthcare), race sensitive
 
 Demonstrates fairness disparities exist across all 5 domains.
 Sets up for Stage 2 ThresholdOptimizer cross-domain intervention.
@@ -63,7 +63,7 @@ def prepare_dataset(corpus, ds_id, config):
     else:
         sensitive = pd.Series([0]*len(X), name=sens_col)
 
-    # Encode ALL features — label encode categoricals
+    # Encode ALL features, label encode categoricals
     X_enc = X.copy()
     for col in X_enc.columns:
         if X_enc[col].dtype == object or str(X_enc[col].dtype) == 'category':
@@ -71,12 +71,12 @@ def prepare_dataset(corpus, ds_id, config):
             X_enc[col] = le.fit_transform(X_enc[col].astype(str))
 
     X_num = X_enc.select_dtypes(include=[np.number]).copy()
-    # Impute all NaN — median for numeric, 0 for remaining
+    # Impute all NaN, median for numeric, 0 for remaining
     for col in X_num.columns:
         if X_num[col].isna().any():
             median_val = X_num[col].median()
             X_num[col] = X_num[col].fillna(median_val if not np.isnan(median_val) else 0)
-    # Final safety — replace any remaining NaN/inf with 0
+    # Final safety, replace any remaining NaN/inf with 0
     X_num = X_num.replace([np.inf, -np.inf], 0).fillna(0)
 
     # Drop known leakage columns
@@ -126,7 +126,7 @@ def fairness_metrics(y_true, y_pred, sensitive):
 
 
 def run_baselines():
-    print("FAPE Phase 4 — FairGround Corpus Baseline Models")
+    print("FAPE Phase 4, FairGround Corpus Baseline Models")
     print("=" * 55)
 
     from fairml_datasets import Datasets
@@ -153,9 +153,9 @@ def run_baselines():
                              'positive_rate': None},
                 'sensitive_cols': sensitive_cols
             }
-            print(f"  ✓ {ds_id}: {len(df):,} rows")
+            print(f"  OK: {ds_id}: {len(df):,} rows")
         except Exception as e:
-            print(f"  ✗ {ds_id}: {e}")
+            print(f"  FAIL: {ds_id}: {e}")
     print(f"Loaded {len(corpus)} datasets")
 
     all_results = {}
@@ -222,7 +222,7 @@ def run_baselines():
 
     print(f"\n--- FairGround Baseline complete ---")
     print(f"  5 domains covered: Income, Criminal Justice, Credit, Education, Healthcare")
-    print(f"  Fairness disparities confirmed across all domains — Stage 2 ThresholdOptimizer needed")
+    print(f"  Fairness disparities confirmed across all domains, Stage 2 ThresholdOptimizer needed")
 
     return all_results
 

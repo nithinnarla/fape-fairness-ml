@@ -1,6 +1,6 @@
 """
-FAPE — Lending Club Stage 2: ThresholdOptimizer
-Phase 4 — Stage 2 Fairness Intervention
+FAPE, Lending Club Stage 2: ThresholdOptimizer
+Phase 4, Stage 2 Fairness Intervention
 Financial Services Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Lending Club baseline models.
@@ -9,13 +9,13 @@ Primary sensitive attribute: annual_inc_band (income quartile proxy)
 Secondary: home_ownership (MORTGAGE=1 vs RENT=5)
 
 Dataset: 100,000 stratified sample from 1,348,099 records
-Default rate: 20.1% — moderate class imbalance
+Default rate: 20.1%, moderate class imbalance
 Sensitive: annual_inc_band (0=Q1 lowest to 3=Q4 highest income)
            home_ownership (1=MORTGAGE, 5=RENT, 4=OWN)
 
-Note: No direct race/gender data — ECOA proxy-based fairness audit
-Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0 — results vary slightly between runs
-Note: home_ownership groups 0,2,3 sparse (n<30) — excluded from fairness metrics
+Note: No direct race/gender data, ECOA proxy-based fairness audit
+Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0, results vary slightly between runs
+Note: home_ownership groups 0,2,3 sparse (n<30), excluded from fairness metrics
 """
 
 import pandas as pd
@@ -55,7 +55,7 @@ SAMPLE_SIZE = 100000
 
 
 def run_stage2():
-    print("FAPE Phase 4 — Lending Club Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4, Lending Club Stage 2: ThresholdOptimizer")
     print("=" * 55)
 
     result = load_lending_club(sample_size=SAMPLE_SIZE)
@@ -65,7 +65,7 @@ def run_stage2():
     inc_band = X['annual_inc_band'].values.astype(int)
     home = X['home_ownership'].values.astype(int)
 
-    # Binary home ownership: MORTGAGE(1) vs RENT(5) — exclude sparse groups
+    # Binary home ownership: MORTGAGE(1) vs RENT(5), exclude sparse groups
     home_binary = np.where(home == 1, 0, np.where(home == 5, 1, -1))
     home_mask = home_binary >= 0
 
@@ -84,7 +84,7 @@ def run_stage2():
     print(f"\n  n={SAMPLE_SIZE:,} stratified | default_rate={y.mean():.1%}")
     print(f"  Primary sensitive: annual_inc_band (0=Q1 lowest to 3=Q4 highest)")
     print(f"  Secondary: home_ownership (0=MORTGAGE vs 1=RENT)")
-    print(f"  Note: No direct race/gender — ECOA proxy-based audit")
+    print(f"  Note: No direct race/gender, ECOA proxy-based audit")
     print(f"  Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0")
 
     baseline = {}
@@ -105,7 +105,7 @@ def run_stage2():
         print(f"  {name:<25} AUC={auc:.3f} DP_diff={dp:.3f} EO_diff={eo:.3f}")
 
     dp_results = {}
-    print(f"\n--- ThresholdOptimizer — Demographic Parity Constraint ---")
+    print(f"\n--- ThresholdOptimizer, Demographic Parity Constraint ---")
     for name, model in MODELS.items():
         try:
             if name == "LogisticRegression":
@@ -133,7 +133,7 @@ def run_stage2():
             dp_results[name] = None
 
     eo_results = {}
-    print(f"\n--- ThresholdOptimizer — Equalized Odds Constraint ---")
+    print(f"\n--- ThresholdOptimizer, Equalized Odds Constraint ---")
     for name, model in MODELS.items():
         try:
             if name == "LogisticRegression":
@@ -160,21 +160,21 @@ def run_stage2():
             print(f"  {name:<25} FAILED: {str(e)[:60]}")
             eo_results[name] = None
 
-    print(f"\n--- Fairness Improvement Summary — Income Band (DP) ---")
+    print(f"\n--- Fairness Improvement Summary, Income Band (DP) ---")
     for name in MODELS:
         if dp_results.get(name):
             dp_before = abs(baseline[name]['dp'])
             dp_after = abs(dp_results[name]['dp'])
             print(f"  {name:<25} DP before={dp_before:.3f} after={dp_after:.3f} improve={dp_before-dp_after:+.3f}")
 
-    print(f"\n--- Fairness Improvement Summary — Income Band (EO) ---")
+    print(f"\n--- Fairness Improvement Summary, Income Band (EO) ---")
     for name in MODELS:
         if eo_results.get(name):
             eo_before = abs(baseline[name]['eo'])
             eo_after = abs(eo_results[name]['eo'])
             print(f"  {name:<25} EO before={eo_before:.3f} after={eo_after:.3f} improve={eo_before-eo_after:+.3f}")
 
-    print(f"\n--- Home Ownership Fairness — MORTGAGE vs RENT ---")
+    print(f"\n--- Home Ownership Fairness, MORTGAGE vs RENT ---")
     for name in MODELS:
         if dp_results.get(name):
             y_pred_dp = dp_results[name]['y_pred']
@@ -185,7 +185,7 @@ def run_stage2():
                 dp_home = demographic_parity_difference(yt_home, yp_home, sensitive_features=hs_home)
                 print(f"  {name:<25} Home DP_diff={dp_home:.3f} (MORTGAGE vs RENT)")
 
-    print(f"\n--- Income Band Prediction Rates — GB Before vs After DP ---")
+    print(f"\n--- Income Band Prediction Rates, GB Before vs After DP ---")
     gb_base = baseline['GradientBoosting']['y_pred']
     for band in sorted(np.unique(inc_test)):
         mask = inc_test == band
@@ -194,7 +194,7 @@ def run_stage2():
         label = ['Q1-Low','Q2','Q3','Q4-High'][band]
         print(f"  {label:<10} before={before:.3f} after={after:.3f} change={after-before:+.3f}")
 
-    print(f"\n--- DIR — Income Band Before vs After DP ---")
+    print(f"\n--- DIR, Income Band Before vs After DP ---")
     for name in MODELS:
         if dp_results.get(name):
             base_pred = baseline[name]['y_pred']
@@ -224,13 +224,13 @@ def run_stage2():
 
 
     print(f"\n--- Key Findings ---")
-    print(f"  Income DP gap small (0.018-0.024) — smallest fairness gap in FAPE financial domain")
+    print(f"  Income DP gap small (0.018-0.024), smallest fairness gap in FAPE financial domain")
     print(f"  DIR>1: model amplifies income disparity beyond actual rates (actual 1.4x, predicted 2.8x)")
-    print(f"  Home ownership gap larger: MORTGAGE vs RENT DP=0.138-0.178 — bigger fairness concern")
-    print(f"  ThresholdOptimizer minimal improvement on income band — baseline already near-fair")
-    print(f"  No direct race/gender — proxy-based ECOA audit; income/housing as socioeconomic proxies")
+    print(f"  Home ownership gap larger: MORTGAGE vs RENT DP=0.138-0.178, bigger fairness concern")
+    print(f"  ThresholdOptimizer minimal improvement on income band, baseline already near-fair")
+    print(f"  No direct race/gender, proxy-based ECOA audit; income/housing as socioeconomic proxies")
 
-    # Figure 1 — Accuracy-Fairness Tradeoff
+    # Figure 1, Accuracy-Fairness Tradeoff
     names = list(MODELS.keys()); x = np.arange(len(names)); width = 0.25
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14,5))
     base_accs = [accuracy_score(y_test, baseline[n]['y_pred']) for n in names]
@@ -247,12 +247,12 @@ def run_stage2():
     ax2.bar(x, dp_dps, width, label='DP Constraint', color='coral', edgecolor='black', linewidth=0.5)
     ax2.bar(x+width, eo_dps, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax2.set_xticks(x); ax2.set_xticklabels(['LR','GB']); ax2.set_title('DP Difference (lower=fairer)'); ax2.legend(fontsize=8)
-    plt.suptitle('Lending Club — Accuracy-Fairness Tradeoff (Income Band)', fontsize=13)
+    plt.suptitle('Lending Club, Accuracy-Fairness Tradeoff (Income Band)', fontsize=13)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_accuracy_fairness_tradeoff.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 2 — Fairness Improvement
+    # Figure 2, Fairness Improvement
     fig, ax = plt.subplots(figsize=(10,5))
     dp_improvements = [abs(baseline[n]['dp']) - abs(dp_results[n]['dp']) if dp_results.get(n) else 0 for n in names]
     eo_improvements = [abs(baseline[n]['eo']) - abs(eo_results[n]['eo']) if eo_results.get(n) else 0 for n in names]
@@ -260,13 +260,13 @@ def run_stage2():
     ax.bar(x+width/2, eo_improvements, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax.axhline(y=0, color='black', linewidth=1)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Fairness Improvement — Income Band\n(positive = fairness improved)', fontsize=12)
+    ax.set_title('Fairness Improvement, Income Band\n(positive = fairness improved)', fontsize=12)
     ax.set_ylabel('DP/EO Difference Reduction'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_fairness_improvement.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 3 — Cost-Gain Scatter
+    # Figure 3, Cost-Gain Scatter
     fig, ax = plt.subplots(figsize=(8,6))
     colors = {'LogisticRegression': 'steelblue', 'GradientBoosting': '#5cb85c'}
     for name in names:
@@ -282,13 +282,13 @@ def run_stage2():
     ax.axhline(y=0, color='gray', linestyle='--', linewidth=1)
     ax.axvline(x=0, color='gray', linestyle='--', linewidth=1)
     ax.set_xlabel('Accuracy Cost'); ax.set_ylabel('Fairness Gain')
-    ax.set_title('Cost-Gain Scatter — Lending Club\n(top-left = best tradeoff)', fontsize=12)
+    ax.set_title('Cost-Gain Scatter, Lending Club\n(top-left = best tradeoff)', fontsize=12)
     ax.legend(fontsize=8)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_cost_gain_scatter.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 4 — Home Ownership Fairness
+    # Figure 4, Home Ownership Fairness
     fig, ax = plt.subplots(figsize=(8,5))
     home_labels = ['MORTGAGE\n(n~9,921)', 'RENT\n(n~7,946)']
     home_base_rates = []
@@ -303,13 +303,13 @@ def run_stage2():
     for bar, val in zip(ax.patches, home_base_rates+home_dp_rates):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.005, f'{val:.3f}', ha='center', fontsize=10)
     ax.set_xticks(xh); ax.set_xticklabels(home_labels)
-    ax.set_title('Home Ownership Fairness — MORTGAGE vs RENT\n(GB: default prediction rates)', fontsize=12)
+    ax.set_title('Home Ownership Fairness, MORTGAGE vs RENT\n(GB: default prediction rates)', fontsize=12)
     ax.set_ylabel('Default Prediction Rate'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_home_ownership_fairness.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 5 — Income Band Prediction Rates
+    # Figure 5, Income Band Prediction Rates
     band_labels = ['Q1-Low', 'Q2', 'Q3', 'Q4-High']
     base_rates = [baseline['GradientBoosting']['y_pred'][inc_test==b].mean() for b in range(4)]
     dp_rates = [dp_results['GradientBoosting']['y_pred'][inc_test==b].mean() if dp_results.get('GradientBoosting') else 0 for b in range(4)]
@@ -320,13 +320,13 @@ def run_stage2():
     for bar, val in zip(ax.patches, base_rates+dp_rates):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.003, f'{val:.3f}', ha='center', fontsize=9)
     ax.set_xticks(xi); ax.set_xticklabels(band_labels)
-    ax.set_title('Income Band Prediction Rates — GB Before vs After DP Constraint', fontsize=12)
+    ax.set_title('Income Band Prediction Rates, GB Before vs After DP Constraint', fontsize=12)
     ax.set_ylabel('Default Prediction Rate'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_income_band_rates.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 6 — DIR Before vs After
+    # Figure 6, DIR Before vs After
     dir_befores = []; dir_afters = []
     for name in names:
         q1_b = baseline[name]['y_pred'][inc_test==0].mean()
@@ -345,13 +345,13 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
     ax.axhline(y=0.8, color='red', linestyle='--', linewidth=2, label='EEOC 0.8 threshold')
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Disparate Impact Ratio — Q1 vs Q4 Income\n(Before vs After DP Constraint)', fontsize=12)
+    ax.set_title('Disparate Impact Ratio, Q1 vs Q4 Income\n(Before vs After DP Constraint)', fontsize=12)
     ax.set_ylabel('DIR (Q1/Q4)'); ax.set_ylim(0, 1.3); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figure 7 — F1 Comparison
+    # Figure 7, F1 Comparison
     fig, ax = plt.subplots(figsize=(10,5))
     base_f1s = [f1_score(y_test, baseline[n]['y_pred']) for n in names]
     dp_f1s = [f1_score(y_test, dp_results[n]['y_pred']) if dp_results.get(n) else 0 for n in names]
@@ -360,14 +360,14 @@ def run_stage2():
     for bar, val in zip(ax.patches, base_f1s+dp_f1s):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.005, f'{val:.3f}', ha='center', fontsize=10)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('F1 Comparison — Baseline vs DP Constraint', fontsize=12)
+    ax.set_title('F1 Comparison, Baseline vs DP Constraint', fontsize=12)
     ax.set_ylabel('F1'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_f1_comparison.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
 
-    # Figure 8 — FPR/FNR by Income Band
+    # Figure 8, FPR/FNR by Income Band
     from sklearn.model_selection import train_test_split as tts2
     from lending_club_loader import load_lending_club as llc
     result2 = llc(sample_size=SAMPLE_SIZE)
@@ -399,7 +399,7 @@ def run_stage2():
         ax.set_xticks(xi); ax.set_xticklabels(band_labels)
         ax.set_title(f'{metric} by Income Band',fontsize=12)
         ax.set_ylabel(metric); ax.legend(fontsize=8)
-    plt.suptitle('FPR/FNR by Income Band — GB Before vs After DP Constraint\n(Baseline underpredicts default across all bands)',fontsize=12)
+    plt.suptitle('FPR/FNR by Income Band, GB Before vs After DP Constraint\n(Baseline underpredicts default across all bands)',fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR,'lendingclub_fpr_fnr_by_income.png'),dpi=150,bbox_inches='tight')
     plt.close()
@@ -408,7 +408,7 @@ def run_stage2():
 
     print(f"\n--- Lending Club Stage 2 complete ---")
     print(f"  Income-based fairness intervention applied")
-    print(f"  No direct race/gender — proxy-based ECOA audit")
+    print(f"  No direct race/gender, proxy-based ECOA audit")
     print(f"  Cross-domain: financial services income gap addressed")
 
     return baseline, dp_results, eo_results, inc_test, home_test

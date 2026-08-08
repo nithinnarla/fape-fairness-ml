@@ -1,9 +1,9 @@
 """
-FAPE — Folktables ACS EDA
-Phase 4 — Exploratory Data Analysis
+FAPE, Folktables ACS EDA
+Phase 4, Exploratory Data Analysis
 Socioeconomic Domain
 
-EDA on US Census ACS 2021 data — 1,589,032 records across
+EDA on US Census ACS 2021 data, 1,589,032 records across
 all 50 states. Understanding income inequality patterns,
 demographic distributions, and fairness-relevant signals
 before baseline model training.
@@ -32,7 +32,7 @@ SEX_LABELS = {1: "Male", 2: "Female"}
 
 
 def run_eda():
-    print("FAPE Phase 4 — Folktables ACS EDA")
+    print("FAPE Phase 4, Folktables ACS EDA")
     print("=" * 50)
 
     df = load_folktables_acs()

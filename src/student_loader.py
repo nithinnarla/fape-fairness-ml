@@ -1,6 +1,6 @@
 """
-Student Performance Dataset Loader — FAPE Phase 4
-Cortez & Silva (2008) — UCI ML Repository
+Student Performance Dataset Loader, FAPE Phase 4
+Cortez & Silva (2008), UCI ML Repository
 Dataset ID: 320
 
 Two student performance datasets:
@@ -8,7 +8,7 @@ Two student performance datasets:
 - student-por.csv: Portuguese language course (649 students)
 
 Used in FAPE as the small-scale education domain dataset.
-Tests whether the fairness framework holds at 649 records —
+Tests whether the fairness framework holds at 649 records.
 most fairness papers never evaluate at this scale.
 
 Sensitive attributes: sex, age
@@ -28,13 +28,13 @@ def load_student_performance(data_dir: str = 'data') -> dict:
     Load Student Performance dataset from UCI ML Repository.
 
     Downloads both math and Portuguese variants. Binarizes
-    the G3 final grade at the median — students above median
+    the G3 final grade at the median, students above median
     are labeled 1 (passing), below median labeled 0.
 
     Why binarize at median rather than pass/fail threshold:
     The raw grade scale (0-20) has different distributions
     across the two subjects. Median binarization ensures
-    comparable positive rates across datasets — critical
+    comparable positive rates across datasets, critical
     for cross-domain fairness evaluation in FAPE Stage 3.
 
     Args:
@@ -72,11 +72,11 @@ def load_student_performance(data_dir: str = 'data') -> dict:
     datasets = {}
 
     for name, df in [('math', df_math), ('portuguese', df_por)]:
-        # Binarize G3 at median — above median = 1, at or below = 0
+        # Binarize G3 at median, above median = 1, at or below = 0
         median_grade = df['G3'].median()
         y = (df['G3'] > median_grade).astype(int)
 
-        # Feature columns — exclude all three grade columns
+        # Feature columns, exclude all three grade columns
         # G1 and G2 are intermediate grades that directly predict G3
         # Including them would make the task trivial
         feature_cols = [c for c in df.columns
@@ -107,7 +107,7 @@ def load_student_performance(data_dir: str = 'data') -> dict:
             'sensitive_attrs': sensitive_attrs
         }
 
-        print(f"  ✓ student_{name}: {len(X):,} rows | "
+        print(f"  OK: student_{name}: {len(X):,} rows | "
               f"{len(feature_cols)} features | "
               f"positive rate: {positive_rate:.3f} | "
               f"median grade: {median_grade}")

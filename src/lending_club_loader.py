@@ -1,10 +1,10 @@
 """
-Lending Club Loan Data Loader — FAPE Phase 4
-Source: Kaggle — wordsforthewise/lending-club
+Lending Club Loan Data Loader, FAPE Phase 4
+Source: Kaggle, wordsforthewise/lending-club
 Period: 2007-2018 Q4
-Source: 2.26M accepted loan applications (full Kaggle dataset) — FAPE verified subset: 1,348,099 records after filtering
+Source: 2.26M accepted loan applications (full Kaggle dataset), FAPE verified subset: 1,348,099 records after filtering
 
-Lending Club does not collect race or gender data — a documented
+Lending Club does not collect race or gender data, a documented
 limitation of financial services ML fairness research. FAPE uses
 socioeconomic proxies consistent with the fairness literature:
 - addr_state: geographic proxy for demographic composition
@@ -12,7 +12,7 @@ socioeconomic proxies consistent with the fairness literature:
 - emp_length: employment stability proxy
 - home_ownership: housing status proxy
 
-Target: loan_status binarized — Fully Paid (0) vs Charged Off/Default (1)
+Target: loan_status binarized, Fully Paid (0) vs Charged Off/Default (1)
 This follows the standard approach in Kozodoi et al. (2022) and
 Verma & Rubin (2018) for financial services fairness evaluation.
 
@@ -20,7 +20,7 @@ Why include despite no direct demographics:
 Documented geographic and income-based disparities in loan approval
 and default prediction make this a canonical financial fairness dataset.
 ECOA (Equal Credit Opportunity Act) prohibits discrimination on
-protected characteristics — proxy-based auditing is the field standard.
+protected characteristics, proxy-based auditing is the field standard.
 """
 
 import pandas as pd
@@ -35,7 +35,7 @@ DATA_PATH = (
     'accepted_2007_to_2018Q4.csv'
 )
 
-# Target loan statuses — binary classification
+# Target loan statuses, binary classification
 # 1 = default/loss, 0 = fully paid
 DEFAULT_STATUSES = {'Charged Off', 'Default', 'Does not meet the credit policy. Status:Charged Off'}
 PAID_STATUSES = {'Fully Paid', 'Does not meet the credit policy. Status:Fully Paid'}
@@ -43,7 +43,7 @@ PAID_STATUSES = {'Fully Paid', 'Does not meet the credit policy. Status:Fully Pa
 # Socioeconomic proxy sensitive attributes
 SENSITIVE_ATTRS = ['annual_inc_band', 'emp_length', 'home_ownership', 'addr_state']
 
-# Core feature columns — exclude direct loan outcome leakage
+# Core feature columns, exclude direct loan outcome leakage
 FEATURE_COLS = [
     'loan_amnt', 'term', 'int_rate', 'installment', 'grade',
     'sub_grade', 'emp_length', 'home_ownership', 'annual_inc',
@@ -70,7 +70,7 @@ def load_lending_club(
 
     Why sample_size parameter:
     At 2.26M records, full dataset training is computationally expensive.
-    Default loads all records — Phase 4 EDA uses 500K sample for speed.
+    Default loads all records, Phase 4 EDA uses 500K sample for speed.
     Final evaluation uses full dataset for reported results.
 
     Args:
@@ -96,7 +96,7 @@ def load_lending_club(
     df = df[df['loan_status'].isin(DEFAULT_STATUSES | PAID_STATUSES)]
     print(f"  After binary outcome filter: {len(df):,}")
 
-    # Binarize target — 1 = default, 0 = fully paid
+    # Binarize target, 1 = default, 0 = fully paid
     y = df['loan_status'].apply(
         lambda x: 1 if x in DEFAULT_STATUSES else 0
     )
@@ -145,7 +145,7 @@ def load_lending_club(
 
     metadata = {
         'name': 'lending_club',
-        'source': 'Kaggle — wordsforthewise/lending-club',
+        'source': 'Kaggle, wordsforthewise/lending-club',
         'citation': 'Lending Club 2007-2018 Q4',
         'n_samples': len(X),
         'n_features': len(X.columns),
@@ -154,13 +154,13 @@ def load_lending_club(
         'positive_rate': positive_rate,
         'domain': 'Financial Services',
         'note': (
-            'No direct race/gender data available — socioeconomic proxies '
+            'No direct race/gender data available, socioeconomic proxies '
             'used per ECOA fairness auditing standard. Follows Kozodoi et al. '
             '(2022) preprocessing for financial fairness evaluation.'
         )
     }
 
-    print(f"  ✓ lending_club: {len(X):,} rows | "
+    print(f"  OK: lending_club: {len(X):,} rows | "
           f"{len(X.columns)} features | "
           f"default rate: {positive_rate:.3f}")
 

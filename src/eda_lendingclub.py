@@ -1,14 +1,14 @@
 """
-FAPE — Lending Club EDA
-Phase 4 — Exploratory Data Analysis
+FAPE, Lending Club EDA
+Phase 4, Exploratory Data Analysis
 Financial Services Domain
 
-EDA on Lending Club loan data — 500,000 sample from 1,348,099 records
-(2007-2018 Q4). No direct race/gender data available — ECOA compliance
+EDA on Lending Club loan data, 500,000 sample from 1,348,099 records
+(2007-2018 Q4). No direct race/gender data available, ECOA compliance
 means financial institutions cannot collect protected characteristics.
 Socioeconomic proxies used per fairness literature standard.
 
-Source: Kaggle — wordsforthewise/lending-club
+Source: Kaggle, wordsforthewise/lending-club
 Citation: Lending Club 2007-2018 Q4
 Sensitive attributes: annual_inc_band, emp_length, home_ownership, addr_state
 Target: loan_default_binary (1=default, 0=fully paid)
@@ -41,7 +41,7 @@ INC_LABELS = {-1:"Unknown", 0:"Low", 1:"Lower-Mid", 2:"Upper-Mid", 3:"High"}
 
 
 def run_eda():
-    print("FAPE Phase 4 — Lending Club EDA")
+    print("FAPE Phase 4, Lending Club EDA")
     print("=" * 50)
 
     dataset = load_lending_club(sample_size=500000)
@@ -58,7 +58,7 @@ def run_eda():
     label_pct = df["label"].value_counts(normalize=True).sort_index()
     print(f"  Fully Paid (0):  {label_counts[0]:,} ({label_pct[0]:.1%})")
     print(f"  Default (1):     {label_counts[1]:,} ({label_pct[1]:.1%})")
-    print(f"  Note: 20% default rate — moderately imbalanced")
+    print(f"  Note: 20% default rate, moderately imbalanced")
 
     print(f"\n--- Loan Grade vs Default Rate ---")
     grade_stats = df.groupby("grade").agg(
@@ -68,7 +68,7 @@ def run_eda():
     for _, row in grade_stats.iterrows():
         grade_name = GRADE_LABELS.get(int(row["grade"]), str(int(row["grade"])))
         print(f"  Grade {grade_name}: n={int(row['count']):,} | default rate: {row['default_rate']:.1%}")
-    print(f"  Note: Grade is strongest predictor — monotonic A→G default rate increase")
+    print(f"  Note: Grade is strongest predictor, monotonic A→G default rate increase")
 
     print(f"\n--- Home Ownership vs Default Rate ---")
     home_stats = df.groupby("home_ownership").agg(
@@ -79,7 +79,7 @@ def run_eda():
         home_name = HOME_LABELS.get(int(row["home_ownership"]), str(int(row["home_ownership"])))
         print(f"  {home_name:<12} n={int(row['count']):,} | default rate: {row['default_rate']:.1%}")
 
-    print(f"  Note: ANY (n~123), NONE (n~21), OTHER (n~54) — small samples, interpret with caution")
+    print(f"  Note: ANY (n~123), NONE (n~21), OTHER (n~54), small samples, interpret with caution")
     print(f"\n--- Employment Length vs Default Rate ---")
     emp_stats = df.groupby("emp_length").agg(
         count=("label","count"),
@@ -88,7 +88,7 @@ def run_eda():
     for _, row in emp_stats.iterrows():
         print(f"  {int(row['emp_length']):>2} years: n={int(row['count']):,} | default rate: {row['default_rate']:.1%}")
 
-    print(f"  Note: < 1 year emp_length dropped as NaN during numeric extraction — see loader")
+    print(f"  Note: < 1 year emp_length dropped as NaN during numeric extraction, see loader")
     print(f"\n--- Income Band vs Default Rate ---")
     inc_stats = df.groupby("annual_inc_band").agg(
         count=("label","count"),
@@ -184,7 +184,7 @@ def run_eda():
     print(f"  Renters default rate:         {rent_rate:.1%}")
     print(f"  Mortgage holders default:     {mortgage_rate:.1%}")
     print(f"  Housing gap:                  {abs(rent_rate-mortgage_rate):.1%}")
-    print(f"  Note: No direct race/gender data — ECOA compliance")
+    print(f"  Note: No direct race/gender data, ECOA compliance")
     print(f"  Note: Socioeconomic proxies may encode racial disparities")
     print(f"  Note: Geographic proxy (addr_state) captures redlining patterns")
 

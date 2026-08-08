@@ -1,14 +1,14 @@
 """
-FAPE — FairGround Corpus EDA
-Phase 4 — Exploratory Data Analysis
+FAPE, FairGround Corpus EDA
+Phase 4, Exploratory Data Analysis
 Multi-Domain Benchmark
 
-EDA on FairGround corpus — 37 fairness-annotated datasets
+EDA on FairGround corpus, 37 fairness-annotated datasets
 totaling 1,964,010 records across criminal justice, financial,
 healthcare, education, and socioeconomic domains.
 
 FairGround addresses the benchmark monoculture problem identified
-by Fabris et al. (2025) — pre-validated sensitive attribute
+by Fabris et al. (2025), pre-validated sensitive attribute
 metadata eliminates arbitrary preprocessing choices.
 """
 
@@ -46,7 +46,7 @@ def get_balance(rate):
 
 
 def run_eda():
-    print("FAPE Phase 4 — FairGround Corpus EDA")
+    print("FAPE Phase 4, FairGround Corpus EDA")
     print("=" * 50)
 
     corpus = load_fairground_corpus()
@@ -71,8 +71,8 @@ def run_eda():
 
     print(f"\n--- Size Distribution ---")
     sizes_sorted = sorted(sizes, key=lambda x: x[1], reverse=True)
-    print(f"  Largest:  {sizes_sorted[0][0]} — {sizes_sorted[0][1]:,} records")
-    print(f"  Smallest: {sizes_sorted[-1][0]} — {sizes_sorted[-1][1]:,} records")
+    print(f"  Largest:  {sizes_sorted[0][0]}, {sizes_sorted[0][1]:,} records")
+    print(f"  Smallest: {sizes_sorted[-1][0]}, {sizes_sorted[-1][1]:,} records")
     print(f"  Median:   {sorted([s[1] for s in sizes])[len(sizes)//2]:,} records")
 
     print(f"\n--- Domain Coverage ---")
@@ -155,7 +155,7 @@ def run_eda():
         print(f"  {name:<45} {n:,}")
 
     print(f"\n--- FairGround EDA complete ---")
-    print(f"  Total datasets: {len(corpus)} loaded (1 failed — law_school_tensorflow HTTP 403)")
+    print(f"  Total datasets: {len(corpus)} loaded (1 failed, law_school_tensorflow HTTP 403)")
     print(f"  Total records:  {total_records:,}")
     print(f"  Ready for cross-domain fairness baseline modeling")
 

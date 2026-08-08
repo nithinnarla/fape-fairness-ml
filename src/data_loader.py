@@ -15,7 +15,7 @@ def load_compas(data_dir: str = "data/raw") -> pd.DataFrame:
 
     df = pd.read_csv(filepath)
 
-    # Filter to relevant population — same criteria ProPublica used
+    # Filter to relevant population, same criteria ProPublica used
     # Removes records with missing data or irrelevant charge categories
     df = df[
         (df["days_b_screening_arrest"] <= 30) &
@@ -72,7 +72,7 @@ def load_folktables_acs() -> pd.DataFrame:
     """
     from folktables import ACSDataSource
 
-    print("Loading Folktables ACS data — first run downloads per state, please wait...")
+    print("Loading Folktables ACS data, first run downloads per state, please wait...")
 
     data_source = ACSDataSource(
         survey_year="2021",

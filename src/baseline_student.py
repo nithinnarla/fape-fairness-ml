@@ -1,6 +1,6 @@
 """
-FAPE — Student Performance Baseline Models
-Phase 4 — Baseline Fairness Evaluation
+FAPE, Student Performance Baseline Models
+Phase 4, Baseline Fairness Evaluation
 
 Two datasets: Math (395) and Portuguese (649)
 Sensitive attributes: sex (0=Female, 1=Male), age
@@ -56,7 +56,7 @@ def fairness_metrics(y_true, y_pred, sensitive):
 
 
 def run_baselines():
-    print("FAPE Phase 4 — Student Performance Baseline Models")
+    print("FAPE Phase 4, Student Performance Baseline Models")
     print("=" * 55)
 
     datasets = load_student_performance()
@@ -68,7 +68,7 @@ def run_baselines():
         y = ds['y'].values
         sex = ds['X']['sex'].values
         age = ds['X']['age'].values
-        age_binned = pd.cut(age, bins=2, labels=['young','older']).astype(str)  # 2 bins — 'older' group sparse (n=29 math, n=41 por)
+        age_binned = pd.cut(age, bins=2, labels=['young','older']).astype(str)  # 2 bins, 'older' group sparse (n=29 math, n=41 por)
 
         X_train, X_test, y_train, y_test, idx_tr, idx_te = train_test_split(
             X, y, np.arange(len(y)), test_size=0.2, random_state=42, stratify=y)

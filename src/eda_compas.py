@@ -1,14 +1,14 @@
 """
-FAPE — COMPAS EDA
-Phase 4 — Exploratory Data Analysis
+FAPE, COMPAS EDA
+Phase 4, Exploratory Data Analysis
 Criminal Justice Domain
 
-EDA on COMPAS recidivism dataset — 6,172 records from Broward County Florida (2013-2014).
+EDA on COMPAS recidivism dataset, 6,172 records from Broward County Florida (2013-2014).
 Understanding demographic distributions, COMPAS algorithmic bias patterns,
 false positive/negative rate disparities, and proxy variable bias before
 baseline model training.
 
-Source: ProPublica — Angwin et al. (2016)
+Source: ProPublica, Angwin et al. (2016)
 """
 
 import pandas as pd
@@ -20,7 +20,7 @@ from data_loader import load_compas
 
 
 def run_eda():
-    print("FAPE Phase 4 — COMPAS EDA")
+    print("FAPE Phase 4, COMPAS EDA")
     print("=" * 50)
 
     df = load_compas()
@@ -66,7 +66,7 @@ def run_eda():
 
     print(f"\n--- Decile Score vs Actual Recidivism ---")
     score_recid = df.groupby("decile_score")["label"].mean()
-    print(f"  Calibration — recidivism rate per decile score:")
+    print(f"  Calibration, recidivism rate per decile score:")
     for score, rate in score_recid.items():
         print(f"    Score {score}: {rate:.1%}")
 
@@ -129,7 +129,7 @@ def run_eda():
         mean_score = subset['decile_score'].mean()
         recid_rate = subset['is_recid'].mean()
         print(f"  {str(race):<25} mean_decile={mean_score:.2f} | recid_rate={recid_rate:.1%}")
-    print(f"  Note: Higher decile scores for African-American despite similar recidivism — algorithmic bias")
+    print(f"  Note: Higher decile scores for African-American despite similar recidivism, algorithmic bias")
 
     print(f"\n--- Key Fairness Observations ---")
     aa_rate = df[df["race"] == "African-American"]["label"].mean()

@@ -1,16 +1,16 @@
 """
-FAPE — Law School Admissions EDA
-Phase 4 — Exploratory Data Analysis
+FAPE, Law School Admissions EDA
+Phase 4, Exploratory Data Analysis
 Education/Legal Domain
 
-EDA on Law School Admissions dataset — 18,692 records.
+EDA on Law School Admissions dataset, 18,692 records.
 Wightman (1998) LSAC National Longitudinal Bar Passage Study,
 adapted by LeQuy et al. via FairGround corpus.
 
 Sensitive attributes: racetxt (0=minority, 1=White), male (0=Female, 1=Male)
-Target: pass_bar — bar passage (binary)
-Note: 90.2% pass rate — highly imbalanced dataset.
-Note: law_school_tensorflow unavailable (HTTP 403) — using law_school_lequy.
+Target: pass_bar, bar passage (binary)
+Note: 90.2% pass rate, highly imbalanced dataset.
+Note: law_school_tensorflow unavailable (HTTP 403), using law_school_lequy.
 """
 
 import pandas as pd
@@ -25,7 +25,7 @@ SEX_LABELS = {0.0: "Female", 1.0: "Male"}
 
 
 def run_eda():
-    print("FAPE Phase 4 — Law School Admissions EDA")
+    print("FAPE Phase 4, Law School Admissions EDA")
     print("=" * 50)
 
     dataset = load_law_school()
@@ -42,7 +42,7 @@ def run_eda():
     label_pct = df["label"].value_counts(normalize=True).sort_index()
     print(f"  Failed bar (0): {label_counts[0]:,} ({label_pct[0]:.1%})")
     print(f"  Passed bar (1): {label_counts[1]:,} ({label_pct[1]:.1%})")
-    print(f"  Note: 90.2% pass rate — severe class imbalance")
+    print(f"  Note: 90.2% pass rate, severe class imbalance")
 
     print(f"\n--- Race Distribution ---")
     for code, label in RACE_LABELS.items():
@@ -119,7 +119,7 @@ def run_eda():
         if len(subset) < 50: continue
         corr = subset['lsat'].corr(subset['ugpa'])
         print(f"  race={int(race):<5} n={len(subset):,} mean_lsat={subset['lsat'].mean():.2f} mean_ugpa={subset['ugpa'].mean():.2f} corr={corr:.3f}")
-    print(f"  Note: Racial group separation in LSAT-UGPA space — key fairness finding")
+    print(f"  Note: Racial group separation in LSAT-UGPA space, key fairness finding")
 
     print(f"\n--- Key Fairness Observations ---")
     white_pass = df[df["racetxt"] == 1]["label"].mean()
@@ -137,9 +137,9 @@ def run_eda():
     print(f"  White mean LSAT:         {white_lsat:.2f}")
     print(f"  Minority mean LSAT:      {minority_lsat:.2f}")
     print(f"  LSAT gap:                {abs(white_lsat - minority_lsat):.2f}")
-    print(f"  Note: Minority group n=1,201 (6.4%) — small sample relative to White n=17,491")
+    print(f"  Note: Minority group n=1,201 (6.4%), small sample relative to White n=17,491")
     print(f"  Note: 90.2% overall pass rate means fairness metrics will be dominated")
-    print(f"  by the majority class — FAPE Stage 2 will use equalized odds not accuracy")
+    print(f"  by the majority class, FAPE Stage 2 will use equalized odds not accuracy")
 
     print(f"\n--- Law School EDA complete ---")
     print(f"  Total records: {len(df):,}")

@@ -1,5 +1,5 @@
 """
-SBA 7(a) Agricultural Loans Loader — FAPE Phase 4
+SBA 7(a) Agricultural Loans Loader, FAPE Phase 4
 Source: U.S. Small Business Administration FOIA Dataset
 Period: FY1991-2024 (4 files)
 Agricultural filter: NAICS code prefix 11 (Agriculture, Forestry, Fishing)
@@ -12,12 +12,12 @@ USDA individual-level farm data is protected under CIPSEA and
 requires a formal research agreement. SBA 7(a) FOIA data is
 publicly available and covers agricultural business loans
 (NAICS-11) with loan approval, terms, and repayment outcomes.
-No direct race/ethnicity demographics — socioeconomic and
+No direct race/ethnicity demographics, socioeconomic and
 geographic proxies used per ECOA fair lending standard.
 
 Sensitive attributes: borrstate (geographic proxy), businesstype,
                      grossapproval (loan size proxy for wealth)
-Target: loan_default_binary — Charged Off (1) vs Paid In Full (0)
+Target: loan_default_binary, Charged Off (1) vs Paid In Full (0)
 Domain: Agriculture/Financial
 """
 
@@ -46,11 +46,11 @@ def load_sba_agricultural(data_dir: str = DATA_DIR) -> dict:
 
     Filters to NAICS-11 (Agriculture, Forestry, Fishing, Hunting)
     across all four decade files. Applies binary outcome labeling
-    consistent with Lending Club loader — Charged Off = 1 (default),
+    consistent with Lending Club loader, Charged Off = 1 (default),
     Paid In Full = 0 (repaid).
 
     Note on demographics:
-    SBA FOIA data contains no race/ethnicity/sex fields — redacted
+    SBA FOIA data contains no race/ethnicity/sex fields, redacted
     per SBA privacy policy. Geographic (state) and loan-size proxies
     are used as sensitive attributes, consistent with ECOA fair
     lending audit methodology used by CFPB.
@@ -121,13 +121,13 @@ def load_sba_agricultural(data_dir: str = DATA_DIR) -> dict:
     print(f"\n  Top agricultural NAICS categories:")
     print(combined['naicsdescription'].value_counts().head(5).to_string())
 
-    print(f"\n  ✓ sba_agricultural: {len(X):,} records | "
+    print(f"\n  OK: sba_agricultural: {len(X):,} records | "
           f"{len(feature_cols)} features | "
           f"default rate: {positive_rate:.3f}")
 
     metadata = {
         'name': 'sba_7a_agricultural',
-        'source': 'SBA FOIA 7(a) dataset — NAICS-11 filter',
+        'source': 'SBA FOIA 7(a) dataset, NAICS-11 filter',
         'citation': 'U.S. Small Business Administration FOIA 7(a) FY1991-2024',
         'n_samples': len(X),
         'n_features': len(feature_cols),
@@ -136,7 +136,7 @@ def load_sba_agricultural(data_dir: str = DATA_DIR) -> dict:
         'positive_rate': positive_rate,
         'domain': 'Agriculture/Financial',
         'note': (
-            'No direct race/ethnicity demographics available — '
+            'No direct race/ethnicity demographics available, '
             'SBA redacts borrower demographics per privacy policy. '
             'Geographic and loan-size proxies used per ECOA standard. '
             '21,926 total NAICS-11 records; binary outcome subset used.'
