@@ -1,17 +1,17 @@
 """
-FAPE -- FairGround Corpus Stage 2: ThresholdOptimizer
-Phase 4 -- Stage 2 Fairness Intervention
+FAPE - FairGround Corpus Stage 2: ThresholdOptimizer
+Phase 4 - Stage 2 Fairness Intervention
 Cross-Domain Evaluation
 
 Applies Fairlearn ThresholdOptimizer post-processing across 5 FairGround domains.
 Tests demographic_parity and equalized_odds constraints per dataset.
 
 Domains:
-- adult (Income) -- race sensitive
-- compas_2_years (Criminal Justice) -- age sensitive
-- creditcard (Credit) -- sex sensitive
-- law_school_lequy (Education) -- race + sex sensitive
-- meps_panel_19_fy2015 (Healthcare) -- race sensitive
+- adult (Income) - race sensitive
+- compas_2_years (Criminal Justice) - age sensitive
+- creditcard (Credit) - sex sensitive
+- law_school_lequy (Education) - race + sex sensitive
+- meps_panel_19_fy2015 (Healthcare) - race sensitive
 
 Note: ThresholdOptimizer in fairlearn 0.13.0 is non-deterministic.
 Direction is consistent across runs.
@@ -111,7 +111,7 @@ def run_threshold(model, X_train, y_train, X_test, y_test, sens_train, sens_test
 
 
 def run_stage2():
-    print("FAPE Phase 4 -- FairGround Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4 - FairGround Stage 2: ThresholdOptimizer")
     print("=" * 56)
 
     print("\n--- Loading FairGround Corpus ---")
@@ -125,7 +125,7 @@ def run_stage2():
 
         X, y, sensitive = prepare_dataset(corpus, ds_id, config)
         if X is None:
-            print(f"  SKIPPED -- sensitive feature not found")
+            print(f"  SKIPPED - sensitive feature not found")
             continue
 
         X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(
@@ -192,11 +192,11 @@ def run_stage2():
 
     print(f"\n--- Key Findings ---")
     print(f"  ThresholdOptimizer applied across 5 domains: Income, Criminal Justice, Credit, Education, Healthcare")
-    print(f"  Non-deterministic in fairlearn 0.13.0 -- direction consistent across runs")
-    print(f"  Education (law_school): highest baseline DPD -- race gap largest in FAPE")
-    print(f"  Credit (creditcard): lowest baseline DPD -- sex gap minimal")
-    print(f"  Criminal Justice (compas_2_years): ThresholdOptimizer failed -- age=71 degenerate labels (single class)")
-    print(f"  Education: DP constraint reduces DPD 0.342->0.022 -- strongest cross-domain improvement")
+    print(f"  Non-deterministic in fairlearn 0.13.0 - direction consistent across runs")
+    print(f"  Education (law_school): highest baseline DPD - race gap largest in FAPE")
+    print(f"  Credit (creditcard): lowest baseline DPD - sex gap minimal")
+    print(f"  Criminal Justice (compas_2_years): ThresholdOptimizer failed - age=71 degenerate labels (single class)")
+    print(f"  Education: DP constraint reduces DPD 0.342->0.022 - strongest cross-domain improvement")
     print(f"  Cross-domain comparison enables FAPE paper Section 4 results table")
 
     # FIGURES
@@ -206,7 +206,7 @@ def run_stage2():
     models = list(MODELS.keys())
     short = ["LR", "RF", "GB"]
 
-    # Fig 1 -- Cross-Domain Baseline DPD comparison
+    # Fig 1 - Cross-Domain Baseline DPD comparison
     x = np.arange(len(datasets)); width = 0.25
     base_dpds = {m: [all_results[d]["baseline"][m]["dpd"] for d in datasets] for m in models}
     fig, ax = plt.subplots(figsize=(14, 6))
@@ -214,13 +214,13 @@ def run_stage2():
         ax.bar(x + (i-1)*width, base_dpds[name], width, label=name, color=color, edgecolor="white")
     ax.set_xticks(x); ax.set_xticklabels([f"{d}\n({dom})" for d,dom in zip(datasets,domains)],
                                           rotation=15, ha="right", fontsize=8)
-    ax.set_title("FairGround -- Cross-Domain Baseline DPD\n(Education race gap largest; Credit sex gap minimal)",
+    ax.set_title("FairGround - Cross-Domain Baseline DPD\n(Education race gap largest; Credit sex gap minimal)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("Demographic Parity Difference"); ax.legend(); plt.tight_layout()
     plt.savefig("figures/stage2/fairground_baseline_dpd.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 1 saved -- fairground_baseline_dpd.png")
+    plt.close(); print("Fig 1 saved - fairground_baseline_dpd.png")
 
-    # Fig 2 -- DPD Before vs After DP Constraint
+    # Fig 2 - DPD Before vs After DP Constraint
     fig, ax = plt.subplots(figsize=(14, 6))
     base_gb_dpds = [all_results[d]["baseline"]["GradientBoosting"]["dpd"] for d in datasets]
     dp_gb_dpds = [all_results[d]["dp"]["GradientBoosting"]["dpd"] if all_results[d]["dp"].get("GradientBoosting") else 0 for d in datasets]
@@ -233,13 +233,13 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, val+0.005, f"{val:.3f}", ha="center", fontsize=8)
     ax.set_xticks(x2); ax.set_xticklabels([f"{d}\n({dom})" for d,dom in zip(datasets,domains)],
                                             rotation=15, ha="right", fontsize=8)
-    ax.set_title("FairGround -- GB DPD Before vs After DP Constraint\n(Cross-domain fairness intervention)",
+    ax.set_title("FairGround - GB DPD Before vs After DP Constraint\n(Cross-domain fairness intervention)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("DPD"); ax.legend(); plt.tight_layout()
     plt.savefig("figures/stage2/fairground_dpd_before_after.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 2 saved -- fairground_dpd_before_after.png")
+    plt.close(); print("Fig 2 saved - fairground_dpd_before_after.png")
 
-    # Fig 3 -- EOD Before vs After EO Constraint
+    # Fig 3 - EOD Before vs After EO Constraint
     base_gb_eods = [all_results[d]["baseline"]["GradientBoosting"]["eod"] for d in datasets]
     eo_gb_eods = [all_results[d]["eo"]["GradientBoosting"]["eod"] if all_results[d]["eo"].get("GradientBoosting") else 0 for d in datasets]
     fig, ax = plt.subplots(figsize=(14, 6))
@@ -251,13 +251,13 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, val+0.005, f"{val:.3f}", ha="center", fontsize=8)
     ax.set_xticks(x2); ax.set_xticklabels([f"{d}\n({dom})" for d,dom in zip(datasets,domains)],
                                             rotation=15, ha="right", fontsize=8)
-    ax.set_title("FairGround -- GB EOD Before vs After EO Constraint\n(Cross-domain equalized odds intervention)",
+    ax.set_title("FairGround - GB EOD Before vs After EO Constraint\n(Cross-domain equalized odds intervention)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("EOD"); ax.legend(); plt.tight_layout()
     plt.savefig("figures/stage2/fairground_eod_before_after.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 3 saved -- fairground_eod_before_after.png")
+    plt.close(); print("Fig 3 saved - fairground_eod_before_after.png")
 
-    # Fig 4 -- Accuracy Cost vs Fairness Gain scatter
+    # Fig 4 - Accuracy Cost vs Fairness Gain scatter
     fig, ax = plt.subplots(figsize=(12, 7))
     domain_colors = {"Income":"#3498db","Criminal Justice":"#e74c3c","Credit":"#2ecc71",
                      "Education":"#9b59b6","Healthcare":"#f39c12"}
@@ -283,13 +283,13 @@ def run_stage2():
                         Line2D([0],[0],marker="s",color="w",markerfacecolor="gray",markersize=10,label="EO constraint")]
     ax.legend(handles=legend_elements, fontsize=8, loc="upper left")
     ax.set_xlabel("Accuracy Cost"); ax.set_ylabel("Fairness Gain")
-    ax.set_title("FairGround -- Accuracy Cost vs Fairness Gain\n(Cross-domain: upper-left = best)",
+    ax.set_title("FairGround - Accuracy Cost vs Fairness Gain\n(Cross-domain: upper-left = best)",
                 fontsize=11, fontweight="bold")
     plt.tight_layout()
     plt.savefig("figures/stage2/fairground_cost_gain.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 4 saved -- fairground_cost_gain.png")
+    plt.close(); print("Fig 4 saved - fairground_cost_gain.png")
 
-    # Fig 5 -- Cross-Domain Accuracy Comparison
+    # Fig 5 - Cross-Domain Accuracy Comparison
     fig, ax = plt.subplots(figsize=(14, 6))
     base_gb_accs = [all_results[d]["baseline"]["GradientBoosting"]["acc"] for d in datasets]
     dp_gb_accs = [all_results[d]["dp"]["GradientBoosting"]["acc"] if all_results[d]["dp"].get("GradientBoosting") else 0 for d in datasets]
@@ -300,14 +300,14 @@ def run_stage2():
     ax.bar(x2+w5, eo_gb_accs,   w5, label="EO Constraint", color="#e74c3c", edgecolor="white")
     ax.set_xticks(x2); ax.set_xticklabels([f"{d}\n({dom})" for d,dom in zip(datasets,domains)],
                                             rotation=15, ha="right", fontsize=8)
-    ax.set_title("FairGround -- Cross-Domain Accuracy: Baseline vs Constrained\n(Accuracy cost of fairness constraints)",
+    ax.set_title("FairGround - Cross-Domain Accuracy: Baseline vs Constrained\n(Accuracy cost of fairness constraints)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("Accuracy"); ax.legend(); plt.tight_layout()
     plt.savefig("figures/stage2/fairground_accuracy_comparison.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 5 saved -- fairground_accuracy_comparison.png")
+    plt.close(); print("Fig 5 saved - fairground_accuracy_comparison.png")
 
 
-    # Fig 6 -- Fairness Improvement % by Domain
+    # Fig 6 - Fairness Improvement % by Domain
     domains_order = [d for d in datasets if all_results[d]['dp'].get('GradientBoosting')]
     dp_improvements = []
     eo_improvements = []
@@ -337,15 +337,15 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, val+1, f'{val:.0f}%', ha='center', fontsize=9, color='#2c3e50')
     ax.axhline(0, color='gray', linestyle='--', alpha=0.5)
     ax.set_xticks(x6); ax.set_xticklabels(domain_labels, rotation=15, ha='right')
-    ax.set_title('FairGround -- Fairness Improvement % by Domain\n(Education achieves strongest reduction; Credit near-zero baseline)',
+    ax.set_title('FairGround - Fairness Improvement % by Domain\n(Education achieves strongest reduction; Credit near-zero baseline)',
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('Fairness Improvement %'); ax.legend()
     plt.tight_layout()
     plt.savefig('figures/stage2/fairground_fairness_improvement_pct.png', dpi=150, bbox_inches='tight')
-    plt.close(); print('Fig 6 saved -- fairground_fairness_improvement_pct.png')
+    plt.close(); print('Fig 6 saved - fairground_fairness_improvement_pct.png')
 
 
-    # Fig 7 -- Per-Model DPD Improvement Across Domains
+    # Fig 7 - Per-Model DPD Improvement Across Domains
     domains_valid = [d for d in datasets if all_results[d]['dp'].get('GradientBoosting')]
     dom_labels = [all_results[d]['domain'] for d in domains_valid]
     model_colors = {'LogisticRegression':'#3498db','RandomForest':'#e74c3c','GradientBoosting':'#2ecc71'}
@@ -361,12 +361,12 @@ def run_stage2():
         ax.bar(x7+(i-1)*w7, imps, w7, label=model_short[mname], color=color, edgecolor='white')
     ax.axhline(0, color='gray', linestyle='--', alpha=0.5)
     ax.set_xticks(x7); ax.set_xticklabels(dom_labels, rotation=15, ha='right')
-    ax.set_title('FairGround -- DPD Reduction by Model Across Domains\n(LR vs RF vs GB response to DP constraint)',
+    ax.set_title('FairGround - DPD Reduction by Model Across Domains\n(LR vs RF vs GB response to DP constraint)',
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('DPD Reduction (positive = improvement)'); ax.legend()
     plt.tight_layout()
     plt.savefig('figures/stage2/fairground_permodel_dpd_improvement.png', dpi=150, bbox_inches='tight')
-    plt.close(); print('Fig 7 saved -- fairground_permodel_dpd_improvement.png')
+    plt.close(); print('Fig 7 saved - fairground_permodel_dpd_improvement.png')
 
     print(f"\n--- FairGround Stage 2 complete ---")
     print(f"  7 figures saved to figures/stage2/")
@@ -374,7 +374,7 @@ def run_stage2():
 
 
 
-    # Fig 8 -- DIR Before vs After DP Constraint
+    # Fig 8 - DIR Before vs After DP Constraint
     datasets8 = list(all_results.keys())
     domains8 = [all_results[d]['domain'] for d in datasets8]
     dir_b = [all_results[d]['baseline']['GradientBoosting']['dpr'] if all_results[d]['baseline'].get('GradientBoosting') else 0 for d in datasets8]
@@ -396,7 +396,7 @@ def run_stage2():
     ax.set_ylim(0, 1.5); ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig('figures/stage2/fairground_dir_before_after.png', dpi=150, bbox_inches='tight')
-    plt.close(); print('Fig 8 saved -- fairground_dir_before_after.png')
+    plt.close(); print('Fig 8 saved - fairground_dir_before_after.png')
 
 if __name__ == "__main__":
     run_stage2()

@@ -125,7 +125,7 @@ def run_threshold_aggregation():
         dpds = {m: safe_get(domain, m, 'dp_dpd') for m in MODELS}
         print(f"  {domain:<15} LR={fmt(dpds['LR'])} RF={fmt(dpds['RF'])} GB={fmt(dpds['GB'])}")
 
-    print("\n--- Key Findings (computed from RESULTS, not hardcoded -- see Decision 12) ---")
+    print("\n--- Key Findings (computed from RESULTS, not hardcoded - see Decision 12) ---")
     acc_doms = [d for d in DOMAINS if has_accuracy(d)]
     auc_doms = [d for d in DOMAINS if not has_accuracy(d)]
     gb_best_acc = sum(1 for d in acc_doms if safe_get(d, 'GB', 'baseline_acc') == max(
@@ -158,8 +158,8 @@ def run_threshold_aggregation():
 
     w = 0.25
 
-    # Figure 1 -- Baseline performance by model across domains, split by metric
-    # (4 domains report true accuracy; 3 report AUC -- these cannot share one axis,
+    # Figure 1 - Baseline performance by model across domains, split by metric
+    # (4 domains report true accuracy; 3 report AUC - these cannot share one axis,
     # see Decision 13 in methodology_decisions.md)
     acc_domains = [d for d in DOMAINS if has_accuracy(d)]
     auc_domains = [d for d in DOMAINS if not has_accuracy(d)]
@@ -189,19 +189,19 @@ def run_threshold_aggregation():
                 edgecolor='black', linewidth=0.5, alpha=0.85)
     ax2.set_xticks(x2)
     ax2.set_xticklabels(auc_domains, rotation=15, ha='right', fontsize=9)
-    ax2.set_title('Baseline AUC (RandomForest not implemented -- see Decision 16)', fontsize=11)
+    ax2.set_title('Baseline AUC (RandomForest not implemented - see Decision 16)', fontsize=11)
     ax2.set_ylabel('AUC')
     ax2.legend(fontsize=9)
     ax2.set_ylim(0.5, 1.0)
 
-    plt.suptitle('Baseline Performance Across All 7 FAPE Domains -- Split by Metric Type', fontsize=13)
+    plt.suptitle('Baseline Performance Across All 7 FAPE Domains - Split by Metric Type', fontsize=13)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_baseline_accuracy.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 1 saved -- aggregation_baseline_accuracy.png (split accuracy/AUC panels)")
+    print("  Fig 1 saved - aggregation_baseline_accuracy.png (split accuracy/AUC panels)")
 
-    # Figure 2 -- Post-DP DPD by model across domains
+    # Figure 2 - Post-DP DPD by model across domains
     x = np.arange(len(DOMAINS))
     fig, ax = plt.subplots(figsize=(14, 6))
     for i, model in enumerate(MODELS):
@@ -221,9 +221,9 @@ def run_threshold_aggregation():
     plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_post_dp_dpd.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 2 saved -- aggregation_post_dp_dpd.png")
+    print("  Fig 2 saved - aggregation_post_dp_dpd.png")
 
-    # Figure 3 -- Post-EO EOD by model across domains
+    # Figure 3 - Post-EO EOD by model across domains
     fig, ax = plt.subplots(figsize=(14, 6))
     for i, model in enumerate(MODELS):
         eods = [safe_get(d, model, 'eo_eod') for d in DOMAINS]
@@ -242,7 +242,7 @@ def run_threshold_aggregation():
     plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_post_eo_eod.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 3 saved -- aggregation_post_eo_eod.png")
+    print("  Fig 3 saved - aggregation_post_eo_eod.png")
 
     # Figure 4, Heatmap: best post-DP DPD per model per domain
     dpd_matrix = np.array([
@@ -259,7 +259,7 @@ def run_threshold_aggregation():
     plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_dpd_heatmap.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 4 saved -- aggregation_dpd_heatmap.png")
+    print("  Fig 4 saved - aggregation_dpd_heatmap.png")
 
 
     # Figure 5, Heatmap: post-EO EOD per model per domain
@@ -277,7 +277,7 @@ def run_threshold_aggregation():
     plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_eod_heatmap.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 5 saved -- aggregation_eod_heatmap.png")
+    print("  Fig 5 saved - aggregation_eod_heatmap.png")
 
 
     # Figure 6, Heatmap: accuracy cost under DP constraint
@@ -302,13 +302,13 @@ def run_threshold_aggregation():
     plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_acc_cost_heatmap.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 6 saved -- aggregation_acc_cost_heatmap.png")
+    print("  Fig 6 saved - aggregation_acc_cost_heatmap.png")
 
     print(f"\n--- ThresholdOptimizer Aggregation complete ---")
     print(f"  6 figures saved to figures/stage2/")
     print(f"  See Key Findings above for computed baseline performance and DP improvement leaders")
     print(f"  Note: 3 domains (Law School, Lending Club, Agricultural) report AUC not accuracy,")
-    print(f"        and lack RandomForest results entirely -- see Decisions 13 and 16")
+    print(f"        and lack RandomForest results entirely - see Decisions 13 and 16")
 
     return RESULTS
 

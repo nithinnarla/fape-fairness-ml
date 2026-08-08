@@ -1,6 +1,6 @@
 """
-FAPE -- Student Performance Stage 2: ThresholdOptimizer
-Phase 4 -- Stage 2 Fairness Intervention
+FAPE - Student Performance Stage 2: ThresholdOptimizer
+Phase 4 - Stage 2 Fairness Intervention
 Education Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Student Performance baseline.
@@ -80,7 +80,7 @@ def run_threshold(model, X_tr, y_tr, X_te, y_te, s_tr, s_te, constraint):
 
 
 def run_stage2():
-    print("FAPE Phase 4 -- Student Performance Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4 - Student Performance Stage 2: ThresholdOptimizer")
     print("=" * 62)
 
     print("\n--- Loading Student Performance Data ---")
@@ -159,17 +159,17 @@ def run_stage2():
 
     print(f"\n--- Key Findings ---")
     print(f"  Small dataset challenge: Math n=395, Portuguese n=649")
-    print(f"  Sex gap reverses between subjects -- known EDA finding confirmed in Stage 2")
+    print(f"  Sex gap reverses between subjects - known EDA finding confirmed in Stage 2")
     print(f"  ThresholdOptimizer non-deterministic in fairlearn 0.13.0")
     print(f"  Small subgroup sizes make fairness metric estimation noisy")
-    print(f"  Note: Student dataset tests FAPE framework at small scale -- all DIR below EEOC 0.8")
+    print(f"  Note: Student dataset tests FAPE framework at small scale - all DIR below EEOC 0.8")
 
     # FIGURES
     print(f"\n--- Generating Figures ---")
     models = list(MODELS.keys()); short = ["LR","RF","GB"]
     x = np.arange(len(models)); width = 0.25
 
-    # Fig 1 -- Accuracy vs Fairness by Subject
+    # Fig 1 - Accuracy vs Fairness by Subject
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -182,12 +182,12 @@ def run_stage2():
         ax.set_xticks(x); ax.set_xticklabels(short)
         ax.set_title(f"{subj.capitalize()} (n={all_results[subj]['n']})", fontsize=11, fontweight="bold")
         ax.set_ylabel("Accuracy"); ax.legend(); ax.set_ylim(0.4, 1.0)
-    plt.suptitle("Student Performance -- Accuracy: Baseline vs Constrained", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance - Accuracy: Baseline vs Constrained", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig("figures/stage2/student_accuracy_comparison.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 1 saved -- student_accuracy_comparison.png")
+    plt.close(); print("Fig 1 saved - student_accuracy_comparison.png")
 
-    # Fig 2 -- DPD by Subject Before vs After
+    # Fig 2 - DPD by Subject Before vs After
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -201,14 +201,14 @@ def run_stage2():
             ax.annotate(f"{imp:+.0f}%", xy=(i, max(b,a)+0.01), ha="center", fontsize=9,
                        color="green" if imp>0 else "red")
         ax.set_xticks(x); ax.set_xticklabels(short)
-        ax.set_title(f"{subj.capitalize()} -- DPD Before vs After", fontsize=11, fontweight="bold")
+        ax.set_title(f"{subj.capitalize()} - DPD Before vs After", fontsize=11, fontweight="bold")
         ax.set_ylabel("DPD"); ax.legend()
-    plt.suptitle("Student Performance -- Sex Fairness: DPD Before vs After DP Constraint", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance - Sex Fairness: DPD Before vs After DP Constraint", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig("figures/stage2/student_dpd_before_after.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 2 saved -- student_dpd_before_after.png")
+    plt.close(); print("Fig 2 saved - student_dpd_before_after.png")
 
-    # Fig 3 -- EOD by Subject Before vs After
+    # Fig 3 - EOD by Subject Before vs After
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -218,14 +218,14 @@ def run_stage2():
         ax.bar(x-w2/2, base_eods, w2, label="Baseline EOD", color="#e74c3c", edgecolor="white")
         ax.bar(x+w2/2, eo_eods,   w2, label="After EO Constraint", color="#2ecc71", edgecolor="white")
         ax.set_xticks(x); ax.set_xticklabels(short)
-        ax.set_title(f"{subj.capitalize()} -- EOD Before vs After", fontsize=11, fontweight="bold")
+        ax.set_title(f"{subj.capitalize()} - EOD Before vs After", fontsize=11, fontweight="bold")
         ax.set_ylabel("EOD"); ax.legend()
-    plt.suptitle("Student Performance -- Sex Fairness: EOD Before vs After EO Constraint", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance - Sex Fairness: EOD Before vs After EO Constraint", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig("figures/stage2/student_eod_before_after.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 3 saved -- student_eod_before_after.png")
+    plt.close(); print("Fig 3 saved - student_eod_before_after.png")
 
-    # Fig 4 -- Sex prediction rates Math vs Portuguese
+    # Fig 4 - Sex prediction rates Math vs Portuguese
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -243,14 +243,14 @@ def run_stage2():
             ax.text(i-w4/2, t+0.01, f"{t:.2f}", ha="center", fontsize=9)
             ax.text(i+w4/2, b+0.01, f"{b:.2f}", ha="center", fontsize=9)
         ax.set_xticks(x4); ax.set_xticklabels(categories)
-        ax.set_title(f"{subj.capitalize()} -- True vs Predicted by Sex", fontsize=11, fontweight="bold")
+        ax.set_title(f"{subj.capitalize()} - True vs Predicted by Sex", fontsize=11, fontweight="bold")
         ax.set_ylabel("Positive Rate"); ax.legend()
-    plt.suptitle("Student Performance -- Sex Gap: True Rate vs GB Predicted Rate", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance - Sex Gap: True Rate vs GB Predicted Rate", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig("figures/stage2/student_sex_prediction_rates.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 4 saved -- student_sex_prediction_rates.png")
+    plt.close(); print("Fig 4 saved - student_sex_prediction_rates.png")
 
-    # Fig 5 -- F1 comparison
+    # Fig 5 - F1 comparison
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -261,15 +261,15 @@ def run_stage2():
         ax.bar(x,       dp_f1s,   width, label="DP Constraint", color="#3498db", edgecolor="white")
         ax.bar(x+width, eo_f1s,   width, label="EO Constraint", color="#e74c3c", edgecolor="white")
         ax.set_xticks(x); ax.set_xticklabels(short)
-        ax.set_title(f"{subj.capitalize()} -- F1 Comparison", fontsize=11, fontweight="bold")
+        ax.set_title(f"{subj.capitalize()} - F1 Comparison", fontsize=11, fontweight="bold")
         ax.set_ylabel("F1 Score"); ax.legend(); ax.set_ylim(0, 1.0)
-    plt.suptitle("Student Performance -- F1 Score: Baseline vs Constrained", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance - F1 Score: Baseline vs Constrained", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig("figures/stage2/student_f1_comparison.png", dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 5 saved -- student_f1_comparison.png")
+    plt.close(); print("Fig 5 saved - student_f1_comparison.png")
 
 
-    # Fig 6 -- DIR by Sex -- EEOC 80% Compliance
+    # Fig 6 - DIR by Sex - EEOC 80% Compliance
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -292,14 +292,14 @@ def run_stage2():
         for bar, val in zip(bars, [dir_fm, dir_mf]):
             ax.text(bar.get_x()+bar.get_width()/2, val+0.01, f'{val:.3f}',
                    ha='center', fontsize=10, fontweight='bold')
-        ax.set_title(f'{subj.capitalize()} -- DIR by Sex\n(EEOC 80% rule)',
+        ax.set_title(f'{subj.capitalize()} - DIR by Sex\n(EEOC 80% rule)',
                     fontsize=11, fontweight='bold')
         ax.set_ylabel('Disparate Impact Ratio'); ax.legend(); ax.set_ylim(0, 1.5)
-    plt.suptitle('Student Performance -- DIR by Sex: EEOC 80% Compliance Check',
+    plt.suptitle('Student Performance - DIR by Sex: EEOC 80% Compliance Check',
                 fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.savefig('figures/stage2/student_dir_by_sex.png', dpi=150, bbox_inches='tight')
-    plt.close(); print('Fig 6 saved -- student_dir_by_sex.png')
+    plt.close(); print('Fig 6 saved - student_dir_by_sex.png')
 
     print(f"\n--- Student Stage 2 complete ---")
     print(f"  6 figures saved to figures/stage2/")
