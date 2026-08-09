@@ -145,7 +145,7 @@ def run_cross_domain_comparison():
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_dpd_comparison.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 1 saved -- cross_domain_dpd_comparison.png")
+    print("  Fig 1 saved - cross_domain_dpd_comparison.png")
 
     # Figure 2, EOD before/after across domains
     fig, ax = plt.subplots(figsize=(14, 6))
@@ -167,7 +167,7 @@ def run_cross_domain_comparison():
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_eod_comparison.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 2 saved -- cross_domain_eod_comparison.png")
+    print("  Fig 2 saved - cross_domain_eod_comparison.png")
 
     # Figure 3, Accuracy cost vs fairness improvement scatter
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
@@ -206,7 +206,7 @@ def run_cross_domain_comparison():
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_acc_fairness_scatter.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 3 saved -- cross_domain_acc_fairness_scatter.png")
+    print("  Fig 3 saved - cross_domain_acc_fairness_scatter.png")
 
     # Figure 4, DIR before/after for domains with DIR metrics
     dir_domains = {d: DOMAINS[d] for d in domain_names
@@ -237,7 +237,7 @@ def run_cross_domain_comparison():
         plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_dir_comparison.png'),
                     dpi=150, bbox_inches='tight')
         plt.close()
-        print("  Fig 4 saved -- cross_domain_dir_comparison.png")
+        print("  Fig 4 saved - cross_domain_dir_comparison.png")
 
     # Figure 5, Baseline DPD ranking heatmap
     fig, ax = plt.subplots(figsize=(12, 5))
@@ -260,7 +260,7 @@ def run_cross_domain_comparison():
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_metrics_heatmap.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 5 saved -- cross_domain_metrics_heatmap.png")
+    print("  Fig 5 saved - cross_domain_metrics_heatmap.png")
 
 
     # Figure 6, DP and EO improvement % ranking
@@ -305,7 +305,7 @@ def run_cross_domain_comparison():
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_improvement_ranking.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 6 saved -- cross_domain_improvement_ranking.png")
+    print("  Fig 6 saved - cross_domain_improvement_ranking.png")
 
     print(f"\n--- Cross-Domain Comparison complete ---")
     print(f"  6 figures saved to figures/stage2/")

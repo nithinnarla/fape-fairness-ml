@@ -270,7 +270,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_dpd_timeseries.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 1 saved -- drift_dpd_timeseries.png")
+    print("  Fig 1 saved - drift_dpd_timeseries.png")
 
     # Figure 2, CUSUM scores (GB)
     fig, axes = plt.subplots(2, 4, figsize=(20, 8))
@@ -298,7 +298,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_cusum_scores.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 2 saved -- drift_cusum_scores.png")
+    print("  Fig 2 saved - drift_cusum_scores.png")
 
     # Figure 3, Alert heatmap
     alert_matrix = np.array([
@@ -322,7 +322,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_alert_heatmap.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 3 saved -- drift_alert_heatmap.png")
+    print("  Fig 3 saved - drift_alert_heatmap.png")
 
     # Figure 4, Model versioning DPD v1/v2/v3
     x = np.arange(len(DOMAINS))
@@ -351,7 +351,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_model_versioning.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 4 saved -- drift_model_versioning.png")
+    print("  Fig 4 saved - drift_model_versioning.png")
 
     # Figure 5, First alert time
     first_alert = np.array([
@@ -375,7 +375,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_first_alert_time.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 5 saved -- drift_first_alert_time.png")
+    print("  Fig 5 saved - drift_first_alert_time.png")
 
     # Figure 6, Accuracy-fairness trajectory v1→v2→v3 (GB)
     fig, ax = plt.subplots(figsize=(14, 8))
@@ -404,7 +404,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_acc_fairness_trajectory.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 6 saved -- drift_acc_fairness_trajectory.png")
+    print("  Fig 6 saved - drift_acc_fairness_trajectory.png")
 
     # Figure 7, EOD timeseries (GB)
     eod_timeseries = {}
@@ -442,7 +442,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_eod_timeseries.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 7 saved -- drift_eod_timeseries.png")
+    print("  Fig 7 saved - drift_eod_timeseries.png")
 
 
     # Figure 8, Drift magnitude heatmap: v3_mean - v2_dpd per model per domain
@@ -461,7 +461,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_magnitude_heatmap.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 8 saved -- drift_magnitude_heatmap.png")
+    print("  Fig 8 saved - drift_magnitude_heatmap.png")
 
 
     # Figure 9, EOD drift magnitude heatmap: v3_mean - v2_eod per model per domain
@@ -488,7 +488,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_eod_magnitude_heatmap.png'),
                 dpi=150, bbox_inches='tight')
     plt.close()
-    print("  Fig 9 saved -- drift_eod_magnitude_heatmap.png")
+    print("  Fig 9 saved - drift_eod_magnitude_heatmap.png")
 
     print(f"\n--- Stage 4 Drift Detection complete ---")
     print(f"  9 figures saved to figures/stage2/")

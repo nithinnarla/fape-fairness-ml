@@ -186,7 +186,7 @@ def run_stage2():
         ax.set_ylabel("Accuracy"); ax.legend(); ax.set_ylim(0.4, 1.0)
     plt.suptitle("Student Performance - Accuracy: Baseline vs Constrained", fontsize=12, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/student_accuracy_comparison.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "student_accuracy_comparison.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 1 saved - student_accuracy_comparison.png")
 
     # Fig 2 - DPD by Subject Before vs After
@@ -207,7 +207,7 @@ def run_stage2():
         ax.set_ylabel("DPD"); ax.legend()
     plt.suptitle("Student Performance - Sex Fairness: DPD Before vs After DP Constraint", fontsize=12, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/student_dpd_before_after.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "student_dpd_before_after.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 2 saved - student_dpd_before_after.png")
 
     # Fig 3 - EOD by Subject Before vs After
@@ -224,7 +224,7 @@ def run_stage2():
         ax.set_ylabel("EOD"); ax.legend()
     plt.suptitle("Student Performance - Sex Fairness: EOD Before vs After EO Constraint", fontsize=12, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/student_eod_before_after.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "student_eod_before_after.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 3 saved - student_eod_before_after.png")
 
     # Fig 4 - Sex prediction rates Math vs Portuguese
@@ -249,7 +249,7 @@ def run_stage2():
         ax.set_ylabel("Positive Rate"); ax.legend()
     plt.suptitle("Student Performance - Sex Gap: True Rate vs GB Predicted Rate", fontsize=12, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/student_sex_prediction_rates.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "student_sex_prediction_rates.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 4 saved - student_sex_prediction_rates.png")
 
     # Fig 5 - F1 comparison
@@ -267,7 +267,7 @@ def run_stage2():
         ax.set_ylabel("F1 Score"); ax.legend(); ax.set_ylim(0, 1.0)
     plt.suptitle("Student Performance - F1 Score: Baseline vs Constrained", fontsize=12, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/student_f1_comparison.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "student_f1_comparison.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 5 saved - student_f1_comparison.png")
 
 

@@ -275,7 +275,7 @@ def run_stage2():
     axes[1].set_ylabel("DPD"); axes[1].legend()
     plt.suptitle("Folktables ACS - Accuracy vs Fairness Tradeoff", fontsize=12, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/folktables_accuracy_fairness_tradeoff.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "folktables_accuracy_fairness_tradeoff.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 1 saved - folktables_accuracy_fairness_tradeoff.png")
 
     # Fig 2
@@ -300,7 +300,7 @@ def run_stage2():
     axes[1].set_ylabel("EOD"); axes[1].legend()
     plt.suptitle("Folktables ACS - Fairness Improvement by Constraint Type", fontsize=12, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/folktables_fairness_improvement.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "folktables_fairness_improvement.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 2 saved - folktables_fairness_improvement.png")
 
     # Fig 3
@@ -336,7 +336,7 @@ def run_stage2():
     ax.set_xlabel("Accuracy Cost"); ax.set_ylabel("Fairness Gain")
     ax.set_title("Folktables ACS - Accuracy Cost vs Fairness Gain\n(upper-left = best)", fontsize=11, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/folktables_cost_gain_scatter.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "folktables_cost_gain_scatter.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 3 saved - folktables_cost_gain_scatter.png")
 
     # Fig 4
@@ -350,7 +350,7 @@ def run_stage2():
     ax.set_xticks(x); ax.set_xticklabels(short)
     ax.set_title("Folktables ACS - Sex Fairness After DP Constraint\n(Male-Female income gap reduction)", fontsize=11, fontweight="bold")
     ax.set_ylabel("Fairness Metric"); ax.legend(); plt.tight_layout()
-    plt.savefig("figures/stage2/folktables_sex_fairness.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "folktables_sex_fairness.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 4 saved - folktables_sex_fairness.png")
 
     # Fig 5
@@ -361,7 +361,7 @@ def run_stage2():
     ax.set_xticks(x); ax.set_xticklabels(short)
     ax.set_title("Folktables ACS - F1 Score Comparison", fontsize=11, fontweight="bold")
     ax.set_ylabel("F1 Score"); ax.legend(); ax.set_ylim(0.55, 0.85); plt.tight_layout()
-    plt.savefig("figures/stage2/folktables_f1_comparison.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "folktables_f1_comparison.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 5 saved - folktables_f1_comparison.png")
 
     # Fig 6
@@ -381,7 +381,7 @@ def run_stage2():
     ax.set_xticks(x6); ax.set_xticklabels(plot_labels, rotation=15, ha="right")
     ax.set_title("Folktables ACS - Race-Level Prediction Rates: Baseline vs EO Constraint\n(Black-White income prediction gap reduction)", fontsize=11, fontweight="bold")
     ax.set_ylabel("Predicted Positive Rate"); ax.legend(); plt.tight_layout()
-    plt.savefig("figures/stage2/folktables_race_prediction_rates.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "folktables_race_prediction_rates.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 6 saved - folktables_race_prediction_rates.png")
 
     # Fig 7
@@ -410,7 +410,7 @@ def run_stage2():
     axes[1].set_ylabel("FNR"); axes[1].legend()
     plt.suptitle("Folktables ACS - FPR/FNR by Race: Baseline vs EO Constraint", fontsize=12, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/folktables_fpr_fnr_by_race.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "folktables_fpr_fnr_by_race.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 7 saved - folktables_fpr_fnr_by_race.png")
 
 

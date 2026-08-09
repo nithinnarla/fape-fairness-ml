@@ -372,7 +372,7 @@ def run_stage2():
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_state_prediction_rates.png'), dpi=150, bbox_inches='tight')
     plt.close()
-    print(f"  Fig 8 saved -- agricultural_state_prediction_rates.png")
+    print(f"  Fig 8 saved - agricultural_state_prediction_rates.png")
     print(f"  States analyzed: {len(state_rates)} | max-min gap: {sorted_states[0][1][0]-sorted_states[-1][1][0]:.3f}")
 
     print(f"\n--- Agricultural Stage 2 complete ---")

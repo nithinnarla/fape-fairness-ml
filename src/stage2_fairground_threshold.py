@@ -219,7 +219,7 @@ def run_stage2():
     ax.set_title("FairGround - Cross-Domain Baseline DPD\n(Education race gap largest; Credit sex gap minimal)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("Demographic Parity Difference"); ax.legend(); plt.tight_layout()
-    plt.savefig("figures/stage2/fairground_baseline_dpd.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "fairground_baseline_dpd.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 1 saved - fairground_baseline_dpd.png")
 
     # Fig 2 - DPD Before vs After DP Constraint
@@ -238,7 +238,7 @@ def run_stage2():
     ax.set_title("FairGround - GB DPD Before vs After DP Constraint\n(Cross-domain fairness intervention)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("DPD"); ax.legend(); plt.tight_layout()
-    plt.savefig("figures/stage2/fairground_dpd_before_after.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "fairground_dpd_before_after.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 2 saved - fairground_dpd_before_after.png")
 
     # Fig 3 - EOD Before vs After EO Constraint
@@ -256,7 +256,7 @@ def run_stage2():
     ax.set_title("FairGround - GB EOD Before vs After EO Constraint\n(Cross-domain equalized odds intervention)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("EOD"); ax.legend(); plt.tight_layout()
-    plt.savefig("figures/stage2/fairground_eod_before_after.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "fairground_eod_before_after.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 3 saved - fairground_eod_before_after.png")
 
     # Fig 4 - Accuracy Cost vs Fairness Gain scatter
@@ -288,7 +288,7 @@ def run_stage2():
     ax.set_title("FairGround - Accuracy Cost vs Fairness Gain\n(Cross-domain: upper-left = best)",
                 fontsize=11, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("figures/stage2/fairground_cost_gain.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "fairground_cost_gain.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 4 saved - fairground_cost_gain.png")
 
     # Fig 5 - Cross-Domain Accuracy Comparison
@@ -305,7 +305,7 @@ def run_stage2():
     ax.set_title("FairGround - Cross-Domain Accuracy: Baseline vs Constrained\n(Accuracy cost of fairness constraints)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("Accuracy"); ax.legend(); plt.tight_layout()
-    plt.savefig("figures/stage2/fairground_accuracy_comparison.png", dpi=150, bbox_inches="tight")
+    plt.savefig(os.path.join(FIGURES_DIR, "fairground_accuracy_comparison.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 5 saved - fairground_accuracy_comparison.png")
 
 
