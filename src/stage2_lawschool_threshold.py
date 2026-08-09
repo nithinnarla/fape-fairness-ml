@@ -39,7 +39,9 @@ from fairlearn.metrics import (demographic_parity_difference,
                                 equalized_odds_difference,
                                 demographic_parity_ratio)
 
-os.makedirs('figures/stage2', exist_ok=True)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FIGURES_DIR = os.path.join(REPO_ROOT, 'figures', 'stage2')
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 MODELS = {
     "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
@@ -205,7 +207,7 @@ def run_stage2():
     ax2.set_xticks(x); ax2.set_xticklabels(['LR','GB']); ax2.set_title('DP Difference (lower=fairer)'); ax2.legend(fontsize=8)
     plt.suptitle('Law School - Accuracy-Fairness Tradeoff', fontsize=13)
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_accuracy_fairness_tradeoff.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_accuracy_fairness_tradeoff.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
     # Figure 2, Fairness Improvement
@@ -219,7 +221,7 @@ def run_stage2():
     ax.set_title('Fairness Improvement - Race\n(positive = fairness improved)', fontsize=12)
     ax.set_ylabel('DP/EO Difference Reduction'); ax.legend()
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_fairness_improvement.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_fairness_improvement.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
     # Figure 3, Cost-Gain Scatter
@@ -242,7 +244,7 @@ def run_stage2():
     ax.set_title('Cost-Gain Scatter - Law School\n(top-left = best tradeoff)', fontsize=12)
     ax.legend(fontsize=8)
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_cost_gain_scatter.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_cost_gain_scatter.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
     # Figure 4, Sex Fairness
@@ -255,7 +257,7 @@ def run_stage2():
     ax.set_title('Sex Fairness - DP Difference\n(sex gap minimal vs race gap)', fontsize=12)
     ax.set_ylabel('|DP Difference|'); ax.legend()
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_sex_fairness.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_sex_fairness.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
     # Figure 5, F1 Comparison
@@ -271,7 +273,7 @@ def run_stage2():
     ax.set_title('F1 Comparison - Baseline vs DP Constraint\n(F1 inflated by 90.2% positive rate)', fontsize=12)
     ax.set_ylabel('F1'); ax.legend(); ax.set_ylim(0.8, 1.05)
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_f1_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_f1_comparison.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
     # Figure 6, Race Prediction Rates
@@ -288,7 +290,7 @@ def run_stage2():
     ax.set_title('Race Prediction Rates - GB Before vs After DP Constraint', fontsize=12)
     ax.set_ylabel('Positive Prediction Rate'); ax.legend(); ax.set_ylim(0, 1.2)
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_race_prediction_rates.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_race_prediction_rates.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
     # Figure 7, FPR/FNR by Race
@@ -321,7 +323,7 @@ def run_stage2():
         ax.set_ylabel('Rate'); ax.legend(fontsize=8)
     plt.suptitle('Law School - FPR/FNR by Race Before vs After DP Constraint', fontsize=12)
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_fpr_fnr_by_race.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_fpr_fnr_by_race.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
 
@@ -377,7 +379,7 @@ def run_stage2():
     ax.set_title('Disparate Impact Ratio - Before vs After DP Constraint\n(both models cross EEOC 0.8 threshold after intervention)', fontsize=12)
     ax.set_ylabel('DIR'); ax.set_ylim(0, 1.2); ax.legend()
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_dir_before_after.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
     # Figure 9, Intersectional Race x Sex
@@ -399,7 +401,7 @@ def run_stage2():
     ax.set_title('Intersectional Analysis - Race x Sex\n(Minority groups improve; White groups converge toward parity)', fontsize=12)
     ax.set_ylabel('Positive Prediction Rate'); ax.set_ylim(0, 1.2); ax.legend()
     plt.tight_layout()
-    plt.savefig('figures/stage2/lawschool_intersectional_stage2.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_intersectional_stage2.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
     print(f"\n--- Law School Stage 2 complete ---")

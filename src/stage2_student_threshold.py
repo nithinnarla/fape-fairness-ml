@@ -36,7 +36,9 @@ from sklearn.metrics import accuracy_score, f1_score
 from fairlearn.postprocessing import ThresholdOptimizer
 from fairlearn.metrics import demographic_parity_difference, equalized_odds_difference
 
-os.makedirs("figures/stage2", exist_ok=True)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FIGURES_DIR = os.path.join(REPO_ROOT, 'figures', 'stage2')
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 MODELS = {
     "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
@@ -298,7 +300,7 @@ def run_stage2():
     plt.suptitle('Student Performance - DIR by Sex: EEOC 80% Compliance Check',
                 fontsize=12, fontweight='bold')
     plt.tight_layout()
-    plt.savefig('figures/stage2/student_dir_by_sex.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'student_dir_by_sex.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 6 saved - student_dir_by_sex.png')
 
     print(f"\n--- Student Stage 2 complete ---")

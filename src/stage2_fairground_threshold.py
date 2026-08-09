@@ -40,7 +40,9 @@ from sklearn.feature_selection import VarianceThreshold
 from fairlearn.postprocessing import ThresholdOptimizer
 from fairlearn.metrics import demographic_parity_difference, equalized_odds_difference, demographic_parity_ratio
 
-os.makedirs("figures/stage2", exist_ok=True)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FIGURES_DIR = os.path.join(REPO_ROOT, 'figures', 'stage2')
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 SELECTED_DATASETS = {
     "adult":                {"domain": "Income",           "sensitive": "race",   "target_encode": {"<=50K": 0, ">50K": 1, " <=50K": 0, " >50K": 1}},
@@ -341,7 +343,7 @@ def run_stage2():
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('Fairness Improvement %'); ax.legend()
     plt.tight_layout()
-    plt.savefig('figures/stage2/fairground_fairness_improvement_pct.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'fairground_fairness_improvement_pct.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 6 saved - fairground_fairness_improvement_pct.png')
 
 
@@ -365,7 +367,7 @@ def run_stage2():
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('DPD Reduction (positive = improvement)'); ax.legend()
     plt.tight_layout()
-    plt.savefig('figures/stage2/fairground_permodel_dpd_improvement.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'fairground_permodel_dpd_improvement.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 7 saved - fairground_permodel_dpd_improvement.png')
 
     print(f"\n--- FairGround Stage 2 complete ---")
@@ -395,7 +397,7 @@ def run_stage2():
     ax.set_ylabel('Disparate Impact Ratio (DIR)')
     ax.set_ylim(0, 1.5); ax.legend(fontsize=9)
     plt.tight_layout()
-    plt.savefig('figures/stage2/fairground_dir_before_after.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'fairground_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 8 saved - fairground_dir_before_after.png')
 
 if __name__ == "__main__":

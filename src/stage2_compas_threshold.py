@@ -33,7 +33,9 @@ from fairlearn.metrics import (demographic_parity_difference,
                                 equalized_odds_difference,
                                 demographic_parity_ratio)
 
-os.makedirs('figures/stage2', exist_ok=True)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FIGURES_DIR = os.path.join(REPO_ROOT, 'figures', 'stage2')
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 MODELS = {
     "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
@@ -264,7 +266,7 @@ def run_stage2():
     axes[1].set_ylabel('DPD'); axes[1].legend()
     plt.suptitle('COMPAS - Accuracy vs Fairness Tradeoff (ThresholdOptimizer)', fontsize=12, fontweight='bold')
     plt.tight_layout()
-    plt.savefig('figures/stage2/compas_accuracy_fairness_tradeoff.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'compas_accuracy_fairness_tradeoff.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 1 saved, compas_accuracy_fairness_tradeoff.png')
 
     # Fig 2, Fairness Improvement by Constraint
@@ -290,7 +292,7 @@ def run_stage2():
     axes[1].set_ylabel('EOD'); axes[1].legend()
     plt.suptitle('COMPAS - Fairness Improvement by Constraint Type', fontsize=12, fontweight='bold')
     plt.tight_layout()
-    plt.savefig('figures/stage2/compas_fairness_improvement.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'compas_fairness_improvement.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 2 saved, compas_fairness_improvement.png')
 
     # Fig 3, Accuracy Cost vs Fairness Gain Scatter
@@ -323,7 +325,7 @@ def run_stage2():
     ax.set_ylabel('Fairness Gain (positive = fairer)')
     ax.set_title('COMPAS - Accuracy Cost vs Fairness Gain\n(upper-left = best: high fairness gain - low accuracy cost)', fontsize=11, fontweight='bold')
     plt.tight_layout()
-    plt.savefig('figures/stage2/compas_cost_gain_scatter.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'compas_cost_gain_scatter.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 3 saved, compas_cost_gain_scatter.png')
 
     # Fig 4, Sex Fairness After Constraint
@@ -339,7 +341,7 @@ def run_stage2():
     ax.set_xticks(x); ax.set_xticklabels(short)
     ax.set_title('COMPAS - Sex Fairness After DP Constraint\n(GB DPD=0.005 - near-zero sex disparity)', fontsize=11, fontweight='bold')
     ax.set_ylabel('Fairness Metric'); ax.legend(); plt.tight_layout()
-    plt.savefig('figures/stage2/compas_sex_fairness.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'compas_sex_fairness.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 4 saved, compas_sex_fairness.png')
 
     # Fig 5, F1 Comparison
@@ -350,7 +352,7 @@ def run_stage2():
     ax.set_xticks(x); ax.set_xticklabels(short)
     ax.set_title('COMPAS - F1 Score Comparison\n(Baseline vs Constrained Models)', fontsize=11, fontweight='bold')
     ax.set_ylabel('F1 Score'); ax.legend(); ax.set_ylim(0.55, 0.72); plt.tight_layout()
-    plt.savefig('figures/stage2/compas_f1_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'compas_f1_comparison.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 5 saved, compas_f1_comparison.png')
 
 
@@ -373,7 +375,7 @@ def run_stage2():
                  'AA-Caucasian gap: 0.263 → 0.074 (71.9% reduction), core FAPE finding',
                  fontsize=11, fontweight='bold')
     ax.set_ylabel('Predicted Positive Rate'); ax.legend(); plt.tight_layout()
-    plt.savefig('figures/stage2/compas_race_prediction_rates.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'compas_race_prediction_rates.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 6 saved, compas_race_prediction_rates.png')
 
 
@@ -425,7 +427,7 @@ def run_stage2():
     axes[1].set_ylabel('FNR'); axes[1].legend()
     plt.suptitle('COMPAS - FPR/FNR by Race: Baseline vs EO Constraint', fontsize=12, fontweight='bold')
     plt.tight_layout()
-    plt.savefig('figures/stage2/compas_fpr_fnr_by_race.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'compas_fpr_fnr_by_race.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 7 saved, compas_fpr_fnr_by_race.png')
 
     print(f"\n--- COMPAS Stage 2 complete ---")
@@ -453,7 +455,7 @@ def run_stage2():
     ax.set_ylabel('Disparate Impact Ratio (DIR)')
     ax.set_ylim(0, 1.5); ax.legend(fontsize=9)
     plt.tight_layout()
-    plt.savefig('figures/stage2/compas_dir_before_after.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'compas_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 8 saved, compas_dir_before_after.png')
 
 if __name__ == "__main__":

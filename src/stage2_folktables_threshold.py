@@ -38,7 +38,9 @@ from sklearn.metrics import accuracy_score, f1_score
 from fairlearn.postprocessing import ThresholdOptimizer
 from fairlearn.metrics import demographic_parity_difference, equalized_odds_difference
 
-os.makedirs("figures/stage2", exist_ok=True)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FIGURES_DIR = os.path.join(REPO_ROOT, 'figures', 'stage2')
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 SAMPLE_SIZE = 100000
 FEATURE_COLS = ["AGEP", "SCHL", "MAR", "WKHP", "COW", "DIS", "POVPIP", "NATIVITY"]
@@ -435,7 +437,7 @@ def run_stage2():
     ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend()
     ax.set_ylim(0, 1.35)
     plt.xticks(rotation=15, ha='right'); plt.tight_layout()
-    plt.savefig('figures/stage2/folktables_dir_by_race.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'folktables_dir_by_race.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 8 saved - folktables_dir_by_race.png')
 
 
@@ -464,7 +466,7 @@ def run_stage2():
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend(); ax.set_ylim(0, 1.35)
     plt.tight_layout()
-    plt.savefig('figures/stage2/folktables_dir_before_after.png', dpi=150, bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'folktables_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 9 saved - folktables_dir_before_after.png')
 
     print(f"\n--- Folktables Stage 2 complete ---")
