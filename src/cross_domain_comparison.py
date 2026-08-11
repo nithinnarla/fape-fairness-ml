@@ -39,7 +39,7 @@ DOMAINS = {
         'sensitive': 'Race (6 groups)',
         'regulatory': 'ECOA/EEOC',
         'baseline_dpd': 0.857, 'best_dp_dpd': 0.571, 'dp_improve': 33.3,
-        'baseline_eod': 1.000, 'best_eo_eod': 0.639, 'eo_improve': 36.1,
+        'baseline_eod': 1.000, 'best_eo_eod': 0.659, 'eo_improve': 34.1,
         'baseline_acc': 0.674, 'dp_acc_cost': 0.008, 'eo_acc_cost': -0.002,
         'baseline_dir': None, 'post_dir': None,
         'note': 'GB DP constraint most effective; LR/RF worsen under DP'
@@ -47,8 +47,8 @@ DOMAINS = {
     'Folktables': {
         'sensitive': 'Race (9 groups)',
         'regulatory': 'ECOA/Title VII',
-        'baseline_dpd': 0.320, 'best_dp_dpd': 0.340, 'dp_improve': -6.2,
-        'baseline_eod': 0.333, 'best_eo_eod': 0.331, 'eo_improve': 0.6,
+        'baseline_dpd': 0.320, 'best_dp_dpd': 0.339, 'dp_improve': -5.9,
+        'baseline_eod': 0.333, 'best_eo_eod': 0.334, 'eo_improve': -0.3,
         'baseline_acc': 0.845, 'dp_acc_cost': 0.019, 'eo_acc_cost': 0.017,
         'baseline_dir': 0.54, 'post_dir': None,
         'note': 'ThresholdOptimizer minimal, Am.Indian DIR=0.54 most disadvantaged'

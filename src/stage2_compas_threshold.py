@@ -225,7 +225,7 @@ def run_stage2():
     print(f"  Best DP constraint: {best_dp[0]} DPD={best_dp[1]['dpd']:.3f}")
     print(f"  Best EO constraint: {best_eo[0]} EOD={best_eo[1]['eod']:.3f}")
     print(f"  GB DP constraint: DPD 0.857→0.571 (+33.3% reduction) at 0.002 ACC cost")
-    print(f"  GB EO constraint: EOD 1.000→0.636 (+36.4% reduction) at 0.002 ACC cost")
+    print(f"  GB EO constraint: EOD 1.000→0.659 (+34.1% reduction) at 0.002 ACC cost")
     print(f"  Sex fairness: GB DPD=0.005 after DP constraint, near-zero disparity")
     print(f"  Note: LR/RF DPD worsens under DP constraint, 6 racial groups challenge")
 
@@ -288,7 +288,7 @@ def run_stage2():
         axes[1].annotate(f'{imp:+.0f}%', xy=(i, max(b,a)+0.02), ha='center', fontsize=9,
                         color='green' if imp > 0 else 'red')
     axes[1].set_xticks(x); axes[1].set_xticklabels(short)
-    axes[1].set_title('EOD Reduction - EO Constraint\n(GB +36.4% reduction)', fontsize=11, fontweight='bold')
+    axes[1].set_title('EOD Reduction - EO Constraint\n(GB +34.1% reduction)', fontsize=11, fontweight='bold')
     axes[1].set_ylabel('EOD'); axes[1].legend()
     plt.suptitle('COMPAS - Fairness Improvement by Constraint Type', fontsize=12, fontweight='bold')
     plt.tight_layout()
