@@ -200,7 +200,7 @@ def run_stage2():
     to_race = ThresholdOptimizer(estimator=gb_model, constraints="equalized_odds",
                                  predict_method="auto", objective="balanced_accuracy_score")
     to_race.fit(X_tr_gb, y_train, sensitive_features=race_train)
-    y_pred_to_gb = to_race.predict(X_te_gb, sensitive_features=race_test)
+    y_pred_to_gb = to_race.predict(X_te_gb, sensitive_features=race_test, random_state=42)
     race_level = {}
     for race in sorted(race_test.unique()):
         mask = race_test == race

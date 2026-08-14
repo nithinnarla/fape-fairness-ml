@@ -190,7 +190,7 @@ def run_stage2():
         objective="balanced_accuracy_score"
     )
     to_race.fit(X_tr_gb, y_train, sensitive_features=race_train)
-    y_pred_to_gb = to_race.predict(X_te_gb, sensitive_features=race_test)
+    y_pred_to_gb = to_race.predict(X_te_gb, sensitive_features=race_test, random_state=42)
     race_level = {}
     for code, label in RAC1P_LABELS.items():
         mask = race_test == code
