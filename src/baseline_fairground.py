@@ -178,8 +178,8 @@ def run_baselines():
                     sens_test = pd.cut(sens_num, bins=3,
                                        labels=['low','mid','high']).astype(str)
                     print(f"  Binned continuous sensitive attr into 3 groups")
-            except:
-                pass
+            except ValueError:
+                print(f"  Warning: could not bin continuous sensitive attr, using raw values")
 
         scaler = StandardScaler()
         X_tr_sc = scaler.fit_transform(X_train)
