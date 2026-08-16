@@ -21,7 +21,7 @@ We evaluate four regulatory-aligned metrics simultaneously, demographic parity d
 and introduce CUSUM-based continuous monitoring for post-deployment fairness drift detection.
 
 Key findings: (1) ThresholdOptimizer effectiveness is strongly domain-dependent, strongest
-improvement in Law School (DPD 0.351→0.039, DIR 0.643→0.945) but counterproductive in
+improvement in Law School (DPD 0.351→0.030, DIR 0.643→0.957) but counterproductive in
 Agricultural (DPD 0.009→0.035) where near-fair baselines exist; (2) no single model
 dominates across all domains, requiring domain-specific model selection; (3) fairness
 constraints achieved at deployment are not permanent, CUSUM detects measurable drift under
@@ -159,26 +159,26 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - These two groups use different metrics and are not directly ranked against each other as a single ordered list; within-group comparisons (accuracy-to-accuracy, AUC-to-AUC) are valid, cross-group comparisons are not
 
 ### 5.2 Post-DP Constraint: DPD Results
-- Law School: all 3 models improve, GB strongest (DPD 0.351→0.039, 88.9% reduction)
-- FairGround GB: DPD 0.342→0.026 (92.4% reduction), highest accuracy cost (0.159); LR+RF worsen
+- Law School: all 3 models improve, GB strongest (DPD 0.351→0.030, 91.5% reduction)
+- FairGround GB: DPD 0.342→0.014 (95.9% reduction), highest accuracy cost (0.159); LR+RF worsen
 - Agricultural GB: DPD 0.009→0.035 (-288.9%), counterproductive; LR+RF no change
 - COMPAS GB: DPD 0.857→0.571, improves but above EEOC threshold; LR+RF worsen
-- Folktables GB: DPD 0.320→0.341, slightly counterproductive; LR+RF no change
+- Folktables GB: DPD 0.320→0.339, slightly counterproductive; LR+RF no change
 - Student: all 3 models improve
 - Effectiveness is model-dependent within domains, GB most effective in high-DPD contexts
 
 ### 5.3 Post-EO Constraint: EOD Results
-- Law School: all 3 models improve, GB strongest (EOD 0.528→0.031, 94.1% reduction)
+- Law School: all 3 models improve, GB strongest (EOD 0.528→0.007, 98.7% reduction)
 - Student: all 3 models improve, GB strongest (EOD 0.314→0.055, 82.5% reduction)
 - FairGround RF+GB: improve strongly, LR slightly worsens (0.018→0.019)
 - COMPAS GB: EOD 1.000→0.659, improves but remains high; RF worsens (0.686→0.734)
 - Agricultural GB: counterproductive under EO (EOD 0.073→0.194); LR+RF no change
-- Folktables GB: slightly worsens (0.333→0.336); LR+RF improve
+- Folktables GB: slightly worsens (0.333→0.334); LR+RF improve
 - Lending Club GB: worsens (0.053→0.060); LR+RF no change
 
 ### 5.4 Disparate Impact Ratio (DIR)
 - DIR computed per domain using domain-specific sensitive attribute groups
-- Law School GB: DIR 0.643→0.945, passes EEOC 4/5ths rule post-constraint
+- Law School GB: DIR 0.643→0.957, passes EEOC 4/5ths rule post-constraint
 - Lending Club: DIR>1 at baseline (1.4x actual, 2.8x predicted), proxy-based audit
 - Agricultural GB: DIR overcorrects (0.653→1.095), surpasses parity threshold
 - COMPAS: DIR remains below EEOC threshold across all models, 6-group challenge

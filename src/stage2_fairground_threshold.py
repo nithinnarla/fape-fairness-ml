@@ -198,7 +198,10 @@ def run_stage2():
     print(f"  Education (law_school): highest baseline DPD - race gap largest in FAPE")
     print(f"  Credit (creditcard): lowest baseline DPD - sex gap minimal")
     print(f"  Criminal Justice (compas_2_years): ThresholdOptimizer failed - age=71 degenerate labels (single class)")
-    print(f"  Education: DP constraint reduces DPD 0.342->0.022 - strongest cross-domain improvement")
+    edu_dp_r = all_results["law_school_lequy"]["dp"].get("GradientBoosting")
+    edu_base_dpd = all_results["law_school_lequy"]["baseline"]["GradientBoosting"]["dpd"]
+    edu_dp_dpd = edu_dp_r["dpd"] if edu_dp_r else float("nan")
+    print(f"  Education: DP constraint reduces DPD {edu_base_dpd:.3f}->{edu_dp_dpd:.3f} - strongest cross-domain improvement")
     print(f"  Cross-domain comparison enables FAPE paper Section 4 results table")
 
     # FIGURES

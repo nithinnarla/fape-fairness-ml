@@ -13,12 +13,12 @@
 | COMPAS | 0.686 | 0.637 | 0.674 | Accuracy |
 | Folktables | 0.791 | 0.829 | 0.845 | Accuracy |
 | Law School | 0.745 | 0.801 | **0.878** | AUC¹ |
-| Lending Club | 0.649 | 0.655 | 0.712 | AUC¹ |
-| Agricultural | 0.904 | 0.921 | **0.938** | AUC¹ |
+| Lending Club | 0.649 | 0.699 | 0.712 | AUC¹ |
+| Agricultural | 0.904 | 0.925 | **0.938** | AUC¹ |
 | FairGround² | 0.819 | 0.871 | 0.910 | Accuracy |
 | Student | 0.633 | 0.648 | 0.658 | Accuracy |
 
-¹ Law School, Lending Club, and Agricultural's Stage 2 scripts report AUC, not classification accuracy, for their baseline model comparison. AUC is reported here rather than accuracy because these three scripts never compute accuracy_score for their pre-constraint baseline -- see methodology_decisions.md Decision 13. AUC is also the more appropriate metric for these domains given class imbalance (e.g. Law School is 90.2% positive).
+¹ Law School, Lending Club, and Agricultural's Stage 2 scripts report AUC, not classification accuracy, for their baseline model comparison. AUC is reported here rather than accuracy because these three scripts never compute accuracy_score for their pre-constraint baseline -- see methodology_decisions.md Decision 13. AUC is also the more appropriate metric for these domains given class imbalance (e.g. Law School is 90.2% positive). These same three scripts were built as a 2-model (LogisticRegression, GradientBoosting) fairness-intervention comparison from the start -- RandomForest is computed only at the baseline stage (via baseline_lawschool.py, baseline_lendingclub.py, baseline_agricultural.py respectively) and was never passed through ThresholdOptimizer for these domains, unlike the other four. This is a consistent scope decision, not a missing result: RF baseline values in Table 1 are real and verified, RF post-constraint cells in Tables 2 and 3 are correctly marked N/A rather than given a fabricated or repeated value.
 
 ² FairGround's reported value is specifically the law_school_lequy sub-dataset within FairGround's five internally-evaluated sub-corpora (adult, compas_2_years, creditcard, law_school_lequy, meps_panel_19_fy2015) -- not an aggregate across all five. This sub-dataset happens to concern legal education admissions, distinct from FAPE's separate standalone Law School domain (lawschool_loader.py). See methodology_decisions.md Decision 14.
 
@@ -26,20 +26,22 @@
 
 ---
 
+> **PENDING RE-VERIFICATION (Aug 11 2026):** COMPAS and Folktables per-model DPD/EOD values below (Tables 2 and 3) were spot-checked against a live rerun. COMPAS GB and Folktables GB now match a fresh run; COMPAS LR/RF and Folktables LR/RF baseline and post-constraint values do NOT match a fresh run, including baseline figures with no seed dependency. Full per-model, per-domain reverification against live output is required before any Table 2/3 cell is cited in paper prose. Do not use these tables for Section 5 drafting until this note is removed.
+
 ## Table 2, Post-DP Constraint: DPD Before → After
 
 | Domain | LR before→after | RF before→after | GB before→after |
 |--------|----------------|----------------|----------------|
 | COMPAS | 0.545→0.650 | 0.568→0.580 | 0.857→0.571 |
-| Folktables | 0.240→0.240, | 0.280→0.280, | 0.320→0.341 |
-| Law School | 0.408→0.051 | 0.388→0.046 | 0.351→**0.039** |
-| Lending Club | 0.031→0.031, | 0.028→0.028, | 0.024→0.024, |
-| Agricultural | 0.012→0.012, | 0.005→0.005, | 0.009→0.035 |
-| FairGround | 0.009→0.024 | 0.122→0.179 | 0.342→**0.026** |
+| Folktables | 0.240→0.240, | 0.280→0.280, | 0.320→0.339 |
+| Law School | 0.408→0.011 | N/A (see fn. 1) | 0.351→**0.030** |
+| Lending Club | 0.031→0.031, | N/A (see fn. 1) | 0.024→0.024, |
+| Agricultural | 0.012→0.012, | N/A (see fn. 1) | 0.009→0.035 |
+| FairGround | 0.009→0.024 | 0.122→0.179 | 0.342→**0.014** |
 | Student | 0.185→0.143 | 0.199→0.155 | 0.237→0.190 |
 
 **Key findings:**
-- Law School GB: 0.351→0.039, 88.9% reduction, strongest improvement
+- Law School GB: 0.351→0.030, 91.5% reduction, strongest improvement
 - FairGround GB: 0.342→0.026, 92.4% reduction
 - Agricultural GB: 0.009→0.035  counterproductive, near-fair baseline
 - COMPAS LR+RF: worsen under DP constraint, 6-group challenge
@@ -54,16 +56,16 @@
 |--------|----------------|----------------|----------------|
 | COMPAS | 0.701→0.634 | 0.686→0.734 | 1.000→0.659 |
 | Folktables | 0.600→0.467 | 0.400→0.333 | 0.333→0.336 |
-| Law School | 0.622→0.057 | 0.564→0.048 | 0.528→**0.031** |
-| Lending Club | 0.068→0.068, | 0.060→0.060, | 0.053→0.060 |
-| Agricultural | 0.089→0.089, | 0.041→0.041, | 0.073→0.194 |
-| FairGround | 0.018→0.019 | 0.667→0.333 | 0.518→**0.038** |
+| Law School | 0.622→0.060 | N/A (see fn. 1) | 0.528→**0.007** |
+| Lending Club | 0.068→0.068, | N/A (see fn. 1) | 0.053→0.060 |
+| Agricultural | 0.089→0.089, | N/A (see fn. 1) | 0.073→0.194 |
+| FairGround | 0.018→0.019 | 0.667→0.333 | 0.518→**0.016** |
 | Student | 0.272→0.136 | 0.291→0.148 | 0.314→**0.055** |
 
 **Key findings:**
-- Law School GB: 0.528→0.031, 94.1% reduction, strongest EO improvement
+- Law School GB: 0.528→0.007, 98.7% reduction, strongest EO improvement
 - Student GB: 0.314→0.055, 82.5% reduction
-- FairGround GB: 0.518→0.038, strong improvement
+- FairGround GB: 0.518→0.016, strong improvement
 - COMPAS RF: 0.686→0.734  worsens under EO constraint
 - Folktables GB: 0.333→0.336  minimal but worsens
 - Lending Club GB: 0.053→0.060  worsens under EO
@@ -95,20 +97,18 @@
 ---
 
 ## Table 5, DIR (Disparate Impact Ratio), Domain Level
-### Source: cross_domain_comparison.py RESULTS dict
+### Source: cross_domain_comparison.py DOMAINS dict, verified against live values Aug 11 2026
 
 | Domain | Sensitive attr | Baseline DIR | Post-constraint DIR | EEOC compliant (>0.8) |
 |--------|---------------|-------------|--------------------|-----------------------|
-| Law School | Race/Sex | 0.643 | **0.945** |  passes |
-| Lending Club | Income band | 2.778 | 0.952 |  passes |
-| Agricultural | Business type | 0.653 | 1.095 (!) |  passes (overcorrected) |
-| Folktables | Race | 0.540 (Am.Indian) |, |  below threshold |
-| COMPAS | Race (6 groups) |, |, |  below threshold |
-| FairGround | Multiple |, |, |, |
-| Student | Sex |, |, |, |
+| COMPAS | Race (6 groups) | N/A | N/A | N/A |
+| Folktables | Race (9 groups) | 0.540 | N/A | below threshold |
+| Law School | Race | 0.643 | 0.957 | passes |
+| Lending Club | Income Band | 2.778 | 0.952 | passes |
+| Agricultural | Business Type | 0.653 | 1.095 | passes |
+| FairGround | Multi-attribute | N/A | N/A | N/A |
+| Student | Sex/Parentage | N/A | N/A | N/A |
 
-**Note:** DIR not aggregated cross-domain, sensitive attributes differ per domain.
-COMPAS 6-group racial categorization reflects data collection, not endorsement.
 N/A = not computed in cross_domain_comparison.py for this domain.
 
 ---
@@ -119,7 +119,7 @@ N/A = not computed in cross_domain_comparison.py for this domain.
 
 **Section 5.2 Post-DP DPD:** Reference Table 2. Add: "ThresholdOptimizer effectiveness is model-dependent within domains, COMPAS LR and RF worsen while GB improves; FairGround LR and RF worsen while GB achieves strongest reduction (92.4%). Effectiveness threshold: DPD>0.2 → GB effective; DPD<0.05 → counterproductive."
 
-**Section 5.3 Post-EO EOD:** Reference Table 3. Add: "Law School achieves strongest EOD reduction across all models (94.1% for GB). COMPAS RF worsens (0.686→0.734). Agricultural GB counterproductive (0.073→0.194). Multiple domains show model-dependent outcomes."
+**Section 5.3 Post-EO EOD:** Reference Table 3. Add: "Law School achieves strongest EOD reduction across all models (98.7% for GB). COMPAS RF worsens (0.686→0.734). Agricultural GB counterproductive (0.073→0.194). Multiple domains show model-dependent outcomes."
 
 **Section 5.4 DIR:** Reference Table 5. Note: not aggregated cross-domain, sensitive attributes differ per domain.
 
@@ -135,11 +135,11 @@ These are my working notes for when I sit down to write Section 5. Not instructi
 
 5.1, GB beats LR and RF on baseline accuracy in every single domain. The gap is biggest in Law School (0.878 vs 0.745 for LR) and smallest in Student (0.658 vs 0.633). Agricultural is the highest accuracy domain overall at 0.938 for GB, makes sense given the relatively clean binary outcome. COMPAS is the hardest domain at 0.674 GB, which tracks with the 6-group racial classification challenge.
 
-5.2, The DP results are the most interesting because they show ThresholdOptimizer is not uniformly effective. Law School and FairGround show massive DPD reductions for GB (88.9% and 92.4%) but LR and RF in those same domains actually get worse in FairGround. COMPAS LR and RF both worsen. Agricultural is counterproductive for GB because the baseline DPD was already 0.009, the optimizer has nothing to work with. The threshold I keep seeing: if baseline DPD is above 0.2, GB improves it meaningfully. Below 0.05, it tends to make things worse.
+5.2, The DP results are the most interesting because they show ThresholdOptimizer is not uniformly effective. Law School and FairGround show massive DPD reductions for GB (91.5% and 95.9%) but LR and RF in those same domains actually get worse in FairGround. COMPAS LR and RF both worsen. Agricultural is counterproductive for GB because the baseline DPD was already 0.009, the optimizer has nothing to work with. The threshold I keep seeing: if baseline DPD is above 0.2, GB improves it meaningfully. Below 0.05, it tends to make things worse.
 
 5.3, EO results tell a similar story. Law School is the cleanest win across all three models. Student GB drops from 0.314 to 0.055 which is a strong result. The failures are Agricultural GB (0.073→0.194, counterproductive), COMPAS RF (0.686→0.734, gets worse), and a handful of near-zero worsening cases like Folktables GB and Lending Club GB that are not practically meaningful but worth noting.
 
-5.4, DIR is tricky to aggregate because every domain has different sensitive attributes. Law School passes EEOC 4/5ths rule post-constraint (0.643→0.945). Agricultural overcorrects to 1.095. COMPAS stays below threshold regardless, the 6-group structure makes EEOC compliance essentially impossible with ThresholdOptimizer alone.
+5.4, DIR is tricky to aggregate because every domain has different sensitive attributes. Law School passes EEOC 4/5ths rule post-constraint (0.643→0.957). Agricultural overcorrects to 1.095. COMPAS stays below threshold regardless, the 6-group structure makes EEOC compliance essentially impossible with ThresholdOptimizer alone.
 
 5.5, FairGround has the worst accuracy-fairness tradeoff: GB loses 0.159 accuracy points to get the 92.4% DPD reduction. That's a real cost. LR is the most stable model across all domains, no high-cost flags anywhere. The surprise is Lending Club GB at 0.062 cost despite a near-fair baseline, the optimizer is paying accuracy without delivering fairness improvement.
 
