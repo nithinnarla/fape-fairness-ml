@@ -60,11 +60,11 @@
 | Lending Club | 0.068→0.068, | N/A (see fn. 1) | 0.053→0.060 |
 | Agricultural | 0.089→0.089, | N/A (see fn. 1) | 0.073→0.194 |
 | FairGround | 0.018→0.019 | 0.667→0.333 | 0.518→**0.016** |
-| Student | 0.272→0.136 | 0.291→0.148 | 0.314→**0.055** |
+| Student | 0.204→0.188 | 0.263→0.180 | 0.314→**0.114** |
 
 **Key findings:**
 - Law School GB: 0.528→0.007, 98.7% reduction, strongest EO improvement
-- Student GB: 0.314→0.055, 82.5% reduction
+- Student GB: 0.314→0.114, 63.7% reduction
 - FairGround GB: 0.518→0.016, strong improvement
 - COMPAS RF: 0.686→0.734  worsens under EO constraint
 - Folktables GB: 0.333→0.336  minimal but worsens
@@ -137,7 +137,7 @@ These are my working notes for when I sit down to write Section 5. Not instructi
 
 5.2, The DP results are the most interesting because they show ThresholdOptimizer is not uniformly effective. Law School and FairGround show massive DPD reductions for GB (91.5% and 95.9%) but LR and RF in those same domains actually get worse in FairGround. COMPAS LR and RF both worsen. Agricultural is counterproductive for GB because the baseline DPD was already 0.009, the optimizer has nothing to work with. The threshold I keep seeing: if baseline DPD is above 0.2, GB improves it meaningfully. Below 0.05, it tends to make things worse.
 
-5.3, EO results tell a similar story. Law School is the cleanest win across all three models. Student GB drops from 0.314 to 0.055 which is a strong result. The failures are Agricultural GB (0.073→0.194, counterproductive), COMPAS RF (0.686→0.734, gets worse), and a handful of near-zero worsening cases like Folktables GB and Lending Club GB that are not practically meaningful but worth noting.
+5.3, EO results tell a similar story. Law School is the cleanest win across all three models. Student GB drops from 0.314 to 0.114 which is a strong result. The failures are Agricultural GB (0.073→0.194, counterproductive), COMPAS RF (0.686→0.734, gets worse), and a handful of near-zero worsening cases like Folktables GB and Lending Club GB that are not practically meaningful but worth noting.
 
 5.4, DIR is tricky to aggregate because every domain has different sensitive attributes. Law School passes EEOC 4/5ths rule post-constraint (0.643→0.957). Agricultural overcorrects to 1.095. COMPAS stays below threshold regardless, the 6-group structure makes EEOC compliance essentially impossible with ThresholdOptimizer alone.
 

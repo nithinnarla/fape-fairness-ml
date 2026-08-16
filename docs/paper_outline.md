@@ -169,7 +169,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 ### 5.3 Post-EO Constraint: EOD Results
 - Law School: all 3 models improve, GB strongest (EOD 0.528→0.007, 98.7% reduction)
-- Student: all 3 models improve, GB strongest (EOD 0.314→0.055, 82.5% reduction)
+- Student: all 3 models improve, GB strongest (EOD 0.314→0.114, 63.7% reduction)
 - FairGround RF+GB: improve strongly, LR slightly worsens (0.018→0.019)
 - COMPAS GB: EOD 1.000→0.659, improves but remains high; RF worsens (0.686→0.734)
 - Agricultural GB: counterproductive under EO (EOD 0.073→0.194); LR+RF no change
