@@ -112,7 +112,7 @@ Decision 13 for the related AUC-vs-accuracy framing.
 | COMPAS | Race (6 groups) | N/A | N/A | N/A |
 | Folktables | Race (9 groups) | 0.540 | N/A | below threshold |
 | Law School | Race | 0.643 | 0.957 | passes |
-| Lending Club | Income Band | 2.778 | 0.952 | passes |
+| Lending Club | Income Band | 2.778 | 0.973 | passes |
 | Agricultural | Business Type | 0.653 | 1.042 | passes |
 | FairGround | Multi-attribute | N/A | N/A | N/A |
 | Student | Sex/Parentage | N/A | N/A | N/A |
