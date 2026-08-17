@@ -161,10 +161,10 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 ### 5.2 Post-DP Constraint: DPD Results
 - Law School: all 3 models improve, GB strongest (DPD 0.351→0.030, 91.5% reduction)
 - FairGround GB: DPD 0.342→0.014 (95.9% reduction), highest accuracy cost (0.159); LR+RF worsen
-- Agricultural GB: DPD 0.009→0.035 (-288.9%), counterproductive; LR+RF no change
+- Agricultural GB: DPD 0.009→0.031 (-244.4%), counterproductive; LR+RF no change
 - COMPAS GB: DPD 0.857→0.571, improves but above EEOC threshold; LR+RF worsen
 - Folktables GB: DPD 0.320→0.339, slightly counterproductive; LR+RF no change
-- Student: all 3 models improve
+- Student: LR and GB improve (DPD 0.212→0.010 and 0.237→0.215), RF worsens (DPD 0.235→0.363, +54.5%)
 - Effectiveness is model-dependent within domains, GB most effective in high-DPD contexts
 
 ### 5.3 Post-EO Constraint: EOD Results
@@ -172,9 +172,9 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - Student: all 3 models improve, GB strongest (EOD 0.314→0.114, 63.7% reduction)
 - FairGround RF+GB: improve strongly, LR slightly worsens (0.018→0.019)
 - COMPAS GB: EOD 1.000→0.659, improves but remains high; RF worsens (0.686→0.734)
-- Agricultural GB: counterproductive under EO (EOD 0.073→0.194); LR+RF no change
+- Agricultural GB: counterproductive under EO (EOD 0.073→0.177); LR+RF no change
 - Folktables GB: slightly worsens (0.333→0.334); LR+RF improve
-- Lending Club GB: worsens (0.053→0.060); LR+RF no change
+- Lending Club GB: slightly improves (0.053→0.049), not the worsening previously claimed; LR DPD slightly worsens (0.018→0.019)
 
 ### 5.4 Disparate Impact Ratio (DIR)
 - DIR computed per domain using domain-specific sensitive attribute groups
