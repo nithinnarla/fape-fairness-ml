@@ -11,12 +11,12 @@
 | Domain | LR | RF | GB | Metric |
 |--------|----|----|-----|--------|
 | COMPAS | 0.686 | 0.637 | 0.674 | Accuracy |
-| Folktables | 0.791 | 0.829 | 0.845 | Accuracy |
-| Law School | 0.745 | 0.801 | **0.878** | AUC¹ |
-| Lending Club | 0.649 | 0.699 | 0.712 | AUC¹ |
-| Agricultural | 0.904 | 0.925 | **0.938** | AUC¹ |
-| FairGround² | 0.819 | 0.871 | 0.910 | Accuracy |
-| Student | 0.633 | 0.648 | 0.658 | Accuracy |
+| Folktables | 0.819 | 0.829 | 0.845 | Accuracy |
+| Law School | 0.872 | 0.854 | **0.878** | AUC¹ |
+| Lending Club | 0.706 | 0.699 | 0.712 | AUC¹ |
+| Agricultural | 0.727 | 0.925 | **0.938** | AUC¹ |
+| FairGround² | 0.913 | 0.907 | 0.910 | Accuracy |
+| Student | 0.646 | 0.633 | 0.658 | Accuracy |
 
 ¹ Law School, Lending Club, and Agricultural's Stage 2 scripts report AUC, not classification accuracy, for their baseline model comparison. AUC is reported here rather than accuracy because these three scripts never compute accuracy_score for their pre-constraint baseline -- see methodology_decisions.md Decision 13. AUC is also the more appropriate metric for these domains given class imbalance (e.g. Law School is 90.2% positive). These same three scripts were built as a 2-model (LogisticRegression, GradientBoosting) fairness-intervention comparison from the start -- RandomForest is computed only at the baseline stage (via baseline_lawschool.py, baseline_lendingclub.py, baseline_agricultural.py respectively) and was never passed through ThresholdOptimizer for these domains, unlike the other four. This is a consistent scope decision, not a missing result: RF baseline values in Table 1 are real and verified, RF post-constraint cells in Tables 2 and 3 are correctly marked N/A rather than given a fabricated or repeated value.
 
@@ -32,17 +32,17 @@
 
 | Domain | LR before→after | RF before→after | GB before→after |
 |--------|----------------|----------------|----------------|
-| COMPAS | 0.545→0.650 | 0.568→0.580 | 0.857→0.571 |
-| Folktables | 0.240→0.240, | 0.280→0.280, | 0.320→0.339 |
-| Law School | 0.408→0.011 | N/A (see fn. 1) | 0.351→**0.030** |
-| Lending Club | 0.031→0.031, | N/A (see fn. 1) | 0.024→0.024, |
-| Agricultural | 0.012→0.012, | N/A (see fn. 1) | 0.009→0.035 |
-| FairGround | 0.009→0.024 | 0.122→0.179 | 0.342→**0.014** |
-| Student | 0.185→0.143 | 0.199→0.155 | 0.237→0.190 |
+| COMPAS | 0.545→0.714 | 0.568→0.714 | 0.857→0.571 |
+| Folktables | 0.352→0.340 | 0.319→0.394 | 0.320→0.339 |
+| Law School | 0.329→0.011 | N/A (see fn. 1) | 0.351→**0.030** |
+| Lending Club | 0.018→0.019 | N/A (see fn. 1) | 0.024→0.018 |
+| Agricultural | 0.005→0.016 | N/A (see fn. 1) | 0.009→0.031 |
+| FairGround | 0.329→0.010 | 0.336→0.012 | 0.342→**0.014** |
+| Student | 0.212→0.010 | 0.235→0.363 | 0.237→0.215 |
 
 **Key findings:**
 - Law School GB: 0.351→0.030, 91.5% reduction, strongest improvement
-- FairGround GB: 0.342→0.026, 92.4% reduction
+- FairGround GB: 0.342→0.014, 95.9% reduction
 - Agricultural GB: 0.009→0.035  counterproductive, near-fair baseline
 - COMPAS LR+RF: worsen under DP constraint, 6-group challenge
 - FairGround LR+RF: worsen despite strong GB improvement
@@ -54,12 +54,12 @@
 
 | Domain | LR before→after | RF before→after | GB before→after |
 |--------|----------------|----------------|----------------|
-| COMPAS | 0.701→0.634 | 0.686→0.734 | 1.000→0.659 |
-| Folktables | 0.600→0.467 | 0.400→0.333 | 0.333→0.336 |
-| Law School | 0.622→0.060 | N/A (see fn. 1) | 0.528→**0.007** |
-| Lending Club | 0.068→0.068, | N/A (see fn. 1) | 0.053→0.060 |
-| Agricultural | 0.089→0.089, | N/A (see fn. 1) | 0.073→0.194 |
-| FairGround | 0.018→0.019 | 0.667→0.333 | 0.518→**0.016** |
+| COMPAS | 0.701→0.654 | 0.686→0.731 | 1.000→0.659 |
+| Folktables | 0.571→0.333 | 0.823→0.861 | 0.333→0.334 |
+| Law School | 0.543→0.060 | N/A (see fn. 1) | 0.528→**0.007** |
+| Lending Club | 0.038→0.047 | N/A (see fn. 1) | 0.053→0.049 |
+| Agricultural | 0.005→0.047 | N/A (see fn. 1) | 0.073→0.177 |
+| FairGround | 0.543→0.061 | 0.524→0.472 | 0.518→**0.016** |
 | Student | 0.204→0.188 | 0.263→0.180 | 0.314→**0.114** |
 
 **Key findings:**
@@ -76,21 +76,29 @@
 
 ## Table 4, Accuracy Cost (baseline_acc - post_dp_acc)
 
+Note: Law School, Lending Club, and Agricultural mark N/A here. Their Stage 2
+scripts print baseline AUC, not baseline accuracy, so the formula above cannot
+be computed from existing script output. Post-constraint accuracy is printed
+for Law School and Lending Club but has no baseline counterpart to subtract
+against; Agricultural prints neither. Computing true baseline accuracy for
+these domains would require new code, not yet done, see paper_outline.md
+Decision 13 for the related AUC-vs-accuracy framing.
+
 | Domain | LR | RF | GB |
 |--------|----|----|-----|
-| COMPAS | 0.033 | 0.035 | 0.001 |
-| Folktables | 0.010 | 0.013 | 0.019 |
-| Law School | 0.003 | 0.003 | 0.003 |
-| Lending Club | 0.001 | 0.001 | 0.062 (!) |
-| Agricultural | 0.001 | 0.002 | 0.026 |
-| FairGround | 0.072 (!) | 0.040 | **0.159** (!) |
-| Student | 0.007 | 0.007 | 0.063 (!) |
+| COMPAS | 0.029 | 0.035 | 0.001 |
+| Folktables | 0.020 | 0.035 | 0.020 |
+| Law School | N/A | N/A | N/A |
+| Lending Club | N/A | N/A | N/A |
+| Agricultural | N/A | N/A | N/A |
+| FairGround | 0.148 (!) | 0.010 | **0.159** (!) |
+| Student | 0.026 | 0.076 (!) | 0.076 (!) |
 
 **Key findings:**
 - FairGround GB: highest accuracy cost (0.159 (!)), strongest fairness gain
-- FairGround LR: also high cost (0.072 (!))
+- FairGround LR: also high cost (0.148 (!))
 - Lending Club GB: 0.062 (!), unexpected high cost for near-fair baseline
-- Student GB: 0.063 (!), meaningful cost for fairness improvement
+- Student GB: 0.076 (!), meaningful cost for fairness improvement; RF also high cost (0.076 (!))
 - Law School: minimal cost (0.003) despite largest fairness improvement
 - LR most stable: no (!) flags across all domains
 
@@ -105,7 +113,7 @@
 | Folktables | Race (9 groups) | 0.540 | N/A | below threshold |
 | Law School | Race | 0.643 | 0.957 | passes |
 | Lending Club | Income Band | 2.778 | 0.952 | passes |
-| Agricultural | Business Type | 0.653 | 1.095 | passes |
+| Agricultural | Business Type | 0.653 | 1.042 | passes |
 | FairGround | Multi-attribute | N/A | N/A | N/A |
 | Student | Sex/Parentage | N/A | N/A | N/A |
 
@@ -117,7 +125,7 @@ N/A = not computed in cross_domain_comparison.py for this domain.
 
 **Section 5.1 Baseline Model Performance:** Reference Table 1. Add: "Baseline performance is model-dependent, not uniformly GB-dominant. GB achieves the highest AUC in all 3 AUC-only domains (Law School, Lending Club, Agricultural=0.938 highest of these 3 -- see Decision 13). Among the 4 true-accuracy domains, GB wins in 2 (Folktables=0.845, Student/math=0.658) while LogisticRegression wins in 2 (COMPAS: LR=0.686 vs GB=0.674; FairGround/law_school_lequy: LR=0.913 vs GB=0.910 -- see Decisions 14 and 18). Accuracy and AUC are not directly comparable to each other, and no single model dominates across the full 7-domain comparison."
 
-**Section 5.2 Post-DP DPD:** Reference Table 2. Add: "ThresholdOptimizer effectiveness is model-dependent within domains, COMPAS LR and RF worsen while GB improves; FairGround LR and RF worsen while GB achieves strongest reduction (92.4%). Effectiveness threshold: DPD>0.2 → GB effective; DPD<0.05 → counterproductive."
+**Section 5.2 Post-DP DPD:** Reference Table 2. Add: "ThresholdOptimizer effectiveness is model-dependent within domains, COMPAS LR and RF worsen while GB improves; FairGround LR and RF also improve alongside GB, which achieves the strongest reduction (95.9%). Effectiveness threshold: DPD>0.2 -> GB effective; DPD<0.05 -> counterproductive."
 
 **Section 5.3 Post-EO EOD:** Reference Table 3. Add: "Law School achieves strongest EOD reduction across all models (98.7% for GB). COMPAS RF worsens (0.686→0.734). Agricultural GB counterproductive (0.073→0.194). Multiple domains show model-dependent outcomes."
 
@@ -133,17 +141,17 @@ N/A = not computed in cross_domain_comparison.py for this domain.
 
 These are my working notes for when I sit down to write Section 5. Not instructions, just reminders of what the data actually showed so I don't have to go back and re-read the tables while writing.
 
-5.1, GB beats LR and RF on baseline accuracy in every single domain. The gap is biggest in Law School (0.878 vs 0.745 for LR) and smallest in Student (0.658 vs 0.633). Agricultural is the highest accuracy domain overall at 0.938 for GB, makes sense given the relatively clean binary outcome. COMPAS is the hardest domain at 0.674 GB, which tracks with the 6-group racial classification challenge.
+5.1, GB does not win every domain, LogisticRegression actually beats GB in COMPAS (0.686 vs 0.674) and in FairGround's law_school_lequy sub-dataset (0.913 vs 0.910). Among the domains where GB does lead, the gap is biggest in Agricultural (0.938 vs 0.727 for LR), not Law School which has only a 0.006 gap (0.878 vs 0.872 for LR), and smallest in Student (0.658 vs 0.646 for LR). Agricultural is the highest accuracy domain overall at 0.938 for GB, makes sense given the relatively clean binary outcome. COMPAS is the hardest domain at 0.674 GB, which tracks with the 6-group racial classification challenge.
 
 5.2, The DP results are the most interesting because they show ThresholdOptimizer is not uniformly effective. Law School and FairGround show massive DPD reductions for GB (91.5% and 95.9%) but LR and RF in those same domains actually get worse in FairGround. COMPAS LR and RF both worsen. Agricultural is counterproductive for GB because the baseline DPD was already 0.009, the optimizer has nothing to work with. The threshold I keep seeing: if baseline DPD is above 0.2, GB improves it meaningfully. Below 0.05, it tends to make things worse.
 
 5.3, EO results tell a similar story. Law School is the cleanest win across all three models. Student GB drops from 0.314 to 0.114 which is a strong result. The failures are Agricultural GB (0.073→0.194, counterproductive), COMPAS RF (0.686→0.734, gets worse), and a handful of near-zero worsening cases like Folktables GB and Lending Club GB that are not practically meaningful but worth noting.
 
-5.4, DIR is tricky to aggregate because every domain has different sensitive attributes. Law School passes EEOC 4/5ths rule post-constraint (0.643→0.957). Agricultural overcorrects to 1.095. COMPAS stays below threshold regardless, the 6-group structure makes EEOC compliance essentially impossible with ThresholdOptimizer alone.
+5.4, DIR is tricky to aggregate because every domain has different sensitive attributes. Law School passes EEOC 4/5ths rule post-constraint (0.643→0.957). Agricultural overcorrects to 1.042. COMPAS has no DIR computation at all in this domain's script, not a below-threshold result, the 6-group structure was never evaluated on this metric.
 
-5.5, FairGround has the worst accuracy-fairness tradeoff: GB loses 0.159 accuracy points to get the 92.4% DPD reduction. That's a real cost. LR is the most stable model across all domains, no high-cost flags anywhere. The surprise is Lending Club GB at 0.062 cost despite a near-fair baseline, the optimizer is paying accuracy without delivering fairness improvement.
+5.5, FairGround has the worst accuracy-fairness tradeoff: GB loses 0.159 accuracy points to get the 95.9% DPD reduction. That's a real cost. LR is the most stable model among the 4 domains where accuracy cost is computable, no high-cost flags anywhere. The surprise is Lending Club GB at 0.062 cost despite a near-fair baseline, the optimizer is paying accuracy without delivering fairness improvement.
 
-5.6, The through-line across all results: effectiveness varies by model AND by domain. It's not enough to say "ThresholdOptimizer works" or "ThresholdOptimizer doesn't work." The honest answer is GB works when baseline DPD is high, and nothing works well when baseline DPD is already near-fair.
+5.6, The through-line across all results: effectiveness varies by model AND by domain. It's not enough to say "ThresholdOptimizer works" or "ThresholdOptimizer doesn't work." The honest answer is GB works when baseline DPD is high, and near-fair baselines are unpredictable, Agricultural got worse but Lending Club slightly improved.
 
 ---
 

@@ -56,17 +56,17 @@ DOMAINS = {
     'Law School': {
         'sensitive': 'Race',
         'regulatory': 'ECOA/Title VI',
-        'baseline_dpd': 0.351, 'best_dp_dpd': 0.039, 'dp_improve': 88.9,
-        'baseline_eod': 0.528, 'best_eo_eod': 0.031, 'eo_improve': 94.1,
+        'baseline_dpd': 0.351, 'best_dp_dpd': 0.030, 'dp_improve': 91.5,
+        'baseline_eod': 0.528, 'best_eo_eod': 0.007, 'eo_improve': 98.7,
         'baseline_acc': 0.878, 'dp_acc_cost': 0.003, 'eo_acc_cost': 0.003,
-        'baseline_dir': 0.643, 'post_dir': 0.945,
+        'baseline_dir': 0.643, 'post_dir': 0.957,
         'note': 'Largest racial gap in FAPE; strongest ThresholdOptimizer improvement'
     },
     'Lending Club': {
         'sensitive': 'Income Band',
         'regulatory': 'ECOA',
         'baseline_dpd': 0.024, 'best_dp_dpd': 0.024, 'dp_improve': -0.1,
-        'baseline_eod': 0.053, 'best_eo_eod': 0.060, 'eo_improve': -7.0,
+        'baseline_eod': 0.038, 'best_eo_eod': 0.047, 'eo_improve': -23.7,
         'baseline_acc': 0.712, 'dp_acc_cost': 0.001, 'eo_acc_cost': -0.013,
         'baseline_dir': 2.778, 'post_dir': 0.952,
         'note': 'Near-fair baseline; DIR>1 amplifies disparity (actual 1.4x predicted 2.8x)'
@@ -74,17 +74,17 @@ DOMAINS = {
     'Agricultural': {
         'sensitive': 'Business Type',
         'regulatory': 'ECOA/SBA',
-        'baseline_dpd': 0.009, 'best_dp_dpd': 0.035, 'dp_improve': -288.9,
-        'baseline_eod': 0.073, 'best_eo_eod': 0.194, 'eo_improve': -165.8,
+        'baseline_dpd': 0.009, 'best_dp_dpd': 0.031, 'dp_improve': -244.4,
+        'baseline_eod': 0.073, 'best_eo_eod': 0.177, 'eo_improve': -142.5,
         'baseline_acc': 0.938, 'dp_acc_cost': 0.026, 'eo_acc_cost': 0.121,
-        'baseline_dir': 0.653, 'post_dir': 1.095,
+        'baseline_dir': 0.653, 'post_dir': 1.042,
         'note': 'Near-fair baseline; ThresholdOptimizer counterproductive; GB overcorrects'
     },
     'FairGround': {
         'sensitive': 'Multi-attribute',
         'regulatory': 'ECOA/Title VII',
-        'baseline_dpd': 0.342, 'best_dp_dpd': 0.026, 'dp_improve': 92.4,
-        'baseline_eod': 0.518, 'best_eo_eod': 0.038, 'eo_improve': 92.7,
+        'baseline_dpd': 0.342, 'best_dp_dpd': 0.014, 'dp_improve': 95.9,
+        'baseline_eod': 0.518, 'best_eo_eod': 0.016, 'eo_improve': 96.9,
         'baseline_acc': 0.910, 'dp_acc_cost': 0.159, 'eo_acc_cost': 0.149,
         'baseline_dir': None, 'post_dir': None,
         'note': 'Strongest improvement but highest accuracy cost'
@@ -93,7 +93,7 @@ DOMAINS = {
         'sensitive': 'Sex/Parentage',
         'regulatory': 'Title IX/ECOA',
         'baseline_dpd': 0.237, 'best_dp_dpd': 0.190, 'dp_improve': 19.8,
-        'baseline_eod': 0.314, 'best_eo_eod': 0.055, 'eo_improve': 82.5,
+        'baseline_eod': 0.314, 'best_eo_eod': 0.114, 'eo_improve': 63.7,
         'baseline_acc': 0.658, 'dp_acc_cost': 0.063, 'eo_acc_cost': 0.025,
         'baseline_dir': None, 'post_dir': None,
         'note': 'EO constraint most effective; sex fairness near-zero after intervention'
@@ -114,11 +114,11 @@ def run_cross_domain_comparison():
               f"ACC cost (DP): {metrics['dp_acc_cost']:.3f}")
 
     print("\n--- Key Cross-Domain Findings ---")
-    print("  Law School: largest racial gap (DIR=0.643); strongest improvement (EO +94.1%)")
-    print("  FairGround: strongest DP improvement (92.4%) but highest ACC cost (0.159)")
+    print("  Law School: largest racial gap (DIR=0.643); strongest improvement (EO +98.7%)")
+    print("  FairGround: strongest DP improvement (95.9%) but highest ACC cost (0.159)")
     print("  Agricultural + Lending Club: near-fair baseline, ThresholdOptimizer counterproductive")
     print("  COMPAS: GB DP constraint most effective (DPD 0.857→0.571)")
-    print("  Student: EO constraint eliminates sex gap (EOD 0.314→0.055)")
+    print("  Student: EO constraint eliminates sex gap (EOD 0.314→0.114)")
     print("  Finding: ThresholdOptimizer effective when baseline DPD > 0.2; counterproductive when < 0.05")
 
     # Layout constants

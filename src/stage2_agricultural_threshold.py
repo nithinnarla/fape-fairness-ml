@@ -186,7 +186,13 @@ def run_stage2():
     print(f"\n--- Key Findings ---")
     print(f"  Baseline DP gap minimal (0.005-0.009), smallest in FAPE across all domains")
     print(f"  ThresholdOptimizer worsens fairness, negative improvement across all models")
-    print(f"  GB DIR 0.653→1.095, overcorrects past parity after DP constraint")
+    gb_corp_b = baseline["GradientBoosting"]["y_pred"][btype_test==0].mean()
+    gb_part_b = baseline["GradientBoosting"]["y_pred"][btype_test==2].mean()
+    gb_corp_a = dp_results["GradientBoosting"]["y_pred"][btype_test==0].mean()
+    gb_part_a = dp_results["GradientBoosting"]["y_pred"][btype_test==2].mean()
+    gb_dir_before = gb_part_b/gb_corp_b if gb_corp_b > 0 else 0
+    gb_dir_after = gb_part_a/gb_corp_a if gb_corp_a > 0 else 0
+    print(f"  GB DIR {gb_dir_before:.3f}->{gb_dir_after:.3f}, overcorrects past parity after DP constraint")
     print(f"  Cross-domain finding: agricultural lending near-fair on business type proxy")
     print(f"  No direct race/gender, ECOA proxy-based audit; USDA NASS race in EDA")
     print(f"  LSMS Nigeria considered and excluded, outside US regulatory scope")

@@ -159,29 +159,29 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - These two groups use different metrics and are not directly ranked against each other as a single ordered list; within-group comparisons (accuracy-to-accuracy, AUC-to-AUC) are valid, cross-group comparisons are not
 
 ### 5.2 Post-DP Constraint: DPD Results
-- Law School: all 3 models improve, GB strongest (DPD 0.351→0.030, 91.5% reduction)
-- FairGround GB: DPD 0.342→0.014 (95.9% reduction), highest accuracy cost (0.159); LR+RF worsen
-- Agricultural GB: DPD 0.009→0.031 (-244.4%), counterproductive; LR+RF no change
+- Law School: LR and GB both improve, GB strongest (DPD 0.351→0.030, 91.5% reduction); RF not tested in this domain, see Decision 13 footnote
+- FairGround GB: DPD 0.342→0.014 (95.9% reduction), highest accuracy cost (0.159); LR and RF also improve substantially (0.329→0.010 and 0.336→0.012 respectively)
+- Agricultural GB: DPD 0.009→0.031 (-244.4%), counterproductive; LR also worsens (0.005→0.016); RF not tested in this domain, see Decision 13 footnote
 - COMPAS GB: DPD 0.857→0.571, improves but above EEOC threshold; LR+RF worsen
-- Folktables GB: DPD 0.320→0.339, slightly counterproductive; LR+RF no change
+- Folktables GB: DPD 0.320→0.339, slightly counterproductive; LR improves (0.352→0.340), RF worsens (0.319→0.394)
 - Student: LR and GB improve (DPD 0.212→0.010 and 0.237→0.215), RF worsens (DPD 0.235→0.363, +54.5%)
 - Effectiveness is model-dependent within domains, GB most effective in high-DPD contexts
 
 ### 5.3 Post-EO Constraint: EOD Results
-- Law School: all 3 models improve, GB strongest (EOD 0.528→0.007, 98.7% reduction)
+- Law School: LR and GB both improve, GB strongest (EOD 0.528→0.007, 98.7% reduction); RF not tested in this domain
 - Student: all 3 models improve, GB strongest (EOD 0.314→0.114, 63.7% reduction)
-- FairGround RF+GB: improve strongly, LR slightly worsens (0.018→0.019)
-- COMPAS GB: EOD 1.000→0.659, improves but remains high; RF worsens (0.686→0.734)
-- Agricultural GB: counterproductive under EO (EOD 0.073→0.177); LR+RF no change
-- Folktables GB: slightly worsens (0.333→0.334); LR+RF improve
-- Lending Club GB: slightly improves (0.053→0.049), not the worsening previously claimed; LR DPD slightly worsens (0.018→0.019)
+- FairGround creditcard sub-dataset: all 3 models worsen under EO (LR 0.011→0.030, RF 0.013→0.033, GB 0.018→0.019), baseline already near-fair leaves optimizer nothing to improve
+- COMPAS GB: EOD 1.000→0.659, improves but remains high; RF worsens (0.686→0.731)
+- Agricultural GB: counterproductive under EO (EOD 0.073→0.177); LR also worsens (0.005→0.047); RF not tested in this domain
+- Folktables GB: slightly worsens (0.333→0.334); LR improves (0.571→0.333), RF worsens (0.823→0.861)
+- Lending Club GB: slightly improves (0.053→0.049), not the worsening previously claimed; LR EOD worsens (0.038→0.047)
 
 ### 5.4 Disparate Impact Ratio (DIR)
 - DIR computed per domain using domain-specific sensitive attribute groups
 - Law School GB: DIR 0.643→0.957, passes EEOC 4/5ths rule post-constraint
 - Lending Club: DIR>1 at baseline (1.4x actual, 2.8x predicted), proxy-based audit
-- Agricultural GB: DIR overcorrects (0.653→1.095), surpasses parity threshold
-- COMPAS: DIR remains below EEOC threshold across all models, 6-group challenge
+- Agricultural GB: DIR overcorrects (0.653→1.042), surpasses parity threshold
+- COMPAS: DIR not computed, script has no DIR calculation for this domain, see Table 1 N/A entries
 - Note: DIR not aggregated cross-domain, sensitive attributes differ per domain
 
 ### 5.5 Cross-Domain Comparison
@@ -195,18 +195,18 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 ### 5.6 Accuracy-Fairness Tradeoff
 - FairGround GB: highest accuracy cost (0.159 (!)), strongest fairness gain
-- FairGround LR: also high cost (0.072 (!)) with weaker fairness gain
-- Lending Club GB: unexpected high cost (0.062 (!)) despite near-fair baseline
-- Student GB: meaningful cost (0.063 (!)) with strong fairness improvement
-- Law School: minimal accuracy cost (0.003) despite largest fairness improvement, best tradeoff
-- Agricultural: accuracy cost without fairness benefit, worst case
-- LR most stable: no high-cost outcomes across all 7 domains
+- FairGround LR: also high cost (0.148 (!)) with weaker fairness gain
+- Lending Club: accuracy cost not computable, script reports AUC not accuracy, see Table 4 footnote
+- Student GB: meaningful cost (0.076 (!)) with strong fairness improvement; RF also high cost (0.076 (!))
+- Law School: accuracy cost not computable, script reports AUC not accuracy, see Table 4 footnote; DPD improvement (91.5%) still the largest observed
+- Agricultural: accuracy cost not computable, script reports AUC not accuracy; DPD/EOD both counterproductive regardless, worst fairness outcome of the 7 domains
+- LR most stable among the 4 domains where accuracy cost is computable: no high-cost outcomes
 
 ### 5.7 Drift Detection Results
 - Law School + FairGround + Student: earliest CUSUM alerts in v3
 - Lending Club + Agricultural: no alerts, near-fair baseline
-- LR most drift-stable; GB most drift-sensitive
-- DPD and EOD show similar drift patterns under distribution shift
+- Per-model drift stability not available, script reports domain-level alert counts only, no model breakdown
+- Separate DPD and EOD drift patterns not compared, script computes a single combined alert count per domain, not separately by metric
 
 ---
 
@@ -220,7 +220,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 ### 6.2 Multi-Metric Tradeoffs
 - Chouldechova impossibility confirmed empirically, improving DPD often worsens EOD
-- DIR reveals overcorrection cases missed by DPD alone (Agricultural GB: DIR→1.095)
+- DIR reveals overcorrection cases missed by DPD alone (Agricultural GB: DIR→1.042)
 - FAPE surfaces these tradeoffs; single-metric papers hide them
 - COMPAS: irreducible fairness tension with 6 racial groups
 

@@ -14,7 +14,7 @@ Key methodological decision (Decision 7):
 - v3 simulates distribution shift causing fairness regression
 - Proof-of-concept validation, acknowledged limitation in paper
 
-All DPD, EOD, and accuracy values sourced directly from threshold_aggregation.py RESULTS dict.
+All DPD, EOD, and accuracy values verified against threshold_aggregation.py RESULTS dict as of 2026-08-16. RF entries for Law School, Lending Club, and Agricultural are structural placeholders only (RF not tested in Stage 2 for these 3 domains), see STAGE2_RESULTS/ACC_RESULTS/EOD_RESULTS comments.
 
 Domains: COMPAS, Folktables, Law School, Lending Club, Agricultural, FairGround, Student
 Models: LR, RF, GB
@@ -53,119 +53,135 @@ DOMAIN_COLORS = {
 
 # All values sourced directly from threshold_aggregation.py RESULTS dict
 # v1 = baseline_dpd, v2 = dp_dpd (post-DP constraint)
+# NOTE (fixed 2026-08-16): RF baseline for Law School, Lending Club, and
+# Agricultural was never computed in Stage 2 (threshold_aggregation.py lists
+# these as None -- RF was not tested in these 3 domains). The RF values below
+# for these 3 domains are structural placeholders only, kept so this script's
+# uniform 3-model-per-domain figures can render, and must NOT be cited as real
+# Stage 2 results in the paper. All other values below are the verified,
+# correct dp_dpd figures from threshold_aggregation.py RESULTS.
 STAGE2_RESULTS = {
     'COMPAS': {
-        'LR': {'v1': 0.545, 'v2': 0.650},
-        'RF': {'v1': 0.568, 'v2': 0.580},
+        'LR': {'v1': 0.545, 'v2': 0.714},
+        'RF': {'v1': 0.568, 'v2': 0.714},
         'GB': {'v1': 0.857, 'v2': 0.571},
     },
     'Folktables': {
-        'LR': {'v1': 0.240, 'v2': 0.240},
-        'RF': {'v1': 0.280, 'v2': 0.280},
-        'GB': {'v1': 0.320, 'v2': 0.341},
+        'LR': {'v1': 0.352, 'v2': 0.340},
+        'RF': {'v1': 0.319, 'v2': 0.394},
+        'GB': {'v1': 0.320, 'v2': 0.339},
     },
     'Law School': {
-        'LR': {'v1': 0.408, 'v2': 0.051},
-        'RF': {'v1': 0.388, 'v2': 0.046},
-        'GB': {'v1': 0.351, 'v2': 0.039},
+        'LR': {'v1': 0.329, 'v2': 0.011},
+        'RF': {'v1': 0.329, 'v2': 0.011},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.351, 'v2': 0.030},
     },
     'Lending Club': {
-        'LR': {'v1': 0.031, 'v2': 0.031},
-        'RF': {'v1': 0.028, 'v2': 0.028},
-        'GB': {'v1': 0.024, 'v2': 0.024},
+        'LR': {'v1': 0.018, 'v2': 0.019},
+        'RF': {'v1': 0.018, 'v2': 0.019},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.024, 'v2': 0.018},
     },
     'Agricultural': {
-        'LR': {'v1': 0.012, 'v2': 0.012},
-        'RF': {'v1': 0.005, 'v2': 0.005},
-        'GB': {'v1': 0.009, 'v2': 0.035},
+        'LR': {'v1': 0.005, 'v2': 0.016},
+        'RF': {'v1': 0.005, 'v2': 0.016},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.009, 'v2': 0.031},
     },
     'FairGround': {
-        'LR': {'v1': 0.009, 'v2': 0.024},
-        'RF': {'v1': 0.122, 'v2': 0.179},
-        'GB': {'v1': 0.342, 'v2': 0.026},
+        'LR': {'v1': 0.329, 'v2': 0.010},
+        'RF': {'v1': 0.336, 'v2': 0.012},
+        'GB': {'v1': 0.342, 'v2': 0.014},
     },
     'Student': {
-        'LR': {'v1': 0.185, 'v2': 0.143},
-        'RF': {'v1': 0.199, 'v2': 0.155},
-        'GB': {'v1': 0.237, 'v2': 0.190},
+        'LR': {'v1': 0.212, 'v2': 0.010},
+        'RF': {'v1': 0.235, 'v2': 0.363},
+        'GB': {'v1': 0.237, 'v2': 0.215},
     },
 }
 
 # v1 = baseline_acc, v2 = dp_acc (post-DP constraint)
+# NOTE (fixed 2026-08-16): Law School, Lending Club, Agricultural report AUC
+# not accuracy in Stage 2 (see Decision 13); AUC used here as the closest
+# available numeric stand-in for this script's internal trajectory figure
+# only, not a formal accuracy claim. RF entries for these 3 domains are
+# structural placeholders, RF was not tested, see STAGE2_RESULTS note above.
 ACC_RESULTS = {
     'COMPAS': {
-        'LR': {'v1': 0.686, 'v2': 0.653},
+        'LR': {'v1': 0.686, 'v2': 0.657},
         'RF': {'v1': 0.637, 'v2': 0.602},
-        'GB': {'v1': 0.674, 'v2': 0.673},
+        'GB': {'v1': 0.674, 'v2': 0.675},
     },
     'Folktables': {
-        'LR': {'v1': 0.791, 'v2': 0.781},
-        'RF': {'v1': 0.829, 'v2': 0.816},
-        'GB': {'v1': 0.845, 'v2': 0.826},
+        'LR': {'v1': 0.819, 'v2': 0.799},
+        'RF': {'v1': 0.829, 'v2': 0.794},
+        'GB': {'v1': 0.845, 'v2': 0.825},
     },
     'Law School': {
-        'LR': {'v1': 0.745, 'v2': 0.742},
-        'RF': {'v1': 0.801, 'v2': 0.798},
-        'GB': {'v1': 0.878, 'v2': 0.875},
+        'LR': {'v1': 0.872, 'v2': 0.765},
+        'RF': {'v1': 0.872, 'v2': 0.765},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.878, 'v2': 0.754},
     },
     'Lending Club': {
-        'LR': {'v1': 0.649, 'v2': 0.648},
-        'RF': {'v1': 0.655, 'v2': 0.654},
-        'GB': {'v1': 0.712, 'v2': 0.650},
+        'LR': {'v1': 0.706, 'v2': 0.616},
+        'RF': {'v1': 0.706, 'v2': 0.616},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.712, 'v2': 0.651},
     },
     'Agricultural': {
-        'LR': {'v1': 0.904, 'v2': 0.903},
-        'RF': {'v1': 0.921, 'v2': 0.919},
-        'GB': {'v1': 0.938, 'v2': 0.912},
+        'LR': {'v1': 0.727, 'v2': 0.665},
+        'RF': {'v1': 0.727, 'v2': 0.665},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.938, 'v2': 0.862},
     },
     'FairGround': {
-        'LR': {'v1': 0.819, 'v2': 0.747},
-        'RF': {'v1': 0.871, 'v2': 0.831},
+        'LR': {'v1': 0.913, 'v2': 0.765},
+        'RF': {'v1': 0.907, 'v2': 0.897},
         'GB': {'v1': 0.910, 'v2': 0.751},
     },
     'Student': {
-        'LR': {'v1': 0.633, 'v2': 0.626},
-        'RF': {'v1': 0.648, 'v2': 0.641},
-        'GB': {'v1': 0.658, 'v2': 0.595},
+        'LR': {'v1': 0.646, 'v2': 0.620},
+        'RF': {'v1': 0.633, 'v2': 0.557},
+        'GB': {'v1': 0.658, 'v2': 0.582},
     },
 }
 
 # v1 = baseline_eod, v2 = eo_eod (post-EO constraint)
+# NOTE (fixed 2026-08-16): RF entries for Law School, Lending Club,
+# Agricultural are structural placeholders, RF was not tested, see
+# STAGE2_RESULTS note above. All other values are verified eo_eod figures
+# from threshold_aggregation.py RESULTS.
 EOD_RESULTS = {
     'COMPAS': {
-        'LR': {'v1': 0.701, 'v2': 0.634},
-        'RF': {'v1': 0.686, 'v2': 0.734},
+        'LR': {'v1': 0.701, 'v2': 0.654},
+        'RF': {'v1': 0.686, 'v2': 0.731},
         'GB': {'v1': 1.000, 'v2': 0.659},
     },
     'Folktables': {
-        'LR': {'v1': 0.600, 'v2': 0.467},
-        'RF': {'v1': 0.400, 'v2': 0.333},
-        'GB': {'v1': 0.333, 'v2': 0.336},
+        'LR': {'v1': 0.571, 'v2': 0.333},
+        'RF': {'v1': 0.823, 'v2': 0.861},
+        'GB': {'v1': 0.333, 'v2': 0.334},
     },
     'Law School': {
-        'LR': {'v1': 0.622, 'v2': 0.057},
-        'RF': {'v1': 0.564, 'v2': 0.048},
-        'GB': {'v1': 0.528, 'v2': 0.031},
+        'LR': {'v1': 0.543, 'v2': 0.060},
+        'RF': {'v1': 0.543, 'v2': 0.060},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.528, 'v2': 0.007},
     },
     'Lending Club': {
-        'LR': {'v1': 0.068, 'v2': 0.068},
-        'RF': {'v1': 0.060, 'v2': 0.060},
-        'GB': {'v1': 0.053, 'v2': 0.060},
+        'LR': {'v1': 0.038, 'v2': 0.047},
+        'RF': {'v1': 0.038, 'v2': 0.047},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.053, 'v2': 0.049},
     },
     'Agricultural': {
-        'LR': {'v1': 0.089, 'v2': 0.089},
-        'RF': {'v1': 0.041, 'v2': 0.041},
-        'GB': {'v1': 0.073, 'v2': 0.194},
+        'LR': {'v1': 0.005, 'v2': 0.047},
+        'RF': {'v1': 0.005, 'v2': 0.047},  # placeholder, RF not tested, see note above
+        'GB': {'v1': 0.073, 'v2': 0.177},
     },
     'FairGround': {
-        'LR': {'v1': 0.018, 'v2': 0.019},
-        'RF': {'v1': 0.667, 'v2': 0.333},
-        'GB': {'v1': 0.518, 'v2': 0.038},
+        'LR': {'v1': 0.543, 'v2': 0.061},
+        'RF': {'v1': 0.524, 'v2': 0.472},
+        'GB': {'v1': 0.518, 'v2': 0.016},
     },
     'Student': {
-        'LR': {'v1': 0.272, 'v2': 0.136},
-        'RF': {'v1': 0.291, 'v2': 0.148},
-        'GB': {'v1': 0.314, 'v2': 0.055},
+        'LR': {'v1': 0.204, 'v2': 0.188},
+        'RF': {'v1': 0.263, 'v2': 0.180},
+        'GB': {'v1': 0.314, 'v2': 0.114},
     },
 }
 

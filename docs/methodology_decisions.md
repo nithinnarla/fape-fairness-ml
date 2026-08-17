@@ -216,6 +216,8 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 
 **Given the volume of findings tonight (Decisions 12-16) and to avoid runaway investigation on writing day, this is being logged rather than chased further right now.** Recommend a dedicated, focused session before Aug 19 to resolve this specific item, ideally starting from git blame/log history on stage2_lawschool_threshold.py to check whether RandomForest was ever present and removed.
 
+**Resolved (Aug 16 2026):** During Section 5 drafting and full source-verification pass, this was closed via option (b). RandomForest is confirmed intentionally absent from stage2_lawschool_threshold.py (and, by the same pattern, from stage2_lendingclub_threshold.py and stage2_agricultural_threshold.py -- all three AUC-reporting domains share this design). The RF column for these three domains has been removed from paper_outline.md and marked N/A with an explanatory footnote in cross_domain_results_table.md, rather than carrying forward an unverifiable number. Law School's actual RF baseline, confirmed live via baseline_lawschool.py, is 0.854 -- this value is used where RF baseline (not post-constraint) figures are cited, since that script does compute it even though Stage 2 does not.
+
 ## Decision 17, Table 1 (Baseline Model Performance) Required a Full Rebuild From Verified Live Output, Not Incremental Patching
 
 **Investigation (Aug 2 2026):** After resolving Decision 15 (ThresholdOptimizer determinism), attempted to systematically re-verify every domain's Table 1 entry against live script output before propagating corrected numbers. Found discrepancies far more widespread than Decisions 13/14/16 had already documented:
