@@ -154,8 +154,8 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 ### 5.1 Baseline Model Performance
 - No single model dominates across all 7 domains -- GB wins baseline AUC in all 3 AUC-only domains, but among the 4 true-accuracy domains GB wins 2 (Folktables, Student) and LR wins 2 (COMPAS, FairGround/law_school_lequy); RF is never highest in any domain -- see Decision 18
-- 4 domains report true classification accuracy: COMPAS (GB=0.674, lowest of these 4 -- 6-group racial classification challenge), Folktables (GB=0.845), FairGround (GB=0.910, specifically the law_school_lequy sub-dataset -- see Decision 14), Student (GB=0.658)
-- 3 domains report AUC rather than accuracy, since their Stage 2 scripts never compute accuracy_score for the baseline model -- see Decision 13: Law School (GB=0.878, largest LR-GB gap within this group at GB=0.878 vs LR=0.745), Lending Club (GB=0.712), Agricultural (GB=0.938, highest AUC of these 3)
+- 4 domains report true classification accuracy: COMPAS (GB=0.674, second-lowest of these 4 -- 6-group racial classification challenge), Folktables (GB=0.845), FairGround (GB=0.910, specifically the law_school_lequy sub-dataset -- see Decision 14), Student (GB=0.658, lowest of these 4, small-scale dataset)
+- 3 domains report AUC rather than accuracy, since their Stage 2 scripts never compute accuracy_score for the baseline model -- see Decision 13: Law School (GB=0.878, LR=0.872, smallest LR-GB gap of these 3), Lending Club (GB=0.712, LR=0.706, similarly small gap), Agricultural (GB=0.938, LR=0.727, largest LR-GB gap of these 3, also highest AUC overall)
 - These two groups use different metrics and are not directly ranked against each other as a single ordered list; within-group comparisons (accuracy-to-accuracy, AUC-to-AUC) are valid, cross-group comparisons are not
 
 ### 5.2 Post-DP Constraint: DPD Results
