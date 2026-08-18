@@ -33,7 +33,7 @@ The causal framing has a real constraint: the baseline model has to be identical
 
 The Obermeyer et al. (2019) finding is what drove Stage 1 into the design. Healthcare cost used as a proxy for health need, the racial bias in the algorithm's outputs wasn't visible in any explicit feature, only in the relationship between cost and actual health need. Running a fairness audit on model outputs while ignoring proxy relationships in the input features would mean auditing the symptom and missing the cause.
 
-Stage 1 runs Cramér's V correlation analysis across all feature pairs before anything else. It adds overhead and complexity. But if I skip it, FAPE becomes a framework that audits bias in outputs while potentially having proxy bias baked into every input. That's not a framework I want to build.
+**Correction, 2026-08-17:** the Cramér's V feature-vs-sensitive-attribute proxy detection described below was planned here but was never actually implemented in any of the 7 domain scripts (confirmed by direct code search, zero matches). What Stage 1 actually computes is feature-vs-label correlation (e.g. eda_compas.py's priors_count-vs-recidivism correlation), which measures predictive power, not proxy relationship to a sensitive attribute. This document's original design intent is preserved below for historical accuracy, but readers should treat the Cramér's V proxy-detection step as unbuilt, not as a description of the current pipeline. The paper draft itself (paper_draft.md) does not claim this analysis was performed, so this gap has not propagated into the submitted work, but it should be resolved before Stage 1 is described in any future methodology writing: either implement the original Cramér's V step, or formally drop it from the design rationale as a considered-but-abandoned idea.
 
 **Stage 2, Why LR/RF/GB and why default hyperparameters**
 
@@ -75,7 +75,7 @@ Ding et al. (2021) showed Adult Income is methodologically flawed. Using Adult I
 
 **Student Performance (1,044 records verified), Education**
 
-649 records in the math variant, 1,044 combined with Portuguese. The small scale is deliberate. A fairness auditing framework that only works at production scale, millions of records, isn't useful for most real-world audits. Small dataset fairness is a specific challenge because demographic subgroups can be too small for reliable metric estimation. If FAPE's metrics degrade at this scale, that's a finding worth reporting.
+395 records in the math variant, 649 in Portuguese, 1,044 combined. The small scale is deliberate. A fairness auditing framework that only works at production scale, millions of records, isn't useful for most real-world audits. Small dataset fairness is a specific challenge because demographic subgroups can be too small for reliable metric estimation. If FAPE's metrics degrade at this scale, that's a finding worth reporting.
 
 **Law School Admissions (18,692 records verified), Education/Legal**
 
@@ -113,6 +113,6 @@ Three things FAPE cannot claim that I want to be explicit about before writing s
 
 Cannot solve the fairness problem. Chouldechova's impossibility theorem is mathematics, not a limitation of the current implementation. Satisfying equalized odds and calibration simultaneously is impossible when base rates differ. FAPE makes the tradeoff visible, it doesn't eliminate it.
 
-Cannot generalize from these domains to all high-stakes ML contexts. Five domains is a meaningful sample, not an exhaustive one. Healthcare is planned but pending. The paper will be explicit about coverage and resist overclaiming generalizability.
+Cannot generalize from these domains to all high-stakes ML contexts. Seven domains is a meaningful sample, not an exhaustive one. Healthcare is planned but pending. The paper will be explicit about coverage and resist overclaiming generalizability.
 
 Cannot replace domain expertise. Which metric to prioritize given a specific regulatory context, whether a bias pattern constitutes actionable harm, how to weigh accuracy against fairness given the stakes, these require human judgment. FAPE surfaces information; it doesn't make decisions.
