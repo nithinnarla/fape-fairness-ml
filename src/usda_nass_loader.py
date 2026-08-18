@@ -36,28 +36,40 @@ def load_usda_nass(data_path=DATA_PATH):
         errors="coerce"
     )
 
+    # BUG FIX 2026-08-17: the previous version summed value_clean across every
+    # domaincat_desc breakdown (area operated, economic class, farm sales, NAICS,
+    # organization, producers-per-farm, tenure, typology - 8 overlapping dimensions
+    # plus the single true total), inflating every figure by roughly 8x on top of
+    # cross-contaminating race groups via loose substring matching (e.g. "WHITE"
+    # matched "HISPANIC, WHITE" rows too). The correct row for a clean national
+    # total is domaincat_desc == "NOT SPECIFIED", used with an exact short_desc
+    # match per race group, not a substring match.
     outcomes = []
     for race in RACE_GROUPS:
-        race_records = race_df[
-            race_df["short_desc"].str.contains(race, case=False, na=False)
-        ]
-        if len(race_records) == 0:
+        producer_desc = f"PRODUCERS, {race} - NUMBER OF PRODUCERS"
+        operations_desc = f"PRODUCERS, {race} - NUMBER OF OPERATIONS"
+        acres_desc = f"PRODUCERS, {race} - ACRES OPERATED"
+
+        n_producers_rows = race_df[
+            (race_df["short_desc"] == producer_desc) &
+            (race_df["domaincat_desc"] == "NOT SPECIFIED")
+        ]["value_clean"]
+        n_producers = n_producers_rows.iloc[0] if len(n_producers_rows) > 0 else np.nan
+
+        n_operations_rows = race_df[
+            (race_df["short_desc"] == operations_desc) &
+            (race_df["domaincat_desc"] == "NOT SPECIFIED")
+        ]["value_clean"]
+        n_operations = n_operations_rows.iloc[0] if len(n_operations_rows) > 0 else np.nan
+
+        acres_rows = race_df[
+            (race_df["short_desc"] == acres_desc) &
+            (race_df["domaincat_desc"] == "NOT SPECIFIED")
+        ]["value_clean"]
+        acres = acres_rows.iloc[0] if len(acres_rows) > 0 else np.nan
+
+        if pd.isna(n_producers) and pd.isna(n_operations) and pd.isna(acres):
             continue
-
-        n_producers = race_records[
-            race_records["short_desc"].str.contains("NUMBER OF PRODUCERS", case=False, na=False) &
-            ~race_records["short_desc"].str.contains(
-                "DAY|DAYS|DECISION|OCCUPATION|HIRED|ESTATE|LAND|LIVE|MARKET", case=False, na=False
-            )
-        ]["value_clean"].sum()
-
-        n_operations = race_records[
-            race_records["short_desc"].str.contains("NUMBER OF OPERATIONS", case=False, na=False)
-        ]["value_clean"].sum()
-
-        acres = race_records[
-            race_records["short_desc"].str.contains("ACRES OPERATED", case=False, na=False)
-        ]["value_clean"].sum()
 
         outcomes.append({
             "race_group": race,
