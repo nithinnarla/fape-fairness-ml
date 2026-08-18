@@ -128,7 +128,9 @@ A synthetic drift-detection pass, simulating distribution shift across three mod
 
 [Sections 6.1-6.3 not yet drafted. This document currently contains only 6.4, the Agricultural domain justification, written to close a specific gap flagged in Section 3.2.]
 
-### 6.4 Agricultural Domain Justification
+### 6.4 Limitations
+
+Only the agricultural justification piece is written so far. Five more limitation points from the outline still need drafting here: the synthetic distribution shift used for drift detection, the decision to test only ThresholdOptimizer rather than pre- or in-processing alternatives, COMPAS's six-group racial framing, Lending Club's reliance on income and housing as proxy attributes, and the cross-domain architecture constraint. That's better written after 6.1-6.3 exist, since limitations should follow from what the discussion actually argues.
 
 Agricultural lending, evaluated here via SBA 7(a) small business loan data with business type as the sensitive attribute, occupies a regulatory and substantive category distinct from most other domains in this study. COMPAS, Folktables, Law School, and Student concern discrimination against individuals along demographic lines (race, sex). Lending Club uses income band, a non-demographic proxy attribute, but remains a consumer-credit context governed by ECOA's individual-applicant provisions. Agricultural is the only domain concerning discrimination against business entities rather than individual consumers, governed by ECOA's business-credit provisions specifically. This distinction matters substantively, not just administratively: business-type discrimination raises different fairness questions than either demographic or income-proxy discrimination, since business type is neither an immutable personal characteristic nor a proxy for one in the way income band can be.
 
