@@ -133,7 +133,7 @@ Full dependency list: `requirements.txt`
 - July 2026: Stage 2 complete, ThresholdOptimizer DP/EO constraints across all 7 domains; cross-domain comparison complete; Law School strongest improvement (EO +94.1%); Agricultural counterproductive when near-fair (DPD -288.9%); core finding: effective when baseline DPD > 0.2; 68 figures committed (56 domain + 6 aggregation + 6 cross-domain)
 - July 2026: Stage 3 complete, DIR metric added to all 7 domains; COMPAS + FairGround DIR figures; paper outline committed
 - July 2026: Stage 4 complete, CUSUM-based fairness drift detection; 9 drift figures; Law School + FairGround + Student earliest alerts
-- August 2026: Paper writing, target submission JASIST Sep 11 2026
+- August 2026: Paper writing, target submission JASIST Sep 29 2026
 
 ---
 
@@ -146,7 +146,7 @@ Full dependency list: `requirements.txt`
 **Stage 3 (complete):** DIR metric across all 7 domains, COMPAS + FairGround DIR figures added; paper outline committed.
 **Stage 4 (complete):** CUSUM-based fairness drift detection, synthetic distribution shift; Law School + FairGround + Student most sensitive; 9 figures committed.
 
-Target venue: JASIST, submission Sep 11 2026
+Target venue: JASIST, submission Sep 29 2026
 
 ---
 
