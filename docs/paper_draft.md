@@ -1,6 +1,10 @@
 # FAPE: Paper Draft
 ## JASIST Submission Target Sep 29 2026
 
+## Abstract
+
+Fairness audits in production ML typically occur once, at deployment, on a single domain. Both fail in practice: fairness can shift after retraining or a changing user base, and interventions validated on one dataset are rarely tested across the heterogeneous domains an organization actually deploys. We present FAPE, a four-stage framework evaluating a single post-processing intervention, Fairlearn's ThresholdOptimizer, across seven real-world domains simultaneously: criminal justice, income prediction, legal admissions, credit lending, agricultural lending, a synthetic multi-attribute benchmark, and education. Each domain is scored on four metrics at once, demographic parity difference, equalized odds difference, disparate impact ratio, and accuracy cost, unlike the single-metric evaluations common in prior work. A CUSUM-based drift-monitoring stage extends evaluation past the point-in-time audit existing toolkits stop at. Across domains, intervention effectiveness depends on baseline disparity magnitude: the constraint produced improvement in four of five high-disparity domains and was counterproductive in one of two near-fair domains, with Folktables and Lending Club as documented exceptions in each direction. Domains with the largest gains were also where simulated post-deployment drift was detected soonest. A single deployment-time audit is therefore an unreliable guide to an intervention's real-world behavior, arguing for baseline-disparity screening and continuous monitoring as standard practice.
+
 ---
 
 ## 1. Introduction
@@ -181,3 +185,39 @@ Agricultural's inclusion is also methodologically load-bearing for this paper's 
 A planned eighth domain, healthcare, is not included in this study. MIMIC-III was identified during design as the domain where Obermeyer et al. (2019) documented the most consequential known fairness failure mechanism in production ML, and a data loader for it was built in anticipation of inclusion. Access requires PhysioNet credentialed registration, which was not granted before this paper's writing began. This is an access limitation rather than a design decision, and FAPE's coverage of seven rather than eight domains should be read accordingly; extending the framework to healthcare once access is available is a direct next step for future work.
 
 Two of the seven domains share partial subject-matter overlap. FairGround's evaluation in this paper uses its law_school_lequy sub-dataset specifically, which covers legal-education admissions, the same general subject area as this paper's standalone Law School domain, a distinct dataset loaded independently. The two are loaded via independent code paths with different feature construction and sensitive-attribute definitions (FairGround's version adds sex alongside race), though both likely trace to the same underlying public LSAC bar-passage dataset given their identical 18,692-record count. They are evaluated separately throughout Sections 5 and 6, but readers should not read FAPE's seven domains as seven fully independent subject areas; this overlap is disclosed here rather than left implicit in the sub-dataset naming.
+
+## 7. Conclusion
+
+One-time, single-domain fairness audits are the default practice in production ML, and this paper's results suggest both defaults are unsafe. Evaluating ThresholdOptimizer across seven genuinely heterogeneous domains rather than one dataset in isolation surfaces a pattern invisible to any single-domain study: the intervention's effectiveness is not fixed, but depends on a domain's baseline disparity magnitude, and that dependence has real, documented exceptions rather than following a clean threshold. Agricultural lending's near-fair baseline (DPD 0.009) is the clearest demonstration that applying a fairness constraint without first checking whether it is warranted can introduce the exact harm the constraint exists to prevent.
+
+The drift-detection results reinforce the same caution from a different angle. The domains where the intervention achieved the most, and where preserving that gain matters most, are also the domains where simulated post-deployment shift is detected earliest. A fairness audit performed once at launch says nothing reliable about six months later, just as an audit performed on one domain says nothing reliable about a different deployment context.
+
+FAPE does not resolve the impossibility results Chouldechova and others have established; no post-processing method can. What it offers instead is a practical decision framework: audit baseline disparity before intervening, report multiple metrics rather than one, and monitor continuously rather than once. Several limitations bound these claims, most notably that the drift results are proof-of-concept on synthetic shift rather than observed production data, and that healthcare, the domain where the most consequential known fairness failure mechanism has been documented, remains excluded pending data access. Extending FAPE to a healthcare domain once access is available, and validating the drift-monitoring recommendation against real deployment data, are the most direct next steps this work identifies.
+
+## References
+
+Angwin, J., Larson, J., Mattu, S., & Kirchner, L. (2016, May 23). Machine bias: There's software used across the country to predict future criminals. And it's biased against blacks. *ProPublica*. https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing
+
+Ajarra, A., & Basu, D. (2026). Auditing fairness under model updates: Fundamental complexity and property-preserving updates. *arXiv preprint arXiv:2601.05909*.
+
+Breck, E., Cai, S., Nielsen, E., Salib, M., & Sculley, D. (2017). The ML test score: A rubric for ML production readiness and technical debt reduction. In *2017 IEEE International Conference on Big Data (Big Data)* (pp. 1123-1132).
+
+Chouldechova, A. (2017). Fair prediction with disparate impact: A study of bias in recidivism prediction instruments. *Big Data*, 5(2), 153-163.
+
+Ding, F., Hardt, M., Miller, J., & Schmidt, L. (2021). Retiring Adult: New datasets for fair machine learning. *Advances in Neural Information Processing Systems*, 34, 6478-6490.
+
+Dwork, C., Hardt, M., Pitassi, T., Reingold, O., & Zemel, R. (2012). Fairness through awareness. In *Proceedings of the 3rd Innovations in Theoretical Computer Science Conference* (pp. 214-226).
+
+Hardt, M., Price, E., & Srebro, N. (2016). Equality of opportunity in supervised learning. *Advances in Neural Information Processing Systems*, 29, 3315-3323.
+
+Kamiran, F., & Calders, T. (2012). Data preprocessing techniques for classification without discrimination. *Knowledge and Information Systems*, 33(1), 1-33.
+
+Obermeyer, Z., Powers, B., Vogeli, C., & Mullainathan, S. (2019). Dissecting racial bias in an algorithm used to manage the health of populations. *Science*, 366(6464), 447-453.
+
+Sariola, D., Button, P., Culotta, A., & Mattei, N. (2026). The illusion of fairness: Auditing fairness interventions in algorithmic hiring with audit studies. *Proceedings of the AAAI Conference on Artificial Intelligence*, 40(46), 39191-39200. https://doi.org/10.1609/aaai.v40i46.41267
+
+Sculley, D., Holt, G., Golovin, D., Davydov, E., Phillips, T., Ebner, D., Chaudhary, V., Young, M., Crespo, J. F., & Dennison, D. (2015). Hidden technical debt in machine learning systems. *Advances in Neural Information Processing Systems*, 28, 2503-2511.
+
+Simson, J., Fabris, A., Fröhner, C., Kreuter, F., & Kern, C. (2025). Bias begins with data: The FairGround corpus for robust and reproducible research on algorithmic fairness. *arXiv preprint arXiv:2510.22363*.
+
+Zhang, B. H., Lemoine, B., & Mitchell, M. (2018). Mitigating unwanted biases with adversarial learning. In *Proceedings of the 2018 AAAI/ACM Conference on AI, Ethics, and Society* (pp. 335-340).
