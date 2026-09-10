@@ -35,7 +35,7 @@ Loaded COMPAS last week. First thing I did after verification was look at the re
 | Ajarra et al., Auditing Under Model Updates | 2026 | arXiv | Model updates fundamentally alter fairness properties | Production fairness | Makes Mitchell et al. model cards inadequate and Hardt et al. post-processing results time-limited |
 | Sariola et al., Illusion of Fairness | 2026 | AAAI | Equalizing base rates masks ~10% disparity | Measurement | Standard metrics actively mislead, makes multi-metric reporting non-optional for FAPE |
 | Weerts et al., Fairlearn | 2023 | arXiv | Practical post-processing fairness constraints | Tools | Research-grade only, stops at validation, no production monitoring |
-| Fabris et al., FairGround Corpus | 2025 | arXiv | 44 fairness-annotated datasets for reproducible cross-domain evaluation | Benchmark | First serious attempt to fix the benchmark monoculture, 1,964,010 records verified |
+| Simson et al., FairGround Corpus | 2025 | arXiv | 44 fairness-annotated datasets for reproducible cross-domain evaluation | Benchmark | First serious attempt to fix the benchmark monoculture, 1,964,010 records verified |
 
 ### Clusters
 
@@ -134,7 +134,7 @@ Having COMPAS (6,172 records) and Folktables ACS (1,589,032 records) loaded chan
 
 The full dataset pipeline is now complete. Student Performance (1,044 records), Law School Admissions (18,692), Lending Club (1,348,099), USDA NASS Census (7,334 aggregate rows), SBA 7(a) agricultural loans (15,845), and LSMS-ISA Nigeria Wave 4 (30,312 farm households) all verified and loaded. The agricultural domain is the one I'm most interested in, no fairness paper has looked at this population. Small farmers, agricultural loan applicants, farm household outcomes, invisible in the fairness literature. FAPE is the first framework to include this domain in a cross-domain fairness evaluation.
 
-FairGround (Fabris et al. 2025) is now verified, 1,964,010 records across 44 fairness-annotated datasets. This changes the benchmark picture meaningfully. FAPE is the first paper to use FairGround as part of a multi-domain evaluation framework rather than as a standalone benchmark.
+FairGround (Simson et al. 2025) is now verified, 1,964,010 records across 44 fairness-annotated datasets. This changes the benchmark picture meaningfully. FAPE is the first paper to use FairGround as part of a multi-domain evaluation framework rather than as a standalone benchmark.
 
 What FAPE can legitimately claim: cross-domain evaluation at a scale nobody has run, continuous monitoring infrastructure that doesn't exist elsewhere, multi-metric reporting that makes the Chouldechova constraints visible. What it cannot claim: solving the impossibility, generalizing from seven domains to all contexts, or removing the need for human judgment about which metric matters in which regulatory setting.
 
@@ -190,7 +190,7 @@ PRODUCTION FAILURE CLUSTER
 BENCHMARK CLUSTER
 ├── Ding et al. 2021, Folktables ACS
 │   └── 1,589,032 records verified, benchmark monoculture problem
-├── Fabris et al. 2025, FairGround
+├── Simson et al. 2025, FairGround
 │   └── 1,964,010 records verified, 44 datasets across domains
 └── Angwin et al. 2016, COMPAS
     └── 6,172 records verified, criminal justice baseline

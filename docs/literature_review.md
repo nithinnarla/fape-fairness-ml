@@ -156,7 +156,7 @@ The fairness in ML field is at an inflection point. The theoretical foundations 
 Definitional debates. Chouldechova vs Hardt vs Dwork. Which fairness metric is the right one. These debates were necessary and produced important results but also consumed enormous research energy on a question that may be unanswerable, different fairness metrics capture different moral intuitions and different regulatory requirements. There is no universal answer.
 
 **Where the field is now (2021-2025):**
-Moving toward empirical benchmarking. FairGround (Fabris et al. 2025) is the clearest signal, the community recognizes that evaluation on two legacy datasets is insufficient and is building the infrastructure for broader evaluation. But the benchmarking is still primarily research-oriented, not production-oriented.
+Moving toward empirical benchmarking. FairGround (Simson et al. 2025) is the clearest signal, the community recognizes that evaluation on two legacy datasets is insufficient and is building the infrastructure for broader evaluation. But the benchmarking is still primarily research-oriented, not production-oriented.
 
 **Where the field needs to go (2025 onwards):**
 Production deployment infrastructure. The questions that matter in enterprise settings, how do you monitor fairness continuously, how do you handle model updates without re-auditing from scratch, how do you satisfy different regulatory requirements across jurisdictions simultaneously, are almost completely unaddressed in the academic literature.

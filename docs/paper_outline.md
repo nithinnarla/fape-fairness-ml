@@ -77,7 +77,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 ### 2.3 Cross-Domain Fairness Evaluation
 - Most papers: single dataset, single metric, single model architecture
-- FairGround (Fabris et al. 2025): multi-domain benchmark, FAPE includes it and 6 additional domains
+- FairGround (Simson et al. 2025): multi-domain benchmark, FAPE includes it and 6 additional domains
 - No prior work: systematic cross-domain ThresholdOptimizer evaluation across 7 domains
 
 ### 2.4 Production Fairness Monitoring
@@ -256,7 +256,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - Chouldechova (2017), Fair Prediction with Disparate Impact, Big Data
 - Sculley et al. (2015), Hidden Technical Debt in ML Systems, NeurIPS
 - Ajarra et al. (2026), Auditing Fairness under Model Updates, arXiv 2601.05909
-- Fabris et al. (2025), FairGround Corpus: Bias Begins with Data, arXiv
+- Simson et al. (2025), FairGround Corpus: Bias Begins with Data, arXiv
 - Sariola et al. (2026), Multi-Metric Fairness Evaluation, arXiv
 - Ding et al. (2021), Retiring Adult: New Datasets for Fair ML, NeurIPS
 - Kamiran & Calders (2012), Data Preprocessing Techniques for Classification, KAIS

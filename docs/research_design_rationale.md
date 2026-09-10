@@ -71,7 +71,7 @@ Ding et al. (2021) showed Adult Income is methodologically flawed. Using Adult I
 
 **FairGround Corpus (1,964,010 records verified), Multi-domain**
 
-44 fairness-annotated datasets. What Fabris et al. (2025) built is essentially a pre-processed collection of datasets with sensitive attributes and fairness metadata already identified, work that would have taken months to do from scratch across this many domains. FAPE is the first paper to use FairGround as part of a multi-domain evaluation framework. That's a contribution worth noting in the paper.
+44 fairness-annotated datasets. What Simson et al. (2025) built is essentially a pre-processed collection of datasets with sensitive attributes and fairness metadata already identified, work that would have taken months to do from scratch across this many domains. FAPE is the first paper to use FairGround as part of a multi-domain evaluation framework. That's a contribution worth noting in the paper.
 
 **Student Performance (1,044 records verified), Education**
 

@@ -65,10 +65,10 @@ DOMAINS = {
     'Lending Club': {
         'sensitive': 'Income Band',
         'regulatory': 'ECOA',
-        'baseline_dpd': 0.024, 'best_dp_dpd': 0.024, 'dp_improve': -0.1,
-        'baseline_eod': 0.038, 'best_eo_eod': 0.047, 'eo_improve': -23.7,
+        'baseline_dpd': 0.024, 'best_dp_dpd': 0.018, 'dp_improve': 25.0,
+        'baseline_eod': 0.053, 'best_eo_eod': 0.049, 'eo_improve': 7.5,
         'baseline_acc': 0.712, 'dp_acc_cost': 0.001, 'eo_acc_cost': -0.013,
-        'baseline_dir': 2.778, 'post_dir': 0.952,
+        'baseline_dir': 2.778, 'post_dir': 0.973,
         'note': 'Near-fair baseline; DIR>1 amplifies disparity (actual 1.4x predicted 2.8x)'
     },
     'Agricultural': {
@@ -116,7 +116,8 @@ def run_cross_domain_comparison():
     print("\n--- Key Cross-Domain Findings ---")
     print("  Law School: largest racial gap (DIR=0.643); strongest improvement (EO +98.7%)")
     print("  FairGround: strongest DP improvement (95.9%) but highest ACC cost (0.159)")
-    print("  Agricultural + Lending Club: near-fair baseline, ThresholdOptimizer counterproductive")
+    print("  Agricultural: near-fair baseline, ThresholdOptimizer counterproductive")
+    print("  Lending Club: near-fair baseline, ThresholdOptimizer modestly effective (DP +25.0%, EO +7.5%)")
     print("  COMPAS: GB DP constraint most effective (DPD 0.857→0.571)")
     print("  Student: EO constraint eliminates sex gap (EOD 0.314→0.114)")
     print("  Finding: ThresholdOptimizer effective when baseline DPD > 0.2; counterproductive when < 0.05")
@@ -310,7 +311,7 @@ def run_cross_domain_comparison():
     print(f"\n--- Cross-Domain Comparison complete ---")
     print(f"  6 figures saved to figures/stage2/")
     print(f"  ThresholdOptimizer effective when baseline DPD > 0.2")
-    print(f"  Counterproductive when baseline near-fair (Agricultural DPD=0.009, Lending Club DPD=0.024)")
+    print(f"  Counterproductive when baseline near-fair AND above-EEOC baseline (Agricultural DPD=0.009); Lending Club (DPD=0.024) is the documented exception, improving modestly instead")
     print(f"  Law School strongest violation + strongest improvement")
     print(f"  FairGround highest accuracy cost for improvement")
 
