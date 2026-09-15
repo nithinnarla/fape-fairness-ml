@@ -1,4 +1,7 @@
 # FAPE: Fairness-Aware Production ML Pipeline Evaluation
+
+> **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it. The same applies to the baseline-accuracy comparison in Section 3.3 below: with MEPS added, GradientBoosting wins 3 of 5 true-accuracy evaluations (Folktables, Student, MEPS), not 2 of 4.
+
 ## Paper Outline, JASIST Submission Target Sep 11 2026
 
 ---

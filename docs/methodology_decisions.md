@@ -1,4 +1,7 @@
 # FAPE, Methodology Decisions Log
+
+> **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it.
+
 ## Key Decisions Before Phase 4 Implementation
 
 **Period:** February 2026, May 2026
@@ -179,6 +182,8 @@ Individual-level agricultural household survey, 30,312 individuals, sex and educ
 
 **Not yet checked:** Whether this same silent single-sub-dataset-selection issue exists elsewhere, or whether FairGround is the only domain in FAPE built from a multi-sub-dataset corpus (fairground_loader.py itself contains many more than 5 datasets per earlier EDA work -- SELECTED_DATASETS is a curated subset of 5 chosen for Stage 2 specifically).
 
+**Resolved (September 14 2026):** Closed via path (1), plus an answer to the open question. The domain is relabelled "FairGround (Education/law_school_lequy)" in threshold_aggregation.RESULTS and the manuscript names the sub-dataset wherever the row is cited, so nothing reports an unlabelled single sub-dataset as an aggregate. On "not yet checked": the issue does exist elsewhere, and it is worse than a labelling problem. lawschool_loader.py line 51 selects law_school_lequy as well, so the Law School domain and the FairGround row are built from the same source data. Section 6.4 discloses this and reframes the pair as an unplanned preprocessing-sensitivity measurement (GB baseline DPD 0.351 vs 0.342, post-constraint 0.030 vs 0.014), and Sections 1.3, 5.5 and 6.1 carry a duplicate-adjusted bracket on the headline heuristic. One further consequence: meps_panel_19_fy2015, listed above as one of the five sub-datasets at 0.992, became the eighth evaluation added in September. Its GB baseline accuracy in MEPS_RESULTS is 0.992, the same value this investigation recorded.
+
 ## Decision 15, ThresholdOptimizer Post-Constraint Values Are Non-Deterministic Despite random_state=42; RESOLVED by Adding random_state to .predict()
 
 **Investigation (Aug 2 2026):** While verifying Decision 13's Law School AUC/DIR figures, live re-execution of stage2_lawschool_threshold.py was run twice in immediate succession. Baseline values (pre-constraint) were identical both times: GB AUC=0.878, DP_diff=0.351, EO_diff=0.528 -- confirming the underlying LR/RF/GB models train deterministically with random_state=42, as expected.
@@ -255,6 +260,8 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 
 **Broader implication:** This raises real doubt about whether other comparative claims in paper_outline.md (e.g. "LR most stable under constraints," "RF intermediate performance") were ever actually verified computationally, or were similarly asserted without checking. All comparative claims in Section 5 should be treated as unverified until each is checked the same way this one just was.
 
+**Resolved (September 14 2026):** Closed in both places. paper_draft.md Section 5.1 now states the pattern over the five true-accuracy evaluations, GB highest in three (Folktables 0.845, Student 0.658, MEPS 0.992) and LR highest in COMPAS (0.686) and FairGround-law_school_lequy (0.913). cross_domain_results_table.md's Table 1 Key Finding, which still read "GB is highest in every case" until today, was corrected to the same pattern. threshold_aggregation.py computes this count live rather than storing it, and was fixed the same day to include MEPS, so the printed figure now reads 3/5 instead of 2/4. The broader implication above was acted on during the Section 5 source-verification pass: every comparative claim carried into the manuscript is computed from the RESULTS dict rather than asserted.
+
 ## Decision 19, "DPD>0.2 Effective, DPD<0.05 Counterproductive" Effectiveness Threshold Is False as a Clean Rule; Has Real Exceptions in 2 of 7 Domains
 
 **Investigation (Aug 4 2026):** While verifying claims for the paper's Introduction section, checked the outline's stated "core empirical finding" -- ThresholdOptimizer is effective when baseline DPD > 0.2 and counterproductive when baseline DPD < 0.05 -- against GB's genuine baseline and post-DP DPD values across all 7 domains, extracted directly from the rebuilt RESULTS dictionary (see Decision 17).
@@ -268,3 +275,5 @@ Domains where the rule does hold: COMPAS (0.857->0.571, improved), Law School (0
 **Why this matters:** Like Decision 18, this is a claim about a pattern across the 7-domain comparison that was asserted as a clean empirical finding without the actual baseline-DPD-vs-post-DP-DPD comparison being run domain-by-domain against the real, deterministic (Decision 15-fixed) data. 2 of 7 exceptions is a real failure rate for a rule being presented as a general threshold in the paper's Introduction and Results sections.
 
 **Status:** The threshold is a real, directionally useful heuristic for roughly 5 of 7 domains, not a universal rule. paper_outline.md (Introduction Section 1.3, Results Section 5.2) and the drafted Introduction text need to state this with the correct caveat -- effectiveness depends on domain-specific factors beyond baseline DPD alone, with Folktables and Lending Club as documented exceptions -- rather than presenting a clean two-threshold rule as if it held universally across all 7 domains.
+
+**Resolved (September 14 2026):** Acted on and rescoped. The manuscript does not carry the domain-level "5 of 7" framing at all. Section 5.5 counts every model-domain pair instead of one representative model per domain: the constraint improved DPD in 9 of the 14 pairs with baseline DPD above 0.2 and worsened it in 3 of the 4 pairs below 0.05. Because three of those 14 high-baseline pairs come from law_school_lequy, which Section 6.4 shows is evaluated twice, Sections 1.3, 5.5 and 6.1 also state the duplicate-adjusted bracket of 6 of 11 to 7 of 12. The paper presents this as a heuristic for where to look, explicitly not a universal threshold, which is what this decision asked for.

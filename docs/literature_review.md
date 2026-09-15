@@ -1,4 +1,7 @@
 # FAPE, Literature Review Notes
+
+> **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it. Stage 2 is also named "ensemble modeling" further down, which dates from the project's original Fairness-Aware Predictive Ensemble design. Stage 2 is baseline classification: logistic regression, random forest and gradient boosting are each trained and constrained separately, never combined into one ensemble predictor. Section 6.4 of the paper states this scope explicitly.
+
 ## Fairness Auditing in Production ML Systems
 
 **Period:** November 2025, January 2026

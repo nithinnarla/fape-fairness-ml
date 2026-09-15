@@ -1,4 +1,7 @@
 # FAPE, Literature Analysis
+
+> **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it.
+
 ## Fairness Auditing in Production ML Systems, Research Protocols
 
 **Period:** November 2025, April 2026

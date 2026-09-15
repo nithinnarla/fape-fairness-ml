@@ -22,11 +22,13 @@
 
 ² FairGround's reported value is specifically the law_school_lequy sub-dataset within FairGround's five internally-evaluated sub-corpora (adult, compas_2_years, creditcard, law_school_lequy, meps_panel_19_fy2015) -- not an aggregate across all five. This sub-dataset happens to concern legal education admissions, distinct from FAPE's separate standalone Law School domain (lawschool_loader.py). See methodology_decisions.md Decision 14.
 
-**Key finding:** Across the 4 domains reporting true accuracy (COMPAS, Folktables, FairGround-law_school_lequy, Student), GB is highest in every case. Across the 3 domains reporting AUC (Law School, Lending Club, Agricultural), GB is also highest in every case. Because these are two different metrics, they are not directly comparable to each other as a single ranked list -- see footnote 1. Largest accuracy gap: FairGround-law_school_lequy is not directly comparable to standalone Law School's AUC figure, so no single largest-gap claim spans both metrics. Within true accuracy alone, Student shows the smallest LR-GB gap (0.633 vs 0.658).
+**Key finding (corrected September 14 2026, closes Decision 18).** Across the 4 domains reporting true accuracy (COMPAS, Folktables, FairGround-law_school_lequy, Student), GB is highest in 2, Folktables (0.845) and Student (0.658). LR is highest in COMPAS (0.686 vs GB 0.674) and FairGround-law_school_lequy (0.913 vs GB 0.910). Counting the MEPS healthcare evaluation, which is not in the tables below, GB is highest in 3 of 5. The earlier wording here claimed GB was highest in every case, which is false and is the claim Decision 18 flagged. Across the 3 domains reporting AUC (Law School, Lending Club, Agricultural), GB is also highest in every case. Because these are two different metrics, they are not directly comparable to each other as a single ranked list -- see footnote 1. Largest accuracy gap: FairGround-law_school_lequy is not directly comparable to standalone Law School's AUC figure, so no single largest-gap claim spans both metrics. Within true accuracy alone, Student shows the smallest LR-GB gap (0.633 vs 0.658).
 
 ---
 
-> **PENDING RE-VERIFICATION (Aug 11 2026):** COMPAS and Folktables per-model DPD/EOD values below (Tables 2 and 3) were spot-checked against a live rerun. COMPAS GB and Folktables GB now match a fresh run; COMPAS LR/RF and Folktables LR/RF baseline and post-constraint values do NOT match a fresh run, including baseline figures with no seed dependency. Full per-model, per-domain reverification against live output is required before any Table 2/3 cell is cited in paper prose. Do not use these tables for Section 5 drafting until this note is removed.
+> **Record note, September 14 2026.** The tables below cover the original seven domains and do not include the MEPS healthcare evaluation, which was added later. For the full eight-evaluation metric grid used in the paper, see docs/results_table.md, which is generated from threshold_aggregation.py so it cannot drift.
+
+> **RE-VERIFIED September 14 2026.** All seven domain scripts were re-run in a clean virtual environment built from requirements.txt (scikit-learn 1.4.2, fairlearn 0.13.0). Every table value below reproduced exactly, 126 in total, including the COMPAS and Folktables LR/RF figures the earlier note flagged. Two errors in the prose under Table 2 were corrected at the same time. For the manuscript, use src/make_results_table.py, which generates the table directly from threshold_aggregation.RESULTS and cannot drift from it.
 
 ## Table 2, Post-DP Constraint: DPD Before → After
 
@@ -43,9 +45,9 @@
 **Key findings:**
 - Law School GB: 0.351→0.030, 91.5% reduction, strongest improvement
 - FairGround GB: 0.342→0.014, 95.9% reduction
-- Agricultural GB: 0.009→0.035  counterproductive, near-fair baseline
+- Agricultural GB: 0.009→0.031  counterproductive, near-fair baseline
 - COMPAS LR+RF: worsen under DP constraint, 6-group challenge
-- FairGround LR+RF: worsen despite strong GB improvement
+- FairGround LR+RF: both improve (0.329→0.010, 0.336→0.012), as does GB
 - Effectiveness threshold: DPD>0.2 → GB effective; DPD<0.05 → counterproductive
 
 ---
