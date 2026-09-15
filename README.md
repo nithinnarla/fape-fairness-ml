@@ -125,6 +125,19 @@ Full dependency list: `requirements.txt`
 
 ---
 
+## Checking the Numbers
+
+Every script that produces a reported value has a notebook in `notebooks/` holding its printed output, and the documents are checked against those outputs:
+
+```bash
+python src/make_results_table.py    # rebuilds docs/results_table.md and docs/cross_domain_results_table.md
+python src/check_consistency.py     # checks the paper, README, outline and tables against the notebooks
+```
+
+The check trains nothing and finishes in a few seconds. It fails if a results table no longer matches what the scripts printed, if a number in the paper cannot be traced to the evaluation it describes, if a citation and the reference list disagree, or if the paper goes over the JASIST word limits. Rerun a script's notebook after changing the script; the check also flags a notebook older than its script.
+
+---
+
 ## Research Timeline
 
 - November 2025: Research conception, observed systematic demographic disparities in production ML deployments across financial services and healthcare engagements

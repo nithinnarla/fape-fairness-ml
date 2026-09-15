@@ -16,7 +16,8 @@ do not explain it:
     thresholds are chosen (prefit=True) on the other 25%
 
 Both designs score the same test split. Stage 2 results are not changed; (a)
-reproduces them.
+reproduces them. Each model's accuracy on its own training records is printed
+first, since that is what separates random forest from the other two.
 """
 
 import os
@@ -100,6 +101,7 @@ def check(domain, setup):
             else (X_train, X_test)
         full = clone(estimator).fit(tr, y_train)
         part = clone(estimator).fit(tr[fit_idx], y_train[fit_idx])
+        print(f"  {name:<19} training accuracy {full.score(tr, y_train):.3f}")
         for constraint, (label, metric) in CONSTRAINTS.items():
             stage2 = ThresholdOptimizer(estimator=clone(estimator), constraints=constraint,
                                         predict_method='auto', objective='balanced_accuracy_score')

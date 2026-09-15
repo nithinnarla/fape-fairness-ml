@@ -1,9 +1,9 @@
-# Raw data files — never commit to GitHub
+# Raw data files, never committed
 *.csv
 *.zip
 *.gz
 
-# Folktables ACS cache — downloaded automatically by data_loader.py
+# Folktables ACS cache, downloaded automatically by data_loader.py
 2021/
 2022/
 2023/
