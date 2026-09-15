@@ -28,6 +28,10 @@
 
 > **Record note, September 14 2026.** The tables below cover the original seven domains and do not include the MEPS healthcare evaluation, which was added later. For the full eight-evaluation metric grid used in the paper, see docs/results_table.md, which is generated from threshold_aggregation.py so it cannot drift.
 
+> **Record note, September 15 2026.** Table 5's Folktables baseline of 0.540 was a stale hardcoded figure; the Folktables script reports per-race ratios against White under the equalized odds constraint (current values in Decision 25). The "passes" entries for Lending Club and Agricultural read their ratios as favorable selection, but both domains predict default, and the ratios reached parity because every group's predicted default rate rose. The "EEOC compliant" header should be read as the 0.8 research convention, which is not binding in any domain here. COMPAS values in every table are set by test groups of seven and one records (Decision 22).
+
+> **Record note, September 15 2026, later.** Every Folktables value in these tables predates the rerun without POVPIP (Decision 25), and the MEPS values used elsewhere predate the rerun on FairGround's documented features (Decision 24); docs/results_table.md has the current grid. The re-verification note below names scikit-learn 1.4.2, but that pin could not be installed alongside fairml-datasets, and the clean environment used 1.9.1, the version now pinned.
+
 > **RE-VERIFIED September 14 2026.** All seven domain scripts were re-run in a clean virtual environment built from requirements.txt (scikit-learn 1.4.2, fairlearn 0.13.0). Every table value below reproduced exactly, 126 in total, including the COMPAS and Folktables LR/RF figures the earlier note flagged. Two errors in the prose under Table 2 were corrected at the same time. For the manuscript, use src/make_results_table.py, which generates the table directly from threshold_aggregation.RESULTS and cannot drift from it.
 
 ## Table 2, Post-DP Constraint: DPD Before → After

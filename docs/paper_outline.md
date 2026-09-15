@@ -2,6 +2,10 @@
 
 > **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it. The same applies to the baseline-accuracy comparison in Section 3.3 below: with MEPS added, GradientBoosting wins 3 of 5 true-accuracy evaluations (Folktables, Student, MEPS), not 2 of 4.
 
+> **Record note, September 15 2026.** Four later findings also supersede parts of this outline. The drift claims, that Law School, FairGround and Student alert earliest and that CUSUM is calibrated to an EEOC threshold, came from a monitor that scored pre-deployment baseline values; corrected, it flags nine constrained models already above DPD 0.1 at deployment and five that regress under the simulated shift (eight before the Decision 24 rerun of MEPS), and 0.1 DPD is a research convention rather than an EEOC threshold. Both lending domains predict default, so their DIRs reached parity by raising every group's predicted default rate, not by overcorrecting a fair outcome. COMPAS's worsening under logistic regression and random forest, and its tension with six racial groups, are set by test groups of seven and one records; on the four larger groups all three models improve. Decisions 20 to 23 in methodology_decisions.md record each correction.
+
+> **Record note, September 15 2026, later.** Three more changes supersede results and citations below. MEPS was rerun on FairGround's documented features after its raw file's visit counts turned out to define the label (Decision 24), and Folktables was rerun without POVPIP, which is built from family income (Decision 25); every MEPS and Folktables number here predates those reruns. Random forest's worsening under the constraint in Student and MEPS reverses when thresholds are fit on held-out data (Decision 26), and Folktables' small groups set its values the way COMPAS's do (Decision 22). The Ajarra and Basu (2026) and Sariola et al. (2026) summaries below overstate those papers, and the Sariola entry in the reference list has the wrong title and venue; Decision 27 and the paper's reference list give the correct versions.
+
 ## Paper Outline, JASIST Submission Target Sep 11 2026
 
 ---
@@ -39,7 +43,7 @@ cross-domain monitoring rather than point-in-time evaluation.
 ### 1.1 The Production Fairness Gap
 - ML systems deployed in consequential domains are audited once, rarely monitored after
 - Sculley et al. (2015): production ML systems degrade silently over time
-- Ajarra et al. (2026): model updates fundamentally alter fairness properties
+- Ajarra and Basu (2026): model updates fundamentally alter fairness properties
 - AIF360, Fairlearn: research-grade, point-in-time, single-domain, stop at validation
 - Gap: no framework tests cross-domain generalizability AND post-deployment monitoring together
 
@@ -85,7 +89,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 ### 2.4 Production Fairness Monitoring
 - Sculley et al. (2015): ML technical debt, systems degrade post-deployment
-- Ajarra et al. (2026): fairness degradation specifically under model updates
+- Ajarra and Basu (2026): fairness degradation specifically under model updates
 - No existing framework: continuous post-deployment fairness monitoring
 - FAPE Stage 4: CUSUM-based detection fills this gap
 
@@ -258,7 +262,7 @@ Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 - Hardt et al. (2016), Equality of Opportunity in Supervised Learning, NeurIPS
 - Chouldechova (2017), Fair Prediction with Disparate Impact, Big Data
 - Sculley et al. (2015), Hidden Technical Debt in ML Systems, NeurIPS
-- Ajarra et al. (2026), Auditing Fairness under Model Updates, arXiv 2601.05909
+- Ajarra and Basu (2026), Auditing Fairness under Model Updates, arXiv 2601.05909
 - Simson et al. (2025), FairGround Corpus: Bias Begins with Data, arXiv
 - Sariola et al. (2026), Multi-Metric Fairness Evaluation, arXiv
 - Ding et al. (2021), Retiring Adult: New Datasets for Fair ML, NeurIPS

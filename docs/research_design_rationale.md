@@ -2,6 +2,10 @@
 
 > **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it.
 
+> **Record note, September 15 2026.** The healthcare plan below expected a MIMIC-III loader to be built and included; none was, and the repository has never contained one. Healthcare is covered by MEPS Panel 19 instead.
+
+> **Record note, September 15 2026, later.** The Breck et al. (2017), Ajarra and Basu (2026) and Sariola et al. (2026) summaries below overstate those papers (Decision 27 in methodology_decisions.md), and the MEPS and Folktables feature sets were corrected after this document was written (Decisions 24 and 25).
+
 ## Why We Built It This Way
 
 **Period:** February 2026, May 2026
@@ -48,13 +52,13 @@ Default hyperparameters is the more interesting constraint. Domain-specific tuni
 
 In eight years of production ML I have never worked in an environment where I owned the model. You inherit it from a vendor, from a previous team, from a partner organization. In-processing fairness constraints require retraining, which means you need to own the training pipeline. Post-processing works on any model regardless of how it was built.
 
-Fairlearn's ThresholdOptimizer is the specific implementation because it's the cleanest operationalization of Hardt et al.'s (2016) equalized odds approach. It applies the constraint post-training without modifying the underlying model. The limitation, which Ajarra et al. (2026) made explicit, is that the constraint has to be reapplied every time the model updates. Stage 4 exists partly because of this limitation.
+Fairlearn's ThresholdOptimizer is the specific implementation because it's the cleanest operationalization of Hardt et al.'s (2016) equalized odds approach. It applies the constraint post-training without modifying the underlying model. The limitation, which Ajarra and Basu (2026) made explicit, is that the constraint has to be reapplied every time the model updates. Stage 4 exists partly because of this limitation.
 
 Four metrics simultaneously, demographic parity, equalized odds, disparate impact ratio, and accuracy cost, because after Sariola et al. (2026) I can't in good conscience report one metric and call it done. Optimizing for one can mask 10% disparity on another. The paper shows all four and shows the tradeoffs. Individual fairness score excluded, requires domain-specific similarity metric incompatible with cross-domain comparison. See Decision 9.
 
 **Stage 4, Why deployment monitoring exists at all**
 
-Sculley et al. (2015) said production ML systems degrade silently. Breck et al. (2017) built a 28-test production readiness rubric with zero fairness tests. Ajarra et al. (2026) confirmed fairness specifically degrades under model updates. Eleven years of documented knowledge and no fairness framework has built the monitoring infrastructure. Stage 4 is my attempt to close that gap.
+Sculley et al. (2015) said production ML systems degrade silently. Breck et al. (2017) built a 28-test production readiness rubric with zero fairness tests. Ajarra and Basu (2026) confirmed fairness specifically degrades under model updates. Eleven years of documented knowledge and no fairness framework has built the monitoring infrastructure. Stage 4 is my attempt to close that gap.
 
 The honest limitation: I don't have access to a live production system. Stage 4 uses synthetic distribution shift to simulate deployment conditions. The drift detection is proof-of-concept, not production-validated. The paper will say this explicitly.
 

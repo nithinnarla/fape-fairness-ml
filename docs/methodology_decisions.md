@@ -88,6 +88,8 @@ There are nineteen decisions here. Some were obvious. Some took real thought. A 
 
 **Comfort level:** Low. This is the weakest methodological choice in FAPE. The paper will acknowledge it directly. The alternative was to not include Stage 4 at all, which would mean not addressing the production monitoring gap that motivated Stage 4's existence. Proof-of-concept is better than absence.
 
+**Update (September 15 2026):** The monitor built on this choice scored pre-deployment values and has been corrected; see Decision 20.
+
 ---
 
 ## Decision 8, Folktables ACS Over Adult Income
@@ -119,6 +121,8 @@ There are nineteen decisions here. Some were obvious. Some took real thought. A 
 **Why:** Obermeyer et al. (2019) documented the most consequential fairness failure mechanism in the healthcare domain, cost as proxy for health need. Excluding healthcare from FAPE entirely because of access delays would mean the framework doesn't address the domain where the evidence for its value is strongest.
 
 **Implementation:** MIMIC-III loader is built and tested. PhysioNet access is pending. If access comes through before writing time, healthcare results are included. If not, the paper includes the loader, describes the methodology, and notes the access gap explicitly. Either way the framework design includes healthcare.
+
+**Correction (September 15 2026):** No MIMIC-III loader exists in this repository, and none appears anywhere in its git history. The implementation line above is not accurate, and the paper no longer claims a loader was built.
 
 ---
 
@@ -277,3 +281,79 @@ Domains where the rule does hold: COMPAS (0.857->0.571, improved), Law School (0
 **Status:** The threshold is a real, directionally useful heuristic for roughly 5 of 7 domains, not a universal rule. paper_outline.md (Introduction Section 1.3, Results Section 5.2) and the drafted Introduction text need to state this with the correct caveat -- effectiveness depends on domain-specific factors beyond baseline DPD alone, with Folktables and Lending Club as documented exceptions -- rather than presenting a clean two-threshold rule as if it held universally across all 7 domains.
 
 **Resolved (September 14 2026):** Acted on and rescoped. The manuscript does not carry the domain-level "5 of 7" framing at all. Section 5.5 counts every model-domain pair instead of one representative model per domain: the constraint improved DPD in 9 of the 14 pairs with baseline DPD above 0.2 and worsened it in 3 of the 4 pairs below 0.05. Because three of those 14 high-baseline pairs come from law_school_lequy, which Section 6.4 shows is evaluated twice, Sections 1.3, 5.5 and 6.1 also state the duplicate-adjusted bracket of 6 of 11 to 7 of 12. The paper presents this as a heuristic for where to look, explicitly not a universal threshold, which is what this decision asked for.
+
+---
+
+## Decision 20, Stage 4 CUSUM Scored Pre-Deployment Baseline Values; Every Alert Fired at t=1
+
+**Investigation (September 15 2026):** Reading Section 6 of the paper against fairness_drift_monitor.py showed the CUSUM running over the whole simulated series, including the ten baseline observations before the constrained model is deployed. Any model with a baseline DPD above 0.11 accumulated past the alert level on the first step. Every high-baseline domain, COMPAS and Folktables included, first alerted at t=1 with identical counts, so "Law School, FairGround and Student trigger the earliest alerts" was never true. Two more problems sat alongside it: random forest placeholder series for Law School, Lending Club and Agricultural, copies of the logistic regression values, were included in the alert counts, and the simulated shift moves each model 60% of the way back toward its baseline, so the size of every regression is set by the size of its correction.
+
+**Fix:** Monitoring starts at deployment (t=10). Values are read from threshold_aggregation.RESULTS rather than literals, not-evaluated models are excluded, each series has its own deterministic seed, figure labels no longer call 0.1 DPD an EEOC threshold, and paper Figure 4 separates models already above 0.1 at deployment from regressions under the shift.
+
+**Result:** Eight constrained models are flagged at deployment (all three COMPAS and Folktables models, Student's random forest and gradient boosting). Five meet 0.1 after the constraint and are flagged seven to eight steps into the shift (Law School's two models, FairGround's three, all law_school_lequy data). Eight are never flagged. The abstract and Sections 1.3, 3.6, 5.7, 6.3 and 7 now report this and state that the shift's construction decides which models regress past 0.1.
+
+---
+
+## Decision 21, DIR in the Lending Domains Measures Predicted Default, and One DIR Value Was Stale
+
+**Finding (September 15 2026):** Lending Club and Agricultural both label Charged Off as 1, so the selection rate inside their DIR is the rate of being flagged for default, an adverse outcome, and the four-fifths reading does not transfer directly. Their ratios reached parity because the DP constraint raised gradient boosting's predicted default rate in every group: from 1 to 3% to about 40% in every Lending Club income quartile, against a 20% default rate, and from about 2% to between 16 and 19% for every Agricultural business type, against 5%. Agricultural's 0.653 to 1.042 is a move toward parity that ends just past it, not a move "past parity rather than toward it". Separately, Folktables' baseline DIR of 0.54 existed only as a hardcoded print string. Computed from the run, gradient boosting's per-race ratios against White under the equalized odds constraint start at Other 0.46 (0.68 after) and multiracial 0.74 (0.86 after), with Pacific Islanders, a group of 33, moving from 0.69 to 1.02.
+
+**Fix:** Sections 3.5, 5.4 and 6.2 and the Figure 2 caption read each domain's ratio in the direction its outcome requires and report the rate changes behind the lending ratios.
+
+**Update (September 15 2026, later the same day):** The Lending Club script now computes the observed default ratio instead of printing it: 1.44 for the lowest income quartile over the highest in the test split, with gradient boosting's baseline predicted default rate between 1.0% and 3.4% across quartiles, so the paper says "under 4%". The Folktables per-race ratios above were superseded when Folktables was rerun without POVPIP (Decision 25).
+
+---
+
+## Decision 22, COMPAS Metrics Are Set by Test Groups of Seven and One Records
+
+**Finding (September 15 2026):** COMPAS's DPD and EOD are computed over all six race groups with no minimum group size, and the test split holds 7 Asian defendants and 1 Native American defendant. Every COMPAS DPD value in Table 2, and every baseline EOD value, has one of those two groups at an extreme. Gradient boosting's baseline DPD of 0.857 is Native American 1.000 minus Asian 0.143, and the identical 0.714 that logistic regression and random forest reach after the constraint is the Asian group's 5 of 7. On the four groups holding 1,227 of the 1,235 test records the constraint narrows the gap for all three models (logistic regression 0.385 to 0.187, random forest 0.202 to 0.163, gradient boosting 0.361 to 0.200), which would make the high-disparity tally 11 of 14 rather than 9. The paper's earlier explanation, that the impossibility result manifests once there are more than two groups, was wrong.
+
+**Fix:** Table 2 keeps the values the pipeline computes. Section 6.2 reports the four-group measurement, Section 6.4 lists the missing minimum group size as a limitation, and src/compas_group_size_check.py reproduces every figure above.
+
+**Open:** Recomputing COMPAS with a minimum group size would change Table 2 and the headline counts. That is a methodology decision to settle before submission.
+
+**Update (September 15 2026, later the same day):** Folktables has the same problem. Its test split holds 5 Alaska Native respondents and 25 in the combined American Indian and Alaska Native category, and every Folktables value except the logistic regression and gradient boosting DPD baselines has one of those groups at an extreme. On the groups with at least 30 test records (19,970 of 20,000), the DP constraint narrows the gap for all three models after the Decision 25 rerun: 0.301 to 0.114, 0.276 to 0.177 and 0.302 to 0.078. With COMPAS and Folktables both measured this way, the high-disparity tally is 13 of 14, or 10 of 11 and 11 of 12 counting law_school_lequy once. src/group_size_check.py covers both domains and replaces src/compas_group_size_check.py. The open question stands for both domains; the paper keeps the pipeline's values in Table 2 and reports the group-size measurement in Section 6.2.
+
+---
+
+## Decision 23, Before-and-After Comparisons Also Change the Decision Objective
+
+**Finding (September 15 2026):** Every ThresholdOptimizer call uses objective="balanced_accuracy_score", while the baseline models use scikit-learn's default decision threshold. Each before-and-after comparison therefore changes the decision objective as well as adding the fairness constraint, and accuracy costs and rate shifts such as Lending Club's include both effects.
+
+**Fix:** Section 3.4 states the objective and Section 6.4 discloses the confound. Separating the two effects would need an unconstrained balanced-accuracy baseline, which this study did not run.
+
+---
+
+## Decision 24, MEPS Features Included the Columns That Define Its Label
+
+**Finding (September 15 2026):** The FairGround file for meps_panel_19_fy2015 has 1,831 columns. Its label, UTILIZATION, is 1 exactly when OBTOTV15 + OPTOTV15 + ERTOT15 + IPNGTD15 + HHTOTD15 is 10 or more, which holds for all 15,830 rows, and stage2_fairground_threshold.py trained on every non-target column, those five counts included. That is why gradient boosting reached 0.992 accuracy. FairGround documents a 41-feature set for this dataset (Dataset.get_feature_columns, the standard AIF360 MEPS features) that leaves them out. baseline_fairground.py had the same problem through its top-50-variance selection, and compas_2_years in the FairGround pipeline carried recidivism outcome and COMPAS score columns (0.995 accuracy with them, 0.682 without); compas_2_years is not reported in the paper.
+
+**Fix:** fairground_loader.documented_feature_columns returns FairGround's documented columns minus the target and the survey weight PERWT15F, and both FairGround scripts use it. law_school_lequy, creditcard and adult are unaffected, since every column in those files is documented, and their results reproduce exactly. MEPS moves from DPD 0.115/0.116/0.110 and accuracy 0.971/0.976/0.992 to DPD 0.069/0.089/0.092 and accuracy 0.855/0.857/0.859 for LR/RF/GB. Under the DP constraint LR and GB improve by 81% and 86% while RF worsens to 0.253 (Decision 26). Table 2, Sections 5 and 6, the drift results and the aggregation, cross-domain and drift figures were regenerated.
+
+---
+
+## Decision 25, Folktables Used POVPIP, Which Is Built From the Income Being Predicted
+
+**Finding (September 15 2026):** The Folktables label is personal income above $50,000, and the Stage 2 and baseline feature sets included POVPIP, the family income-to-poverty ratio. Family income contains the person's own income, so POVPIP carries much of the label: its correlation with the label is 0.58, and gradient boosting's accuracy falls from 0.845 to 0.756 without it. No decision record gave a reason for including it.
+
+**Fix:** POVPIP is dropped from the model features in stage2_folktables_threshold.py and baseline_folktables.py. The loader still reads it, so the population (1,589,032 records) and the sample are unchanged, and EDA still describes it. New Stage 2 values for LR/RF/GB: baseline DPD 0.301/0.290/0.302, post-DP 0.348/0.193/0.373; baseline EOD 0.728/0.732/0.767, post-EO 0.314/0.836/0.417. The high-disparity tally stays at 9 of 14, but the Folktables pair that improves is now random forest rather than logistic regression. Under the EO constraint gradient boosting's DIR against White crosses 0.8 for Black (0.72 to 0.83), multiracial (0.70 to 0.92), American Indian (0.61 to 1.00) and Pacific Islander respondents (0.72 to 1.03), and Other rises from 0.42 to just under 0.8.
+
+---
+
+## Decision 26, Thresholds Are Fit on the Training Split, Which Misleads for Random Forest
+
+**Finding (September 15 2026):** Every Stage 2 script passes the training split to ThresholdOptimizer, which refits the model and chooses thresholds on the records it was trained on, as Fairlearn's documented examples do. Random forest fits those records almost perfectly (training accuracy 1.000 in Student, 0.996 in MEPS), so its thresholds transfer poorly. Chosen on a held-out quarter of the training split instead, random forest's DPD under the DP constraint goes from 0.235 to 0.007 in Student and 0.086 to 0.037 in MEPS, where the Stage 2 runs worsen it to 0.363 and 0.253. For logistic regression and gradient boosting the held-out design gives smaller improvements in all four cases.
+
+**Decision:** Keep the Stage 2 design, which matches Fairlearn's documented usage, and report the held-out check as a limitation (paper Section 6.4) rather than switching designs two weeks before submission. With Decision 22's group-size measurement, each of the five high-disparity exceptions reverses under one of the two checks. src/threshold_holdout_check.py reproduces the figures.
+
+---
+
+## Decision 27, Four Literature Claims Corrected Against the Sources
+
+**Finding (September 15 2026):** Reading the cited sources again turned up four claims the paper and these records overstated.
+- Breck et al. (2017) do include a fairness item, Model 7, "the model has been tested for considerations of inclusion". What their rubric lacks is a fairness test among its seven monitoring tests. "Zero fairness tests" in literature_analysis.md and research_design_rationale.md is wrong.
+- Ajarra and Basu (2026) is a theoretical paper on auditing statistical parity when a model owner updates the model: sample complexity and which updates preserve the property. It does not show that fairness changes while accuracy stays stable, as the paper, outline and literature analysis said.
+- Sariola et al. (2026) found that equalizing base rates looked like parity on traditional measures but left about 10% absolute disparity when measured with audit-study data. It is a measurement result, not "one metric masking another".
+- "No existing framework offers continuous fairness monitoring" is false: Amazon SageMaker Clarify monitors bias metrics on live data, window by window, with confidence intervals and alerts. The open-source toolkits AIF360 and Fairlearn have no monitoring. On cross-domain evaluation, Friedler et al. (2019) and Chen et al. (2023) compare interventions across several benchmark datasets, and Chen et al. include equalized odds post-processing on the five AIF360 datasets, so "no prior work evaluated one post-processing intervention across many contexts" also overstated.
+
+**Fix:** Paper Sections 1.1, 1.2, 1.3, 2.2, 2.3 and 2.4 now state what each source shows, cite Friedler et al. (2019), Chen et al. (2023) and the SageMaker Clarify documentation, and describe Stage 4 as an open, sequential alternative to per-window monitoring. The README follows. The Phase 1 documents keep their original text with a record note pointing here.

@@ -4,7 +4,7 @@
 
 Eight years building ML systems in financial services, healthcare, and workforce analytics, and the same failure mode repeated across every deployment. A model ships. Aggregate metrics look clean. Stakeholders sign off. Six months later someone notices the error rate for one demographic group is twice what it is for another. Not because anyone was careless. Because nobody was measuring the right thing, and the tools available weren't built to catch it in production.
 
-What surprised me when I started pulling on this thread in late 2025 wasn't that the problem existed, it's documented everywhere. It's that every existing fairness tool is designed for research environments. AIF360, Fairlearn, What-If Tool, all of them evaluate on one or two datasets, produce a static report, and stop there. None of them address what happens six months after deployment when the demographic composition of users shifts, the model gets retrained, or a third-party vendor swaps the underlying algorithm. The fairness guarantee you validated at launch doesn't automatically hold in production. Nobody has built the infrastructure to check.
+What surprised me when I started pulling on this thread in late 2025 wasn't that the problem existed, it's documented everywhere. It's that the open-source fairness tools most research builds on are designed for research environments. AIF360, Fairlearn and the What-If Tool analyze a model at one point in time and stop there. None of them address what happens six months after deployment when the demographic composition of users shifts, the model gets retrained, or a third-party vendor swaps the underlying algorithm. The fairness guarantee you validated at launch doesn't automatically hold in production. Cloud platforms such as Amazon SageMaker Clarify now check bias on live data, but the open research tooling has nothing like it.
 
 FAPE is my attempt to build that infrastructure.
 
@@ -18,7 +18,7 @@ FAPE is my attempt to build that infrastructure.
 
 This paper evaluates the constraint against each of the three classifiers separately, never against a combined ensemble. Whether a post-processing constraint behaves differently on an ensemble than on its components is left to future work.
 
-This is a **Causal** research question. We are testing whether applying post-processing constraints *causes* measurable bias reduction across heterogeneous deployment domains at once, not just whether bias reduction is possible in a single controlled setting.
+This is a **Causal** research question. We are testing whether applying post-processing constraints *causes* measurable bias reduction across heterogeneous deployment domains at once, not just whether bias reduction is possible in a single controlled setting. Each before-and-after comparison also changes the decision objective, from scikit-learn's default threshold to the balanced accuracy ThresholdOptimizer maximizes, so the paper reads the constraint's effect together with that change rather than in isolation (Section 6.4).
 
 ---
 
@@ -26,9 +26,9 @@ This is a **Causal** research question. We are testing whether applying post-pro
 
 Three failure modes that the fairness literature treats as solved but aren't in production:
 
-**Failure 1, Single-domain evaluation.** Every major fairness paper validates on COMPAS or Adult Income. Nobody has tested whether interventions that work in criminal justice also work in healthcare, financial services, and education simultaneously. A recent AAAI 2026 paper showed that equalizing base rates appears to achieve fairness parity using traditional measures but produces ~10% disparity when measured correctly, exactly the kind of finding that disappears when you only look at aggregate metrics in one domain.
+**Failure 1, Single-domain evaluation.** Most fairness papers validate on COMPAS or Adult Income. Comparative studies such as Chen et al. (2023) test mitigation methods across several of the standard benchmark datasets, but those cover a narrow set of domains, and I found none that runs one intervention across criminal justice, healthcare, lending, legal admissions and education together. A recent AAAI 2026 paper found that equalizing base rates in hiring data appeared to reach parity on traditional measures but left about 10% disparity when measured with audit-study data.
 
-**Failure 2, Static auditing.** AIF360 and Fairlearn produce point-in-time fairness snapshots. Sculley et al. (2015) documented that production ML systems degrade silently over time. A January 2026 paper on fairness auditing under model updates confirmed that real-world model changes can fundamentally alter fairness properties. No existing framework monitors this continuously. FAPE's Stage 4 does.
+**Failure 2, Static auditing.** AIF360 and Fairlearn produce point-in-time fairness snapshots. Sculley et al. (2015) documented that production ML systems degrade silently over time. A January 2026 paper worked out, in theory, how to audit group fairness when a model owner keeps updating the model. The open-source toolkits have no continuous monitoring, and cloud monitors such as SageMaker Clarify judge each window of live data on its own. FAPE's Stage 4 is an open proof of concept for sequential monitoring, tested on a simulated shift.
 
 **Failure 3, Single-metric optimization.** Chouldechova (2017) proved mathematically that satisfying equalized odds and calibration simultaneously is impossible when base rates differ across groups. Papers that optimize for one metric and report it as evidence of fairness are measuring the wrong thing. FAPE reports several fairness metrics side by side, making the tradeoffs visible.
 
@@ -38,8 +38,8 @@ Three failure modes that the fairness literature treats as solved but aren't in 
 
 **Stage 1, Data Preprocessing:**
 - Demographic attribute extraction and validation
-- Label bias detection, identifying when outcome labels encode historical discrimination
-- Feature engineering with fairness-aware feature selection
+- Outcome base rates compared across demographic groups during EDA
+- Per-domain feature preprocessing
 - Data quality audit across every domain before any model training
 
 **Stage 2, Baseline Classification:**
@@ -52,13 +52,13 @@ Three failure modes that the fairness literature treats as solved but aren't in 
 - Demographic parity difference and equalized odds difference everywhere; disparate impact ratio and accuracy cost where the domain pipeline computes them
 - Fairlearn ThresholdOptimizer applies post-processing constraints without retraining
 - Cross-domain fairness metric comparison, the central empirical contribution
-- Regulatory mapping: each metric tied to its domain-specific legal standard
+- Regulatory context noted per domain: ECOA for the two lending domains, the 0.8 disparate impact ratio as a research convention elsewhere
 
 **Stage 4, Deployment Monitoring:**
-- CUSUM-based drift detection calibrated specifically for fairness metrics
+- CUSUM-based drift detection applied to demographic parity difference
 - Alerts when fairness constraints drift beyond threshold post-deployment
 - Model versioning, tracks fairness across model updates, not just at launch
-- The stage that existing frameworks skip entirely
+- The stage the open-source fairness toolkits do not provide
 
 ---
 
@@ -66,9 +66,9 @@ Three failure modes that the fairness literature treats as solved but aren't in 
 
 Most fairness papers ask: "Can we reduce bias in this dataset?" FAPE asks: "Does the same bias-reduction intervention generalize across fundamentally different deployment contexts, and does it hold after the model ships?"
 
-The distinction matters because every major institution deploying ML for consequential decisions operates across multiple domains simultaneously. A bank uses ML for credit scoring, fraud detection, and hiring. A hospital uses ML for triage, diagnosis, and resource allocation. The research community has given them domain-specific tools. Nobody has given them a cross-domain production auditing framework.
+The distinction matters because every major institution deploying ML for consequential decisions operates across multiple domains simultaneously. A bank uses ML for credit scoring, fraud detection, and hiring. A hospital uses ML for triage, diagnosis, and resource allocation. The research community has given them domain-specific tools and point-in-time audits, and left the comparison across domains to them.
 
-The field is actively contested on two questions FAPE addresses directly. First: whether post-processing constraints generalize across domains or whether each deployment requires bespoke solutions, no paper has empirically tested this at scale across this many distinct domains. Second: whether continuous monitoring can detect fairness drift before harm accumulates, recent theoretical work on auditing under model updates confirms this is open. FAPE provides the empirical answer to both.
+The field is actively contested on two questions FAPE addresses. First: whether post-processing constraints generalize across domains or whether each deployment requires bespoke solutions, I found no study that tests this across this many distinct domains. Second: whether continuous monitoring can detect fairness drift before harm accumulates, where recent work on auditing under model updates is still theoretical. FAPE gives cross-domain evidence on the first and a simulated proof of concept for the second.
 
 ---
 
@@ -88,7 +88,7 @@ The field is actively contested on two questions FAPE addresses directly. First:
 | MEPS Panel 19 FY2015 | 2015 | 15,830 | Healthcare | Public (via FairGround) |
 | MIMIC-III Clinical | 2001-2012 | not obtained | Healthcare (dropped) | PhysioNet |
 
-**Verified: 4,980,540 records.** MEPS Panel 19 is a sub-dataset of the FairGround corpus, so its 15,830 records are already inside FairGround's 1,964,010 and are not added again here. MIMIC-III was never obtained and is not part of the study.
+**Verified: 4,980,540 records.** MEPS Panel 19 is a sub-dataset of the FairGround corpus, so its 15,830 records are already inside FairGround's 1,964,010 and are not added again here. MIMIC-III was never obtained and is not part of the study. USDA NASS is used descriptively in EDA only and LSMS-ISA Nigeria was excluded from modeling (Decision 11); both are counted here as collected.
 
 Dataset notes:
 - COMPAS: 6,172 records verified, ProPublica Broward County Florida 2013-2014
@@ -99,17 +99,17 @@ Dataset notes:
 - Lending Club: 1,348,099 records verified, socioeconomic proxy fairness at production scale
 - USDA NASS Census 2022: 7,334 aggregate rows, racial disparity baseline, not individual-level training data. CIPSEA (7 U.S.C. §2204) prohibits public release of individual farm records.
 - SBA 7(a) NAICS-11: 15,845 individual agricultural business loans FY1991-2024, binary default outcome, geographic proxy attributes
-- LSMS-ISA Nigeria Wave 4: 30,312 individual farm households, sex and education as sensitive attributes, food security outcome. Only large-scale publicly downloadable individual-level agricultural dataset with demographic attributes.
-- MEPS Panel 19 FY2015: 15,830 records, race as the sensitive attribute, drawn from the FairGround corpus. This is the healthcare evaluation the study actually ran.
+- LSMS-ISA Nigeria Wave 4: 30,312 individual farm households, sex and education as sensitive attributes, food security outcome. Only large-scale publicly downloadable individual-level agricultural dataset with demographic attributes. Evaluated during design and excluded from the ML pipeline (Decision 11).
+- MEPS Panel 19 FY2015: 15,830 records, race as the sensitive attribute, drawn from the FairGround corpus. This is the healthcare evaluation the study ran.
 - MIMIC-III required PhysioNet credentialed registration, which did not come through. Healthcare is covered by MEPS instead, so no result in this repository depends on MIMIC-III.
 
 ---
 
 ## Evaluation Metrics
 
-- **Accuracy:** Precision, Recall, F1, per domain and per demographic group
+- **Performance:** accuracy, or AUC for Law School, Lending Club and Agricultural, and F1 for every model and domain; the COMPAS and Folktables baselines also report precision and recall
 - **Fairness:** Demographic parity difference and equalized odds difference for every evaluation; disparate impact ratio and accuracy cost where computable
-- **Regulatory mapping:** Each metric mapped to its domain-specific legal standard (EEOC 80% rule, ProPublica equalized odds standard, ECOA disparate impact)
+- **Regulatory context:** ECOA for the two lending domains; elsewhere the 0.8 disparate impact ratio from the EEOC four-fifths rule is a research convention, not a compliance test. Both lending domains predict default, so a ratio above 1.0 is the adverse direction there
 - **Drift detection:** CUSUM statistics for fairness metric drift post-deployment
 - **Cross-domain comparison:** Per-model, per-domain before-and-after values compared directly; no inferential test is applied, since each domain yields one measurement per model
 
@@ -139,18 +139,18 @@ Full dependency list: `requirements.txt`
 - July 2026: Stage 3 complete, DIR metric added where each domain's pipeline supports it (before-and-after for Law School, Lending Club, Agricultural; baseline only for Folktables); paper outline committed
 - July 2026: Stage 4 complete, CUSUM-based fairness drift detection; 9 drift figures; Law School + FairGround + Student earliest alerts
 - August 2026: Paper writing begins
-- September 2026: Full draft complete; healthcare evaluation (MEPS Panel 19) added, bringing the study to eight evaluations; all metric values re-verified against a clean install of the pinned environment; scikit-learn pin corrected from 1.4.2, which conflicted with fairml-datasets and could not be installed; targeting Sep 29 submission to JASIST
+- September 2026: Full draft complete; healthcare evaluation (MEPS Panel 19) added, bringing the study to eight evaluations; all metric values re-verified against a clean install of the pinned environment; scikit-learn pin corrected from 1.4.2, which conflicted with fairml-datasets and could not be installed; Stage 4 monitor corrected to start at deployment, after the original version was found to alert on pre-deployment baseline values; COMPAS and Folktables metrics found to be set by test groups of fewer than 30 records; MEPS rerun on the 41 features FairGround documents, after the raw file's visit counts turned out to define its utilization label, and Folktables rerun without POVPIP, which is built from family income; random forest's worsening under the constraint traced to thresholds fit on its training data; targeting Sep 29 submission to JASIST
 
 ---
 
 ## Status
 
-Stages 1-4 complete. Paper drafted and internally verified; targeting JASIST Sep 29 2026. The study now covers eight domain evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added in September; entries dated before then describe the seven-domain study as it stood at the time.
+Stages 1-4 complete. Paper drafted and internally verified; targeting JASIST Sep 29 2026. The study now covers eight domain evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added in September; entries dated before then describe the seven-domain study as it stood at the time, including drift results the September entry corrects.
 
 **Stage 1 (complete):** EDA + baseline models across the original seven domains, 83 EDA figures. MEPS was added later and evaluated through the FairGround pipeline, so it has no separate EDA set.
 **Stage 2 (complete):** ThresholdOptimizer fairness interventions across all eight evaluations, cross-domain comparison done, 68 figures committed from the original seven domains (56 domain + 6 aggregation + 6 cross-domain).
-**Stage 3 (complete):** DIR metric where the domain pipeline supports it, three domains with before-and-after values and one with a baseline only; paper outline committed.
-**Stage 4 (complete):** CUSUM-based fairness drift detection, synthetic distribution shift; Law School + FairGround + Student most sensitive; 9 figures committed.
+**Stage 3 (complete):** DIR where the domain pipeline supports it: a fixed-pair ratio before and after for Law School, Lending Club and Agricultural, and per-race ratios under the equalized odds constraint for Folktables; paper outline committed.
+**Stage 4 (complete):** CUSUM monitoring from deployment under a synthetic shift; flags 9 constrained models already above DPD 0.1 when deployed and 5 that regress under the shift, all 5 from Law School and FairGround, which share the same underlying data; 9 figures committed.
 
 Target venue: JASIST, submission Sep 29 2026
 
@@ -175,8 +175,9 @@ Target venue: JASIST, submission Sep 29 2026
 - Johnson et al. (2016), MIMIC-III Clinical Database, Scientific Data
 - Wightman (1998), LSAC National Longitudinal Bar Passage Study
 - Cortez & Silva (2008), Student Performance Dataset, UCI ML Repository
-- Chen & Guestrin (2016), XGBoost: A Scalable Tree Boosting System, KDD
 - Weerts et al. (2023), Fairlearn: Assessing and Improving Fairness of AI Systems
 - Bellamy et al. (2019), AI Fairness 360: An Extensible Toolkit, IBM Journal
 - Sariola et al. (2026), The Illusion of Fairness: Auditing Fairness Interventions in Algorithmic Hiring, AAAI
 - Ajarra & Basu (2026), Auditing Fairness under Model Updates, arXiv 2601.05909
+- Friedler et al. (2019), A Comparative Study of Fairness-Enhancing Interventions in Machine Learning, FAT*
+- Chen et al. (2023), A Comprehensive Empirical Study of Bias Mitigation Methods for Machine Learning Classifiers, ACM TOSEM

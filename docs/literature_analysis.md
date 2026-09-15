@@ -2,6 +2,8 @@
 
 > **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it.
 
+> **Record note, September 15 2026.** Four summaries below overstate their sources (Decision 27 in methodology_decisions.md). Breck et al. (2017) do include a fairness item, a pre-release test for considerations of inclusion; what they lack is a fairness test among their monitoring tests. Ajarra and Basu (2026) is a theoretical paper on auditing statistical parity under model updates and does not show fairness changing while accuracy holds. Sariola et al. (2026) report about 10% disparity measured with audit-study data, not one metric masking another. And continuous bias monitoring does exist in commercial form (Amazon SageMaker Clarify), while Friedler et al. (2019) and Chen et al. (2023) already compare interventions across several benchmark datasets, so the gaps below that say no monitoring or no cross-dataset comparison exists are narrower than written.
+
 ## Fairness Auditing in Production ML Systems, Research Protocols
 
 **Period:** November 2025, April 2026
@@ -35,7 +37,7 @@ Loaded COMPAS last week. First thing I did after verification was look at the re
 | Lambrecht & Tucker, Algorithmic Bias in Ad Delivery | 2019 | Management Science | Bias emerges from economic optimization not discriminatory intent | Emergent bias | Structural not designed, important for understanding why FAPE needs Stage 1 proxy detection |
 | Breck et al., ML Test Score | 2017 | IEEE BigData | 28-point production readiness rubric | Production deployment | Zero fairness tests, not an oversight, a policy statement by a major ML practitioner |
 | Ding et al., Retiring Adult | 2021 | NeurIPS | Adult Income dataset has serious methodological flaws | Dataset quality | The field kept using it anyway, which is why FAPE uses Folktables ACS instead |
-| Ajarra et al., Auditing Under Model Updates | 2026 | arXiv | Model updates fundamentally alter fairness properties | Production fairness | Makes Mitchell et al. model cards inadequate and Hardt et al. post-processing results time-limited |
+| Ajarra and Basu, Auditing Under Model Updates | 2026 | arXiv | Model updates fundamentally alter fairness properties | Production fairness | Makes Mitchell et al. model cards inadequate and Hardt et al. post-processing results time-limited |
 | Sariola et al., Illusion of Fairness | 2026 | AAAI | Equalizing base rates masks ~10% disparity | Measurement | Standard metrics actively mislead, makes multi-metric reporting non-optional for FAPE |
 | Weerts et al., Fairlearn | 2023 | arXiv | Practical post-processing fairness constraints | Tools | Research-grade only, stops at validation, no production monitoring |
 | Simson et al., FairGround Corpus | 2025 | arXiv | 44 fairness-annotated datasets for reproducible cross-domain evaluation | Benchmark | First serious attempt to fix the benchmark monoculture, 1,964,010 records verified |
@@ -70,7 +72,7 @@ Three genuine contradictions, not differences in emphasis but incompatible empir
 
 **Post-processing as solution vs impossibility theorem:** Hardt et al. (2016), ThresholdOptimizer is the practical solution to demographic bias. Chouldechova (2017), satisfying equalized odds and calibration simultaneously is impossible when base rates differ. Both correct. Both cited widely. Neither acknowledges the tension between them. Every FAPE Stage 3 experiment lives inside this contradiction.
 
-**Static documentation vs dynamic systems:** Mitchell et al. (2019), model cards as the accountability mechanism. Ajarra et al. (2026), model updates fundamentally alter fairness properties, making release-time documentation misleading. Seven years after model cards were proposed, nobody has built the dynamic monitoring alternative. FAPE Stage 4 is the attempt.
+**Static documentation vs dynamic systems:** Mitchell et al. (2019), model cards as the accountability mechanism. Ajarra and Basu (2026), model updates fundamentally alter fairness properties, making release-time documentation misleading. Seven years after model cards were proposed, nobody has built the dynamic monitoring alternative. FAPE Stage 4 is the attempt.
 
 ---
 
@@ -80,7 +82,7 @@ Three genuine contradictions, not differences in emphasis but incompatible empir
 Hardt et al. (2016) define and propose it → Chouldechova (2017) proves incompatibility with calibration → Dressel & Farid (2018) apply to COMPAS → Barocas & Hardt (2017) taxonomize relative to other definitions → Sariola et al. (2026) show standard measurement masks 10% disparity. The chain ends at a sobering place, the metric the field settled on is being shown to actively mislead in certain configurations.
 
 **Production ML degradation:**
-Sculley et al. (2015) identify silent degradation as fundamental to production ML → Breck et al. (2017) operationalize readiness with 28 tests and zero fairness tests → Mitchell et al. (2019) propose static documentation → Ajarra et al. (2026) confirm fairness degrades specifically under model updates. Ten years between Sculley and Ajarra. Nothing built in between. FAPE Stage 4 is the attempt to close that gap.
+Sculley et al. (2015) identify silent degradation as fundamental to production ML → Breck et al. (2017) operationalize readiness with 28 tests and zero fairness tests → Mitchell et al. (2019) propose static documentation → Ajarra and Basu (2026) confirm fairness degrades specifically under model updates. Ten years between Sculley and Ajarra. Nothing built in between. FAPE Stage 4 is the attempt to close that gap.
 
 **Cross-domain fairness:**
 Angwin et al. (2016) document criminal justice bias → Obermeyer et al. (2019) document healthcare bias via proxy variables → Lambrecht & Tucker (2019) document advertising bias via economic optimization → nobody connects them. The chain ends at a gap, which is exactly where FAPE starts.
@@ -185,7 +187,7 @@ FAIRNESS THEORY CLUSTER
 PRODUCTION FAILURE CLUSTER
 ├── Sculley et al. 2015, ML technical debt
 │   └── production systems degrade silently
-├── Ajarra et al. 2026, fairness drift in production
+├── Ajarra and Basu 2026, fairness drift in production
 │   └── confirms Sculley for fairness specifically
 └── Obermeyer et al. 2019, proxy variable bias
     └── bias propagates through cost proxies, healthcare
