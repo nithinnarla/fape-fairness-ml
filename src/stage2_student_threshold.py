@@ -4,16 +4,16 @@ Phase 4 - Stage 2 Fairness Intervention
 Education Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Student Performance baseline.
-Tests demographic_parity and equalized_odds constraints by sex and age.
-Two subjects: Math (395 records) and Portuguese (649 records).
+Tests demographic_parity and equalized_odds constraints by sex.
+Two subjects: Math (395 records) and Portuguese (649 records), evaluated separately.
+G1/G2 grades are excluded by the loader (target leakage). The label is a final
+grade (G3) above the subject median. The loader stores sex as category codes:
+"0" = F, "1" = M.
 
-Key baseline findings:
-- Sex gap reverses between subjects (known EDA finding)
-- All DIR below EEOC 0.8 threshold
-- Small dataset challenge: demographic subgroups too small for reliable metric estimation
+With 79 test records in Math, about 40 per sex, one student moves a group's rate by 2.5 points.
+Fig 6 shows the female-to-male selection-rate ratio for the GB baseline only.
 
-Note: ThresholdOptimizer in fairlearn 0.13.0 is non-deterministic.
-Direction consistent across runs.
+ThresholdOptimizer.predict is seeded (random_state=42), so runs are repeatable.
 """
 
 import pandas as pd
@@ -39,6 +39,8 @@ from fairlearn.metrics import demographic_parity_difference, equalized_odds_diff
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIGURES_DIR = os.path.join(REPO_ROOT, 'figures', 'stage2')
 os.makedirs(FIGURES_DIR, exist_ok=True)
+
+SEX_CODES = {"F": "0", "M": "1"}   # student_loader stores sex as category codes
 
 MODELS = {
     "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
@@ -160,11 +162,17 @@ def run_stage2():
         print(f"  {subj}: Base DPD={b['dpd']:.3f} DP DPD={dp_dpd:.3f} Base EOD={b['eod']:.3f} EO EOD={eo_eod:.3f}")
 
     print(f"\n--- Key Findings ---")
-    print(f"  Small dataset challenge: Math n=395, Portuguese n=649")
-    print(f"  Sex gap reverses between subjects - known EDA finding confirmed in Stage 2")
-    print(f"  ThresholdOptimizer non-deterministic in fairlearn 0.13.0")
-    print(f"  Small subgroup sizes make fairness metric estimation noisy")
-    print(f"  Note: Student dataset tests FAPE framework at small scale - all DIR below EEOC 0.8")
+    print(f"  Test records: " + ", ".join(f"{subj} {len(res['y_test'])}" for subj, res in all_results.items()))
+    for subj, res in all_results.items():
+        sx, yt = res["sex_test"], res["y_test"]
+        is_f, is_m = (sx == SEX_CODES["F"]).values, (sx == SEX_CODES["M"]).values
+        pass_f, pass_m = yt[is_f].mean(), yt[is_m].mean()
+        gb = res["baseline"]["GradientBoosting"]
+        yp = gb["model"].predict(res["X_test"])
+        sel_f, sel_m = yp[is_f].mean(), yp[is_m].mean()
+        print(f"  {subj}: above-median rate F={pass_f:.3f} M={pass_m:.3f} | GB baseline F/M DIR={sel_f / sel_m:.3f}")
+        worse = [n for n, r in res["dp"].items() if r and r["dpd"] > res["baseline"][n]["dpd"]]
+        print(f"  {subj}: DPD worse after the DP constraint: {', '.join(worse) or 'none'}")
 
     # FIGURES
     print(f"\n--- Generating Figures ---")
@@ -236,8 +244,9 @@ def run_stage2():
         sex_te = res["sex_test"]; y_te = res["y_test"]
         categories = ["Female","Male"]
         sex_map = {"F": "Female", "M": "Male"}
-        true_rates = [y_te[sex_te==s].mean() if (sex_te==s).sum()>0 else 0 for s in ["F","M"]]
-        base_rates = [yp_base[sex_te==s].mean() if (sex_te==s).sum()>0 else 0 for s in ["F","M"]]
+        codes = [SEX_CODES["F"], SEX_CODES["M"]]
+        true_rates = [y_te[(sex_te==c).values].mean() if (sex_te==c).sum()>0 else 0 for c in codes]
+        base_rates = [yp_base[(sex_te==c).values].mean() if (sex_te==c).sum()>0 else 0 for c in codes]
         x4 = np.arange(2); w4 = 0.35
         ax.bar(x4-w4/2, true_rates, w4, label="True Rate", color="#2ecc71", edgecolor="white")
         ax.bar(x4+w4/2, base_rates, w4, label="GB Predicted", color="#95a5a6", edgecolor="white")
@@ -271,7 +280,7 @@ def run_stage2():
     plt.close(); print("Fig 5 saved - student_f1_comparison.png")
 
 
-    # Fig 6 - DIR by Sex - EEOC 80% Compliance
+    # Fig 6 - DIR by Sex, GB baseline
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -280,7 +289,7 @@ def run_stage2():
         yp = gb['model'].predict(res['X_test'])
         dirs = {}
         for s in ['F','M']:
-            mask = sex_te == s
+            mask = sex_te == SEX_CODES[s]
             if mask.sum() > 0:
                 dirs[s] = yp[mask].mean()
         if 'F' in dirs and 'M' in dirs and dirs['M'] > 0:
@@ -290,14 +299,14 @@ def run_stage2():
             dir_fm = dir_mf = 0
         bars = ax.bar(['F/M DIR','M/F DIR'], [dir_fm, dir_mf],
                       color=['#3498db','#e74c3c'], edgecolor='white')
-        ax.axhline(0.8, color='orange', linestyle='--', linewidth=2, label='EEOC 0.8 threshold')
+        ax.axhline(0.8, color='orange', linestyle='--', linewidth=2, label='0.8 four-fifths convention')
         for bar, val in zip(bars, [dir_fm, dir_mf]):
             ax.text(bar.get_x()+bar.get_width()/2, val+0.01, f'{val:.3f}',
                    ha='center', fontsize=10, fontweight='bold')
-        ax.set_title(f'{subj.capitalize()} - DIR by Sex\n(EEOC 80% rule)',
+        ax.set_title(f'{subj.capitalize()} - DIR by Sex, GB Baseline\n(one ratio is the inverse of the other)',
                     fontsize=11, fontweight='bold')
         ax.set_ylabel('Disparate Impact Ratio'); ax.legend(); ax.set_ylim(0, 1.5)
-    plt.suptitle('Student Performance - DIR by Sex: EEOC 80% Compliance Check',
+    plt.suptitle('Student Performance - Selection-Rate Ratio by Sex',
                 fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'student_dir_by_sex.png'), dpi=150, bbox_inches='tight')
@@ -305,7 +314,6 @@ def run_stage2():
 
     print(f"\n--- Student Stage 2 complete ---")
     print(f"  6 figures saved to figures/stage2/")
-    print(f"  Ready for Law School + Lending Club Stage 2 on Jun 26")
 
 
 if __name__ == "__main__":

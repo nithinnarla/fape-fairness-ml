@@ -4,9 +4,9 @@ Phase 4, Exploratory Data Analysis
 Financial Services Domain
 
 EDA on Lending Club loan data, 500,000 sample from 1,348,099 records
-(2007-2018 Q4). No direct race/gender data available, ECOA compliance
-means financial institutions cannot collect protected characteristics.
-Socioeconomic proxies used per fairness literature standard.
+(2007-2018 Q4). No race or gender fields are available: ECOA's Regulation B
+generally bars lenders from asking applicants for them outside mortgage
+lending. Socioeconomic attributes stand in for the audit.
 
 Source: Kaggle, wordsforthewise/lending-club
 Citation: Lending Club 2007-2018 Q4
@@ -155,7 +155,7 @@ def run_eda():
     print(f"  Top 5 lowest default states:")
     for _, row in top5_low.iterrows():
         print(f"    {STATE_MAP.get(int(row['addr_state']),str(int(row['addr_state'])))}: {row['default_rate']:.1%} (n={int(row['count']):,})")
-    print(f"  Note: addr_state encodes geographic proxy for redlining patterns")
+    print(f"  Note: addr_state is state-level only, far coarser than the neighborhoods redlining targeted")
 
     print(f"\n--- Feature Correlations with Label ---")
     numeric_cols = ["loan_amnt","int_rate","installment","emp_length",
@@ -184,9 +184,9 @@ def run_eda():
     print(f"  Renters default rate:         {rent_rate:.1%}")
     print(f"  Mortgage holders default:     {mortgage_rate:.1%}")
     print(f"  Housing gap:                  {abs(rent_rate-mortgage_rate):.1%}")
-    print(f"  Note: No direct race/gender data, ECOA compliance")
+    print(f"  Note: No race or gender fields (Regulation B limits collecting them outside mortgage lending)")
     print(f"  Note: Socioeconomic proxies may encode racial disparities")
-    print(f"  Note: Geographic proxy (addr_state) captures redlining patterns")
+    print(f"  Note: addr_state is state-level only, far coarser than the neighborhoods redlining targeted")
 
     print(f"\n--- Lending Club EDA complete ---")
     print(f"  Sample records: {len(df):,} (from 1,348,099 total)")

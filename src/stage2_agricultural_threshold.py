@@ -10,9 +10,11 @@ Secondary: borrstate (geographic proxy, state-level fairness)
 
 Dataset: SBA 7(a) Agricultural Loans FY1991-2024
 Records: 15,845 | default rate: 5.2%, severe class imbalance
-Note: No direct race/gender, ECOA proxy-based fairness audit
+Note: No race or gender field; the audit uses business type (ECOA business-credit context)
 Note: businesstype -1 (Unknown, n=34) excluded from fairness metrics
-Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0
+Note: ThresholdOptimizer.predict is seeded with random_state=42, so runs are identical
+Note: the positive class is Charged Off, so the partnership-to-corporation DIR compares
+      predicted default rates; 1.0 is parity and the side away from 1.0 is adverse to that group
 """
 
 import pandas as pd
@@ -78,8 +80,8 @@ def run_stage2():
 
     print(f"\n  n={len(y_valid):,} | default_rate={y_valid.mean():.1%} | severe imbalance")
     print(f"  Primary sensitive: businesstype (0=Corp 1=Individual 2=Partnership)")
-    print(f"  Note: No direct race/gender, ECOA proxy-based audit")
-    print(f"  Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0")
+    print(f"  Note: No race or gender field; the audit uses business type")
+    print(f"  Note: ThresholdOptimizer.predict seeded with random_state=42")
 
     baseline = {}
     print(f"\n--- Baseline Results (Stage 1 reference) ---")
@@ -170,7 +172,7 @@ def run_stage2():
         if mask.sum() < 10: continue
         before = gb_base[mask].mean()
         after = gb_dp[mask].mean() if gb_dp is not None else float('nan')
-        print(f"  {label:<15} n={mask.sum():,} before={before:.3f} after={after:.3f} change={after-before:+.3f}")
+        print(f"  {label:<15} n={mask.sum():,} true default={y_test[mask].mean():.3f} before={before:.3f} after={after:.3f} change={after-before:+.3f}")
 
     print(f"\n--- DIR, Partnership vs Corporation Before vs After DP ---")
     for name in MODELS:
@@ -181,20 +183,22 @@ def run_stage2():
             part_a = dp_results[name]['y_pred'][btype_test==2].mean()
             dir_b = part_b/corp_b if corp_b > 0 else 0
             dir_a = part_a/corp_a if corp_a > 0 else 0
-            print(f"  {name:<25} DIR before={dir_b:.3f} after={dir_a:.3f} EEOC=0.8")
+            print(f"  {name:<25} DIR before={dir_b:.3f} after={dir_a:.3f} (predicted default; 1.0 is parity)")
 
     print(f"\n--- Key Findings ---")
-    print(f"  Baseline DP gap minimal (0.005-0.009), smallest in FAPE across all domains")
-    print(f"  ThresholdOptimizer worsens fairness, negative improvement across all models")
+    base_dp = [abs(baseline[m]['dp']) for m in MODELS]
+    print(f"  Baseline business-type DP gap: {min(base_dp):.3f} to {max(base_dp):.3f}")
+    worse = [m for m in MODELS if dp_results.get(m) and abs(dp_results[m]['dp']) > abs(baseline[m]['dp'])]
+    print(f"  DP gap worse after the DP constraint for {len(worse)} of {len(MODELS)} models: {', '.join(worse) or 'none'}")
     gb_corp_b = baseline["GradientBoosting"]["y_pred"][btype_test==0].mean()
     gb_part_b = baseline["GradientBoosting"]["y_pred"][btype_test==2].mean()
     gb_corp_a = dp_results["GradientBoosting"]["y_pred"][btype_test==0].mean()
     gb_part_a = dp_results["GradientBoosting"]["y_pred"][btype_test==2].mean()
     gb_dir_before = gb_part_b/gb_corp_b if gb_corp_b > 0 else 0
     gb_dir_after = gb_part_a/gb_corp_a if gb_corp_a > 0 else 0
-    print(f"  GB DIR {gb_dir_before:.3f}->{gb_dir_after:.3f}, overcorrects past parity after DP constraint")
-    print(f"  Cross-domain finding: agricultural lending near-fair on business type proxy")
-    print(f"  No direct race/gender, ECOA proxy-based audit; USDA NASS race in EDA")
+    side = "crosses parity" if (gb_dir_before - 1) * (gb_dir_after - 1) < 0 else "stays on the same side of parity"
+    print(f"  GB DIR {gb_dir_before:.3f}->{gb_dir_after:.3f}, {side} after the DP constraint")
+    print(f"  No race or gender field; USDA NASS race data is used in EDA only")
     print(f"  LSMS Nigeria considered and excluded, outside US regulatory scope")
 
     names = list(MODELS.keys()); x = np.arange(len(names)); width = 0.25
@@ -290,10 +294,10 @@ def run_stage2():
     ax.bar(x+width/2, dir_a, width, label='After DP Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     for bar, val in zip(ax.patches, dir_b+dir_a):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
-    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=2, label='EEOC 0.8 threshold')
+    ax.axhline(y=1.0, color='gray', linestyle=':', linewidth=1.5, label='Parity (DIR=1.0)')
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('DIR - Partnership vs Corporation\n(Before vs After DP Constraint)', fontsize=12)
-    ax.set_ylabel('DIR (Partnership/Corporation)'); ax.set_ylim(0, 1.5); ax.legend()
+    ax.set_title('DIR - Partnership vs Corporation, Before vs After DP Constraint\n(outcome is predicted default; 1.0 is parity)', fontsize=11)
+    ax.set_ylabel('DIR (Partnership/Corporation)'); ax.set_ylim(0, max(1.5, max(dir_b + dir_a) * 1.15)); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'agricultural_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close()
@@ -372,7 +376,7 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.001,
                 f'{val:.3f}\n(n={n})', ha='center', fontsize=7)
     ax.set_xticks(range(len(top_states))); ax.set_xticklabels(state_labels, rotation=45)
-    ax.set_title('Top 15 States by Default Prediction Rate - GB Baseline\n(red = above overall mean; geographic proxy for demographic disparities)',
+    ax.set_title('Top 15 States by Default Prediction Rate - GB Baseline\n(red = above overall mean)',
                  fontsize=12)
     ax.set_ylabel('Default Prediction Rate'); ax.legend()
     plt.tight_layout()
@@ -382,8 +386,8 @@ def run_stage2():
     print(f"  States analyzed: {len(state_rates)} | max-min gap: {sorted_states[0][1][0]-sorted_states[-1][1][0]:.3f}")
 
     print(f"\n--- Agricultural Stage 2 complete ---")
-    print(f"  7 figures saved to figures/stage2/")
-    print(f"  Business type fairness intervention applied, ECOA proxy-based audit")
+    print(f"  8 figures saved to figures/stage2/")
+    print(f"  Business type fairness intervention applied")
 
     return baseline, dp_results, eo_results, btype_test
 

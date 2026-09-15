@@ -14,7 +14,9 @@ Sensitive: annual_inc_band (0=Q1 lowest to 3=Q4 highest income)
            home_ownership (1=MORTGAGE, 5=RENT, 4=OWN)
 
 Note: No direct race/gender data, ECOA proxy-based fairness audit
-Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0, results vary slightly between runs
+Note: ThresholdOptimizer.predict is seeded with random_state=42, so runs are identical
+Note: the positive class is Charged Off, so a disparate impact ratio above 1.0 means the
+      designated group is flagged for default more often, the adverse direction
 Note: home_ownership groups 0,2,3 sparse (n<30), excluded from fairness metrics
 """
 
@@ -85,7 +87,7 @@ def run_stage2():
     print(f"  Primary sensitive: annual_inc_band (0=Q1 lowest to 3=Q4 highest)")
     print(f"  Secondary: home_ownership (0=MORTGAGE vs 1=RENT)")
     print(f"  Note: No direct race/gender, ECOA proxy-based audit")
-    print(f"  Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0")
+    print(f"  Note: ThresholdOptimizer.predict seeded with random_state=42")
 
     baseline = {}
     print(f"\n--- Baseline Results (Stage 1 reference) ---")
@@ -175,6 +177,7 @@ def run_stage2():
             print(f"  {name:<25} EO before={eo_before:.3f} after={eo_after:.3f} improve={eo_before-eo_after:+.3f}")
 
     print(f"\n--- Home Ownership Fairness, MORTGAGE vs RENT ---")
+    home_dp = {}
     for name in MODELS:
         if dp_results.get(name):
             y_pred_dp = dp_results[name]['y_pred']
@@ -183,7 +186,8 @@ def run_stage2():
             hs_home = home_test[home_test_mask]
             if len(np.unique(hs_home)) >= 2:
                 dp_home = demographic_parity_difference(yt_home, yp_home, sensitive_features=hs_home)
-                print(f"  {name:<25} Home DP_diff={dp_home:.3f} (MORTGAGE vs RENT)")
+                home_dp[name] = dp_home
+                print(f"  {name:<25} Home DP_diff={dp_home:.3f} (MORTGAGE vs RENT, post-DP)")
 
     print(f"\n--- Income Band Prediction Rates, GB Before vs After DP ---")
     gb_base = baseline['GradientBoosting']['y_pred']
@@ -192,7 +196,12 @@ def run_stage2():
         before = gb_base[mask].mean()
         after = dp_results['GradientBoosting']['y_pred'][mask].mean() if dp_results.get('GradientBoosting') else float('nan')
         label = ['Q1-Low','Q2','Q3','Q4-High'][band]
-        print(f"  {label:<10} before={before:.3f} after={after:.3f} change={after-before:+.3f}")
+        print(f"  {label:<10} true default={y_test[mask].mean():.3f} before={before:.3f} after={after:.3f} change={after-before:+.3f}")
+    true_q1, true_q4 = y_test[inc_test==0].mean(), y_test[inc_test==3].mean()
+    pred_q1, pred_q4 = gb_base[inc_test==0].mean(), gb_base[inc_test==3].mean()
+    actual_ratio = true_q1 / true_q4 if true_q4 > 0 else float('nan')
+    predicted_ratio = pred_q1 / pred_q4 if pred_q4 > 0 else float('nan')
+    print(f"  Q1/Q4 default ratio: actual {actual_ratio:.2f}x, GB baseline predicted {predicted_ratio:.2f}x")
 
     print(f"\n--- DIR, Income Band Before vs After DP ---")
     for name in MODELS:
@@ -205,7 +214,7 @@ def run_stage2():
             q4_after = dp_pred[inc_test==3].mean()
             dir_before = q1_before/q4_before if q4_before > 0 else 0
             dir_after = q1_after/q4_after if q4_after > 0 else 0
-            print(f"  {name:<25} DIR before={dir_before:.3f} after={dir_after:.3f} EEOC=0.8")
+            print(f"  {name:<25} DIR before={dir_before:.3f} after={dir_after:.3f} (predicted default; above 1.0 is adverse)")
 
 
     print(f"\n--- FPR/FNR by Income Band ---")
@@ -224,11 +233,15 @@ def run_stage2():
 
 
     print(f"\n--- Key Findings ---")
-    print(f"  Income DP gap small (0.018-0.024), smallest fairness gap in FAPE financial domain")
-    print(f"  DIR>1: model amplifies income disparity beyond actual rates (actual 1.4x, predicted 2.8x)")
-    print(f"  Home ownership gap larger: MORTGAGE vs RENT DP=0.138-0.178, bigger fairness concern")
-    print(f"  ThresholdOptimizer minimal improvement on income band, baseline already near-fair")
-    print(f"  No direct race/gender, proxy-based ECOA audit; income/housing as socioeconomic proxies")
+    base_dp = [baseline[m]['dp'] for m in MODELS if m in baseline and 'dp' in baseline[m]]
+    if base_dp:
+        print(f"  Baseline income-band DP gap: {min(base_dp):.3f} to {max(base_dp):.3f}")
+    print(f"  Q1/Q4 default ratio: actual {actual_ratio:.2f}x in the data, {predicted_ratio:.2f}x predicted by GB")
+    if home_dp:
+        print(f"  Home ownership DP gap after the DP constraint (MORTGAGE vs RENT): "
+              f"{min(home_dp.values()):.3f} to {max(home_dp.values()):.3f}")
+    print(f"  Income-band DPD barely moves under the constraint; the baseline is already near-fair")
+    print(f"  No race or gender field; income band and home ownership are the audited attributes")
 
     # Figure 1, Accuracy-Fairness Tradeoff
     names = list(MODELS.keys()); x = np.arange(len(names)); width = 0.25
@@ -343,10 +356,10 @@ def run_stage2():
     ax.bar(x+width/2, dir_afters, width, label='After DP Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     for bar, val in zip(ax.patches, dir_befores+dir_afters):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
-    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=2, label='EEOC 0.8 threshold')
+    ax.axhline(y=1.0, color='gray', linestyle=':', linewidth=1.5, label='Parity (DIR=1.0)')
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Disparate Impact Ratio - Q1 vs Q4 Income\n(Before vs After DP Constraint)', fontsize=12)
-    ax.set_ylabel('DIR (Q1/Q4)'); ax.set_ylim(0, 1.3); ax.legend()
+    ax.set_title('Disparate Impact Ratio - Q1 vs Q4 Income, Before vs After DP Constraint\n(outcome is predicted default, so a ratio above 1.0 is adverse to Q1)', fontsize=11)
+    ax.set_ylabel('DIR (Q1/Q4)'); ax.set_ylim(0, max(dir_befores + dir_afters) * 1.15); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close()

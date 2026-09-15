@@ -7,11 +7,14 @@ Applies Fairlearn ThresholdOptimizer post-processing to Law School baseline mode
 Tests demographic_parity and equalized_odds constraints.
 Compares fairness-accuracy tradeoff: baseline vs constrained models.
 
-Sensitive attribute: racetxt (0=minority, 1=white), male (0=female, 1=male)
+Sensitive attribute: racetxt (0=minority, 1=white) for both constraints; male (0=female,
+1=male) gets a demographic parity check after the race constraint. Both columns stay
+among the model's features.
 Target: pass_bar (binary), 90.2% positive rate (severe class imbalance)
-Key finding from baseline: DIR=0.643 below EEOC 0.8, strongest racial violation in FAPE
+Key finding from baseline: gradient boosting's minority-to-majority DIR of 0.643 sits below
+the 0.8 four-fifths convention (a research convention here, not a legal test)
 
-Note: Minority group only 6.4% of data (n=1,201), fairness metrics noisy but reliable (n>=10 guard)
+Note: Minority group is 6.4% of data (n=1,201, about 240 in the test split), so its rates carry more sampling noise
 Note: 90.2% positive rate inflates F1, AUC is primary metric
 Note: Sex float64 dtype handled explicitly throughout
 """
@@ -74,8 +77,8 @@ def run_stage2():
 
     print(f"\n  n={len(y):,} | pos_rate={y.mean():.1%} | minority_n={( race==0).sum():,} ({(race==0).mean():.1%})")
     print(f"  Note: AUC primary metric, F1 inflated by 90.2% positive rate")
-    print(f"  Baseline DIR=0.643, target improvement toward EEOC 0.8")
-    print(f"  Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0, results vary slightly between runs")
+    print(f"  DIR is minority over majority predicted bar-passage rate; 0.8 is the four-fifths convention")
+    print(f"  Note: ThresholdOptimizer.predict is seeded with random_state=42, so runs are identical")
 
     baseline = {}
     print(f"\n--- Baseline Results (Stage 1 reference) ---")
@@ -181,11 +184,14 @@ def run_stage2():
         print(f"  {label:<10} before={before:.3f} after={after:.3f}")
 
     print(f"\n--- Key Findings ---")
-    print(f"  Baseline DIR=0.643, below EEOC 0.8 threshold (strongest violation in FAPE)")
-    print(f"  Race gap dominant: minority 6.4% of data, fairness metrics noisy but reliable")
-    print(f"  Sex gap minimal (DP<0.015), race dominates fairness concern")
+    print(f"  Minority/majority DIR is computed below, before and after the DP constraint")
+    print(f"  Minority group: 6.4% of data, about 240 test records")
+    sex_dps = [demographic_parity_difference(y_test, dp_results[n]['y_pred'], sensitive_features=sex_test)
+               for n in dp_results if dp_results.get(n)]
+    if sex_dps:
+        print(f"  Sex DP gap after the race DP constraint: {min(sex_dps):.3f} to {max(sex_dps):.3f}")
     print(f"  ThresholdOptimizer applied demographic_parity + equalized_odds constraints")
-    print(f"  Cross-domain: largest racial gap in FAPE education domain")
+    print(f"  Same underlying data as FairGround's law_school_lequy sub-dataset (paper Section 6.4)")
 
     # Figure 1, Accuracy-Fairness Tradeoff
     names = list(MODELS.keys())
@@ -338,7 +344,7 @@ def run_stage2():
             maj_after = dp_pred[race_test==1].mean()
             dir_before = min_before/maj_before if maj_before > 0 else 0
             dir_after = min_after/maj_after if maj_after > 0 else 0
-            print(f"  {name:<25} DIR before={dir_before:.3f} after={dir_after:.3f} EEOC=0.8 {'OK: passes' if dir_after >= 0.8 else 'FAIL: fails'}")
+            print(f"  {name:<25} DIR before={dir_before:.3f} after={dir_after:.3f} 0.8 convention: {'at or above' if dir_after >= 0.8 else 'below'}")
 
     print(f"\n--- Intersectional Analysis, Race x Sex (GB DP Constraint) ---")
     gb_base = baseline['GradientBoosting']['y_pred']
@@ -374,9 +380,9 @@ def run_stage2():
     ax.bar(xd+wd/2, dir_afters, wd, label='After DP Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     for bar, val in zip(ax.patches, dir_befores+dir_afters):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
-    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=2, label='EEOC 0.8 threshold')
+    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=2, label='0.8 four-fifths convention')
     ax.set_xticks(xd); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Disparate Impact Ratio - Before vs After DP Constraint\n(both models cross EEOC 0.8 threshold after intervention)', fontsize=12)
+    ax.set_title('Disparate Impact Ratio - Before vs After DP Constraint\n(outcome is bar passage; both models move above the 0.8 convention)', fontsize=12)
     ax.set_ylabel('DIR'); ax.set_ylim(0, 1.2); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_dir_before_after.png'), dpi=150, bbox_inches='tight')

@@ -8,7 +8,7 @@ totaling 1,964,010 records across criminal justice, financial,
 healthcare, education, and socioeconomic domains.
 
 FairGround addresses the benchmark monoculture problem identified
-by Fabris et al. (2025), pre-validated sensitive attribute
+by Simson et al. (2025), pre-validated sensitive attribute
 metadata eliminates arbitrary preprocessing choices.
 """
 

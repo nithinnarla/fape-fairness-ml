@@ -10,6 +10,14 @@ Reports improvement in fairness metrics with accuracy cost.
 
 Sensitive attribute: race (primary), sex (secondary)
 Constraint: demographic_parity + equalized_odds
+
+The positive class is recidivism, so a higher predicted rate is the adverse outcome.
+Race has six groups, and the test split holds 7 Asian defendants and 1 Native
+American defendant. DPD and EOD over all six groups are set by those two groups
+(group_size_check.py reports the four-group values). The DIR in Fig 8 is
+Fairlearn's demographic_parity_ratio, lowest group rate over highest.
+
+ThresholdOptimizer.predict is seeded (random_state=42), so runs are repeatable.
 """
 
 import pandas as pd
@@ -217,17 +225,22 @@ def run_stage2():
     print(f"  AA-Caucasian base gap: {aa_base-cau_base:.3f}")
     aa_con = race_level["African-American"]["constrained"]; cau_con = race_level["Caucasian"]["constrained"]
     print(f"  AA-Caucasian constrained gap: {aa_con-cau_con:.3f}")
-    print(f"  Note: ThresholdOptimizer closes AA-Caucasian prediction gap, core FAPE finding")
+    print(f"  AA-Caucasian predicted-rate gap under GB: {aa_base-cau_base:.3f} -> {aa_con-cau_con:.3f} (EO constraint)")
 
     print(f"\n--- Key Findings ---")
     best_dp = min([(n, r) for n, r in dp_results.items() if r], key=lambda x: abs(x[1]['dpd']))
     best_eo = min([(n, r) for n, r in eo_results.items() if r], key=lambda x: abs(x[1]['eod']))
     print(f"  Best DP constraint: {best_dp[0]} DPD={best_dp[1]['dpd']:.3f}")
     print(f"  Best EO constraint: {best_eo[0]} EOD={best_eo[1]['eod']:.3f}")
-    print(f"  GB DP constraint: DPD 0.857→0.571 (+33.3% reduction) at 0.002 ACC cost")
-    print(f"  GB EO constraint: EOD 1.000→0.659 (+34.1% reduction) at 0.002 ACC cost")
-    print(f"  Sex fairness: GB DPD=0.005 after DP constraint, near-zero disparity")
-    print(f"  Note: LR/RF DPD worsens under DP constraint, 6 racial groups challenge")
+    gb_b, gb_dp, gb_eo = baseline_results["GradientBoosting"], dp_results.get("GradientBoosting"), eo_results.get("GradientBoosting")
+    if gb_dp:
+        print(f"  GB DP constraint: DPD {gb_b['dpd']:.3f}->{gb_dp['dpd']:.3f} ({(gb_b['dpd']-gb_dp['dpd'])/gb_b['dpd']*100:+.1f}% improvement), accuracy change {gb_dp['acc']-gb_b['acc']:+.3f}")
+    if gb_eo:
+        print(f"  GB EO constraint: EOD {gb_b['eod']:.3f}->{gb_eo['eod']:.3f} ({(gb_b['eod']-gb_eo['eod'])/gb_b['eod']*100:+.1f}% improvement), accuracy change {gb_eo['acc']-gb_b['acc']:+.3f}")
+    if sex_dp_results.get("GradientBoosting"):
+        print(f"  Sex DPD after the DP constraint on sex, GB: {sex_dp_results['GradientBoosting']['dpd']:.3f}")
+    worse_dp = [n for n, r in dp_results.items() if r and r["dpd"] > baseline_results[n]["dpd"]]
+    print(f"  DPD worse after the DP constraint (all six groups): {', '.join(worse_dp) or 'none'}")
 
     # --- FIGURES ---
     models = list(baseline_results.keys())
@@ -254,13 +267,13 @@ def run_stage2():
     axes[0].bar(x,       dp_accs,   width, label='DP Constraint', color='#3498db', edgecolor='white')
     axes[0].bar(x+width, eo_accs,   width, label='EO Constraint', color='#e74c3c', edgecolor='white')
     axes[0].set_xticks(x); axes[0].set_xticklabels(short)
-    axes[0].set_title('Accuracy: Baseline vs Constrained\n(small accuracy cost for fairness gain)', fontsize=11, fontweight='bold')
+    axes[0].set_title('Accuracy: Baseline vs Constrained', fontsize=11, fontweight='bold')
     axes[0].set_ylabel('Accuracy'); axes[0].legend(); axes[0].set_ylim(0.55, 0.75)
 
     axes[1].bar(x-width, base_dpds, width, label='Baseline', color='#95a5a6', edgecolor='white')
     axes[1].bar(x,       dp_dpds,   width, label='DP Constraint', color='#3498db', edgecolor='white')
     axes[1].bar(x+width, eo_dpds,   width, label='EO Constraint', color='#e74c3c', edgecolor='white')
-    axes[1].axhline(0.1, color='green', linestyle='--', alpha=0.7, label='Target DPD<0.1')
+    axes[1].axhline(0.1, color='green', linestyle='--', alpha=0.7, label='DPD 0.1 convention')
     axes[1].set_xticks(x); axes[1].set_xticklabels(short)
     axes[1].set_title('Demographic Parity Difference\n(lower = fairer)', fontsize=11, fontweight='bold')
     axes[1].set_ylabel('DPD'); axes[1].legend()
@@ -278,7 +291,7 @@ def run_stage2():
         axes[0].annotate(f'{imp:+.0f}%', xy=(i, max(b,a)+0.02), ha='center', fontsize=9,
                         color='green' if imp > 0 else 'red')
     axes[0].set_xticks(x); axes[0].set_xticklabels(short)
-    axes[0].set_title('DPD Reduction - DP Constraint\n(GB +33.3% reduction)', fontsize=11, fontweight='bold')
+    axes[0].set_title(f'DPD Reduction - DP Constraint\n(GB {(base_dpds[-1]-dp_dpds[-1])/base_dpds[-1]*100:+.1f}%; six race groups)', fontsize=11, fontweight='bold')
     axes[0].set_ylabel('DPD'); axes[0].legend()
 
     axes[1].bar(x-width/2, base_eods, width, label='Baseline', color='#95a5a6', edgecolor='white')
@@ -288,7 +301,7 @@ def run_stage2():
         axes[1].annotate(f'{imp:+.0f}%', xy=(i, max(b,a)+0.02), ha='center', fontsize=9,
                         color='green' if imp > 0 else 'red')
     axes[1].set_xticks(x); axes[1].set_xticklabels(short)
-    axes[1].set_title('EOD Reduction - EO Constraint\n(GB +34.1% reduction)', fontsize=11, fontweight='bold')
+    axes[1].set_title(f'EOD Reduction - EO Constraint\n(GB {(base_eods[-1]-eo_eods[-1])/base_eods[-1]*100:+.1f}%; six race groups)', fontsize=11, fontweight='bold')
     axes[1].set_ylabel('EOD'); axes[1].legend()
     plt.suptitle('COMPAS - Fairness Improvement by Constraint Type', fontsize=12, fontweight='bold')
     plt.tight_layout()
@@ -339,7 +352,7 @@ def run_stage2():
     for i, val in enumerate(sex_eods):
         ax.text(i+width/2, val+0.003, f'{val:.3f}', ha='center', fontsize=9)
     ax.set_xticks(x); ax.set_xticklabels(short)
-    ax.set_title('COMPAS - Sex Fairness After DP Constraint\n(GB DPD=0.005 - near-zero sex disparity)', fontsize=11, fontweight='bold')
+    ax.set_title(f'COMPAS - Sex Fairness After DP Constraint on Sex\n(GB DPD={sex_dpds[-1]:.3f})', fontsize=11, fontweight='bold')
     ax.set_ylabel('Fairness Metric'); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_sex_fairness.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 4 saved, compas_sex_fairness.png')
@@ -351,7 +364,8 @@ def run_stage2():
     ax.bar(x+width, eo_f1s,   width, label='EO Constraint', color='#e74c3c', edgecolor='white')
     ax.set_xticks(x); ax.set_xticklabels(short)
     ax.set_title('COMPAS - F1 Score Comparison\n(Baseline vs Constrained Models)', fontsize=11, fontweight='bold')
-    ax.set_ylabel('F1 Score'); ax.legend(); ax.set_ylim(0.55, 0.72); plt.tight_layout()
+    all_f1s = [v for v in base_f1s + dp_f1s + eo_f1s if v]
+    ax.set_ylabel('F1 Score'); ax.legend(); ax.set_ylim(min(all_f1s) - 0.05, max(all_f1s) + 0.03); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_f1_comparison.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 5 saved, compas_f1_comparison.png')
 
@@ -372,7 +386,7 @@ def run_stage2():
         ax.text(i+w6, c+0.008, f'{c:.2f}', ha='center', fontsize=7)
     ax.set_xticks(x6); ax.set_xticklabels(races, rotation=15, ha='right')
     ax.set_title('COMPAS - Race-Level Prediction Rates: Baseline vs EO Constraint\n'
-                 'AA-Caucasian gap: 0.263 → 0.074 (71.9% reduction), core FAPE finding',
+                 f'AA-Caucasian gap: {aa_base-cau_base:.3f} -> {aa_con-cau_con:.3f}',
                  fontsize=11, fontweight='bold')
     ax.set_ylabel('Predicted Positive Rate'); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_race_prediction_rates.png'), dpi=150, bbox_inches='tight')
@@ -397,8 +411,10 @@ def run_stage2():
     if 'African-American' in fpr_fnr and 'Caucasian' in fpr_fnr:
         aa_fpr_gap_b = fpr_fnr['African-American']['fpr_b'] - fpr_fnr['Caucasian']['fpr_b']
         aa_fpr_gap_c = fpr_fnr['African-American']['fpr_c'] - fpr_fnr['Caucasian']['fpr_c']
-        print(f"  AA-Caucasian FPR gap: {aa_fpr_gap_b:.3f} → {aa_fpr_gap_c:.3f} (ProPublica disparity reduced)")
-        print(f"  Note: FNR tradeoff, Chouldechova impossibility theorem observed in practice")
+        print(f"  AA-Caucasian FPR gap: {aa_fpr_gap_b:.3f} -> {aa_fpr_gap_c:.3f}")
+        aa_fnr_gap_b = fpr_fnr['African-American']['fnr_b'] - fpr_fnr['Caucasian']['fnr_b']
+        aa_fnr_gap_c = fpr_fnr['African-American']['fnr_c'] - fpr_fnr['Caucasian']['fnr_c']
+        print(f"  AA-Caucasian FNR gap: {aa_fnr_gap_b:.3f} -> {aa_fnr_gap_c:.3f}")
 
     # Fig 7, FPR/FNR by Race Before vs After EO Constraint
     plot_races = [r for r in main_races if r in fpr_fnr]
@@ -414,7 +430,7 @@ def run_stage2():
         axes[0].text(i-w7/2, b+0.005, f'{b:.3f}', ha='center', fontsize=8)
         axes[0].text(i+w7/2, c+0.005, f'{c:.3f}', ha='center', fontsize=8)
     axes[0].set_xticks(x7); axes[0].set_xticklabels(plot_races, rotation=15, ha='right')
-    axes[0].set_title('False Positive Rate by Race\n(AA FPR 0.392→0.261 - ProPublica disparity reduced)', fontsize=11, fontweight='bold')
+    axes[0].set_title('False Positive Rate by Race\n(GB, EO constraint)', fontsize=11, fontweight='bold')
     axes[0].set_ylabel('FPR'); axes[0].legend()
 
     axes[1].bar(x7-w7/2, fnr_base, w7, label='Baseline FNR', color='#e74c3c', edgecolor='white')
@@ -423,17 +439,12 @@ def run_stage2():
         axes[1].text(i-w7/2, b+0.005, f'{b:.3f}', ha='center', fontsize=8)
         axes[1].text(i+w7/2, c+0.005, f'{c:.3f}', ha='center', fontsize=8)
     axes[1].set_xticks(x7); axes[1].set_xticklabels(plot_races, rotation=15, ha='right')
-    axes[1].set_title('False Negative Rate by Race\n(FNR tradeoff - Chouldechova impossibility theorem)', fontsize=11, fontweight='bold')
+    axes[1].set_title('False Negative Rate by Race\n(GB, EO constraint)', fontsize=11, fontweight='bold')
     axes[1].set_ylabel('FNR'); axes[1].legend()
     plt.suptitle('COMPAS - FPR/FNR by Race: Baseline vs EO Constraint', fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_fpr_fnr_by_race.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 7 saved, compas_fpr_fnr_by_race.png')
-
-    print(f"\n--- COMPAS Stage 2 complete ---")
-    print(f"  7 figures saved to figures/stage2/")
-    print(f"  Ready for Folktables Stage 2")
-
 
 
     # Fig 8, DIR Before vs After DP Constraint
@@ -448,15 +459,18 @@ def run_stage2():
     for i, (b, a) in enumerate(zip(dir_b, dir_a)):
         ax.text(x8[i] - w8/2, b + 0.01, f'{b:.3f}', ha='center', fontsize=9)
         ax.text(x8[i] + w8/2, a + 0.01, f'{a:.3f}', ha='center', fontsize=9)
-    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='EEOC 4/5ths threshold (0.8)')
+    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='0.8 four-fifths convention')
     ax.set_xticks(x8); ax.set_xticklabels(names_list)
-    ax.set_title('COMPAS - Disparate Impact Ratio (DIR) Before vs After DP Constraint\n'
-                 '(race groups; EEOC 4/5ths rule: DIR > 0.8 = compliant)', fontsize=11)
+    ax.set_title('COMPAS - Selection-Rate Ratio Before vs After DP Constraint\n'
+                 '(six race groups, lowest predicted recidivism rate over highest; not a fixed pair)', fontsize=11)
     ax.set_ylabel('Disparate Impact Ratio (DIR)')
     ax.set_ylim(0, 1.5); ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 8 saved, compas_dir_before_after.png')
+
+    print(f"\n--- COMPAS Stage 2 complete ---")
+    print(f"  8 figures saved to figures/stage2/")
 
 if __name__ == "__main__":
     run_stage2()

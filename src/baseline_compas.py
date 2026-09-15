@@ -151,13 +151,12 @@ def run_baselines():
             dir_val = rate / cauc_rate
             flag = " (!) >1.25 threshold" if dir_val > 1.25 else ""
             print(f"    {race:<20} rate={rate:.1%} DIR={dir_val:.2f}{flag}")
-    print(f"  Note: DIR>1.25 is legally actionable under EEOC disparate impact doctrine")
+    print(f"  Note: recidivism is the adverse prediction, so the flag uses 1.25, the inverse of the 0.8 convention (a research convention, not a legal test)")
 
     print(f"\n--- Key Findings ---")
     best = max(results.items(), key=lambda x: x[1]["auc"])
     print(f"  Best model: {best[0]} (AUC={best[1]['auc']:.3f})")
-    print(f"  Note: Fairness Stage 2 will apply ThresholdOptimizer to equalize FPR by race")
-    print(f"  Note: African-American FPR expected ~2x Caucasian FPR, see EDA findings")
+    print(f"  Note: Stage 2 applies ThresholdOptimizer under demographic parity and equalized odds by race")
 
     print(f"\n--- COMPAS Baseline complete ---")
     return results

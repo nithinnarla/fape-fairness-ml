@@ -9,10 +9,10 @@ Target: loan_default_binary (1=default, 0=fully paid)
 Models: Logistic Regression, Random Forest, Gradient Boosting
 
 Key notes:
-- No direct race/gender data, ECOA-compliant proxy-based fairness audit
-- Uses 500K sample for baseline speed; full dataset for final results
+- Lending Club releases no race or gender fields, so the audit uses socioeconomic attributes
+- Uses a 500K sample for baseline speed; Stage 2 uses a 100K stratified sample
 - Income band proxy: low/lower_mid/upper_mid/high quartiles
-- Follows Kozodoi et al. (2022) financial fairness evaluation protocol
+- Background on fairness in credit scoring: Kozodoi et al. (2022)
 """
 
 import pandas as pd
