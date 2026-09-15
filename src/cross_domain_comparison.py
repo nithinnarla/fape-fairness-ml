@@ -144,7 +144,7 @@ def run_cross_domain_comparison():
     ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_dpd_comparison.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 1 saved - cross_domain_dpd_comparison.png")
 
@@ -166,7 +166,7 @@ def run_cross_domain_comparison():
     ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_eod_comparison.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 2 saved - cross_domain_eod_comparison.png")
 
@@ -205,7 +205,7 @@ def run_cross_domain_comparison():
                  '(green = improvement, red = degradation)', fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_acc_fairness_scatter.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 3 saved - cross_domain_acc_fairness_scatter.png")
 
@@ -236,7 +236,7 @@ def run_cross_domain_comparison():
             ax.text(x_dir[i] + w/2, p + 0.02, f'{p:.3f}', ha='center', fontsize=9)
         plt.tight_layout()
         plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_dir_comparison.png'),
-                    dpi=150, bbox_inches='tight')
+                    dpi=300, bbox_inches='tight')
         plt.close()
         print("  Fig 4 saved - cross_domain_dir_comparison.png")
 
@@ -259,7 +259,7 @@ def run_cross_domain_comparison():
     plt.xticks(rotation=15, ha='right', fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_metrics_heatmap.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 5 saved - cross_domain_metrics_heatmap.png")
 
@@ -277,8 +277,8 @@ def run_cross_domain_comparison():
     ax1.set_yticklabels(sorted_dp, fontsize=9)
     ax1.axvline(x=0, color='black', linewidth=1)
     for bar, val in zip(bars1, dp_vals):
-        ax1.text(val + (2 if val >= 0 else -2), bar.get_y() + bar.get_height()/2,
-                 f'{val:+.1f}%', va='center', ha='left' if val >= 0 else 'right', fontsize=8)
+        ax1.text(val + (2 if val >= 0 else 2), bar.get_y() + bar.get_height()/2,
+                 f'{val:+.1f}%', va='center', ha='left', fontsize=8)
     ax1.set_title('DP Constraint - Fairness Improvement % Ranking\n'
                   '(green = improvement, red = degradation)', fontsize=11)
     ax1.set_xlabel('DPD Improvement % (positive = better)')
@@ -293,18 +293,19 @@ def run_cross_domain_comparison():
     ax2.set_yticklabels(sorted_eo, fontsize=9)
     ax2.axvline(x=0, color='black', linewidth=1)
     for bar, val in zip(bars2, eo_vals):
-        ax2.text(val + (2 if val >= 0 else -2), bar.get_y() + bar.get_height()/2,
-                 f'{val:+.1f}%', va='center', ha='left' if val >= 0 else 'right', fontsize=8)
+        ax2.text(val + (2 if val >= 0 else 2), bar.get_y() + bar.get_height()/2,
+                 f'{val:+.1f}%', va='center', ha='left', fontsize=8)
     ax2.set_title('EO Constraint - Fairness Improvement % Ranking\n'
                   '(green = improvement, red = degradation)', fontsize=11)
     ax2.set_xlabel('EOD Improvement % (positive = better)')
 
-    plt.suptitle('ThresholdOptimizer Effectiveness Ranking Across 7 FAPE Domains\n'
-                 'Effective when baseline DPD > 0.2; counterproductive when < 0.05',
+    plt.suptitle('ThresholdOptimizer Effectiveness Ranking Across 7 FAPE Evaluations\n'
+                 'Improved in 9 of 14 model-domain pairs with baseline DPD > 0.2; '
+                 'worsened in 3 of 4 with baseline DPD < 0.05',
                  fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_improvement_ranking.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 6 saved - cross_domain_improvement_ranking.png")
 

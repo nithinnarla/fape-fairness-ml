@@ -41,12 +41,12 @@ os.makedirs(FIGURES_DIR, exist_ok=True)
 
 EEOC_THRESHOLD = 0.1
 
-DOMAINS = ['COMPAS', 'Folktables', 'Law School', 'Lending Club', 'Agricultural', 'FairGround', 'Student']
+DOMAINS = ['COMPAS', 'Folktables', 'Law School', 'Lending Club', 'Agricultural', 'FairGround', 'MEPS', 'Student']
 MODELS = ['LR', 'RF', 'GB']
 
 COLORS = {'LR': '#2ecc71', 'RF': '#3498db', 'GB': '#e74c3c'}
 DOMAIN_COLORS = {
-    'COMPAS': '#e74c3c', 'Folktables': '#3498db', 'Law School': '#2ecc71',
+    'COMPAS': '#e74c3c', 'Folktables': '#3498db', 'Law School': '#2ecc71', 'MEPS': '#8e44ad',
     'Lending Club': '#9b59b6', 'Agricultural': '#f39c12', 'FairGround': '#1abc9c',
     'Student': '#e67e22'
 }
@@ -96,6 +96,13 @@ STAGE2_RESULTS = {
         'RF': {'v1': 0.235, 'v2': 0.363},
         'GB': {'v1': 0.237, 'v2': 0.215},
     },
+    # MEPS: canonical values live in threshold_aggregation.MEPS_RESULTS;
+    # mirrored here as literals to keep this script dependency-free.
+    'MEPS': {
+        'LR': {'v1': 0.115, 'v2': 0.028},
+        'RF': {'v1': 0.116, 'v2': 0.090},
+        'GB': {'v1': 0.110, 'v2': 0.024},
+    },
 }
 
 # v1 = baseline_acc, v2 = dp_acc (post-DP constraint)
@@ -140,6 +147,11 @@ ACC_RESULTS = {
         'RF': {'v1': 0.633, 'v2': 0.557},
         'GB': {'v1': 0.658, 'v2': 0.582},
     },
+    'MEPS': {
+        'LR': {'v1': 0.971, 'v2': 0.888},
+        'RF': {'v1': 0.976, 'v2': 0.855},
+        'GB': {'v1': 0.992, 'v2': 0.911},
+    },
 }
 
 # v1 = baseline_eod, v2 = eo_eod (post-EO constraint)
@@ -182,6 +194,11 @@ EOD_RESULTS = {
         'LR': {'v1': 0.204, 'v2': 0.188},
         'RF': {'v1': 0.263, 'v2': 0.180},
         'GB': {'v1': 0.314, 'v2': 0.114},
+    },
+    'MEPS': {
+        'LR': {'v1': 0.017, 'v2': 0.021},
+        'RF': {'v1': 0.017, 'v2': 0.019},
+        'GB': {'v1': 0.002, 'v2': 0.016},
     },
 }
 
@@ -284,7 +301,7 @@ def run_fairness_drift_monitor():
                  fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_dpd_timeseries.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 1 saved - drift_dpd_timeseries.png")
 
@@ -312,7 +329,7 @@ def run_fairness_drift_monitor():
                  fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_cusum_scores.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 2 saved - drift_cusum_scores.png")
 
@@ -336,7 +353,7 @@ def run_fairness_drift_monitor():
                  fontsize=11)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_alert_heatmap.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 3 saved - drift_alert_heatmap.png")
 
@@ -365,7 +382,7 @@ def run_fairness_drift_monitor():
     ax.legend(fontsize=7, ncol=4, bbox_to_anchor=(1.01, 1), loc='upper left')
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_model_versioning.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 4 saved - drift_model_versioning.png")
 
@@ -389,7 +406,7 @@ def run_fairness_drift_monitor():
     ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_first_alert_time.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 5 saved - drift_first_alert_time.png")
 
@@ -418,7 +435,7 @@ def run_fairness_drift_monitor():
     ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_acc_fairness_trajectory.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 6 saved - drift_acc_fairness_trajectory.png")
 
@@ -456,7 +473,7 @@ def run_fairness_drift_monitor():
                  fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_eod_timeseries.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 7 saved - drift_eod_timeseries.png")
 
@@ -475,7 +492,7 @@ def run_fairness_drift_monitor():
                  fontsize=11)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_magnitude_heatmap.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 8 saved - drift_magnitude_heatmap.png")
 
@@ -502,7 +519,7 @@ def run_fairness_drift_monitor():
                  fontsize=11)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_eod_magnitude_heatmap.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 9 saved - drift_eod_magnitude_heatmap.png")
 
