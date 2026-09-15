@@ -19,7 +19,9 @@ of what each script printed, so the numbers are checked against their saved outp
     it describes or follows from that evaluation's RESULTS
  5. the headline counts in those documents match RESULTS
  6. the paper's reference list matches docs/references.md, every citation in the
-    text has an entry and every entry is cited
+    text has an entry and every entry is cited. Works the phase records cite but the
+    paper does not have entries in docs/reading_notes_references.md, so every citation
+    in every document resolves without putting an uncited work in the paper's list
  7. every figure the paper embeds exists
  8. the body stays within 7,000 words and the abstract within 200
  9. every notebook ran top to bottom without an error, and no notebook that runs
@@ -412,6 +414,32 @@ def figures_drawn(rel):
     return {path for path in drawn if os.path.exists(os.path.join(REPO_ROOT, path))}
 
 
+CITATION = re.compile(r"\b([A-Z][A-Za-zÀ-ſ'-]+)(?:\s+(?:and|&)\s+[A-Z][A-Za-z'-]+|\s+et al\.?)?,?\s*\((\d{4})[a-z]?\)")
+# The phase records, which cite more widely than the paper does.
+THEORY_DOCS = ['docs/literature_review.md', 'docs/literature_analysis.md',
+               'docs/research_design_rationale.md', 'docs/methodology_decisions.md']
+# docs/references.md is the paper's list and stays exactly as the paper prints it. Works the
+# phase records cite but the paper does not go in the second file.
+REFERENCE_FILES = ['docs/references.md', 'docs/reading_notes_references.md']
+NOT_AUTHORS = {'Decision', 'Section', 'Figure', 'Table', 'Stage', 'Phase', 'Protocol', 'Gap',
+               'Panel', 'Appendix', 'Equation', 'Step'}
+
+
+def check_doc_citations():
+    """Every work the phase records cite has an entry in one of the two reference lists."""
+    entries = []
+    for rel in REFERENCE_FILES:
+        if os.path.exists(os.path.join(REPO_ROOT, rel)):
+            entries += [line for line in read(rel).splitlines() if line.strip()]
+    for rel in THEORY_DOCS:
+        for surname, year in sorted(set(CITATION.findall(read(rel)))):
+            if surname in NOT_AUTHORS:
+                continue
+            if not any(re.search(rf'\b{re.escape(surname)}\b', line) and year in line for line in entries):
+                problem(rel, f'cites {surname} ({year}), which has no entry in '
+                             f'{" or ".join(os.path.basename(f) for f in REFERENCE_FILES)}')
+
+
 def check_figures_current():
     """Every figure has been drawn since the script or notebook that draws it was last edited.
 
@@ -608,7 +636,7 @@ def main():
         ('RESULTS against notebook output', lambda: check_results_printed(results)),
         ('where each number comes from', lambda: check_number_sources(results)),
         ('headline counts', lambda: check_headline_counts(make_tables, paper_lines)),
-        ('references and citations', lambda: check_references(paper)),
+        ('references and citations', lambda: (check_references(paper), check_doc_citations())),
         ('embedded figures', lambda: check_figures(paper)),
         ('word limits', lambda: check_limits(paper_lines)),
         ('notebooks', check_notebooks),
