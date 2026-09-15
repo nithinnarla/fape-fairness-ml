@@ -13,7 +13,7 @@ of what each script printed, so the numbers are checked against their saved outp
     make_results_table.py builds now (that script also asserts its own sentences)
  2. Table 2 in the paper matches docs/results_table.md
  3. every value in RESULTS and MEPS_RESULTS is printed, on a line naming the same
-    model, in that evaluation's Stage 2 notebook
+    model, in that evaluation's intervention notebook (notebooks/stage2_*)
  4. every three-decimal number and one-decimal percentage in the paper, README,
     outline and cross-domain tables is printed by the notebooks of the evaluation
     it describes or follows from that evaluation's RESULTS
@@ -27,21 +27,30 @@ of what each script printed, so the numbers are checked against their saved outp
 10. the feature fixes for MEPS and Folktables are still in place, and phrases
     corrected in earlier drafts have not come back
 11. no script or notebook types a result with two or more decimals into printed or plotted
-    text (titles, labels, print statements) instead of computing it; percentages typed
-    into the Stage 1 notes are not covered; they were compared with a fresh run of every
-    notebook on September 15 2026
+    text (titles, labels, print statements) instead of computing it. Percentages typed into
+    the EDA and baseline notes are not covered; they were compared with a fresh run of
+    every notebook on September 15 2026
+12. the figure counts the paper, outline and README state match the files in figures/
+13. no prose anywhere in the repository uses a typographic dash or quote, or a hyphen
+    standing in for a dash. Code and inline code are left alone; only markdown,
+    comments, docstrings and string literals are read
+14. every figure drawn by a script you have edited has been written since that edit,
+    so a label corrected in a script is redrawn before it is committed
 
 Prints one line per problem and exits with status 1 if there is any.
 """
 
 import ast
+import functools
 import glob
 import importlib.util
+import io
 import json
 import os
 import re
 import subprocess
 import sys
+import tokenize
 import traceback
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -333,11 +342,18 @@ def check_limits(paper_lines):
         problem('docs/paper_draft.md', f'abstract is {words} words, over the 200 limit')
 
 
+@functools.lru_cache(maxsize=1)
+def uncommitted():
+    """Every path with an uncommitted edit, read once: this runs over a few hundred figures."""
+    status = subprocess.run(['git', 'status', '--porcelain'], cwd=REPO_ROOT,
+                            capture_output=True, text=True).stdout
+    return {line[3:].strip().strip('"') for line in status.splitlines()}
+
+
+@functools.lru_cache(maxsize=None)
 def last_change(rel):
     """Commit time of a file's last change, or its modification time if it has uncommitted edits."""
-    status = subprocess.run(['git', 'status', '--porcelain', '--', rel], cwd=REPO_ROOT,
-                            capture_output=True, text=True).stdout
-    if status.strip():
+    if rel in uncommitted():
         return os.path.getmtime(os.path.join(REPO_ROOT, rel))
     stamp = subprocess.run(['git', 'log', '-1', '--format=%ct', '--', rel], cwd=REPO_ROOT,
                            capture_output=True, text=True).stdout.strip()
@@ -365,6 +381,38 @@ def check_notebooks():
         newest = max([script] + local, key=last_change)
         if last_change(newest) > last_change(rel):
             problem(rel, f'is older than the last change to {newest}; rerun it')
+
+
+def check_figures_current():
+    """Every figure a script draws has been written since the script was last edited.
+
+    Only scripts with uncommitted edits are checked, which is the case that matters: a label
+    corrected in the working tree and committed without drawing the figure again. Modification
+    times decide it rather than the file's contents, since redrawing a figure whose appearance
+    did not change leaves the same bytes and git would see no edit at all."""
+    if subprocess.run(['git', 'rev-parse'], cwd=REPO_ROOT, capture_output=True).returncode:
+        return
+    dirty = uncommitted()
+
+    def written(rel):
+        return os.path.getmtime(os.path.join(REPO_ROOT, rel))
+
+    for script in sorted(glob.glob('src/*.py', root_dir=REPO_ROOT)):
+        source = read(script)
+        names = set(re.findall(r"['\"]([\w./-]+\.png)['\"]", source))
+        if not names:
+            continue
+        local = [f'src/{m}.py' for m in re.findall(r'^\s*(?:from|import)\s+(\w+)', source, re.M)
+                 if os.path.exists(os.path.join(REPO_ROOT, 'src', f'{m}.py'))]
+        sources = [script] + local
+        if not any(rel in dirty for rel in sources):
+            continue
+        newest = max(sources, key=written)
+        for name in sorted(names):
+            matches = glob.glob(os.path.join(REPO_ROOT, 'figures', '*', os.path.basename(name)))
+            if len(matches) == 1 and written(newest) > os.path.getmtime(matches[0]):
+                problem(os.path.relpath(matches[0], REPO_ROOT),
+                        f'has not been drawn since {newest} was edited; run {script} again')
 
 
 def check_feature_fixes():
@@ -404,6 +452,110 @@ def check_typed_numbers():
                             problem(f'{where}:{node.lineno}', f'typed-in {", ".join(typed)} in {name or "label"} text; compute it')
 
 
+def check_figure_counts():
+    """The figure counts the paper, outline and README state match the files in figures/."""
+    def count(folder, prefix=''):
+        return sum(1 for f in os.listdir(os.path.join(REPO_ROOT, 'figures', folder))
+                   if f.endswith('.png') and f.startswith(prefix))
+    eda, baseline, stage = count('eda'), count('baseline'), count('stage2')
+    aggregation, cross, drift = count('stage2', 'aggregation_'), count('stage2', 'cross_domain_'), count('stage2', 'drift_')
+    domain = stage - aggregation - cross - drift
+    statements = [
+        ('docs/paper_draft.md', r'(\d+) exploratory data analysis figures, (\d+) baseline model evaluation figures, '
+                                r'and (\d+) figures from', (eda, baseline, stage)),
+        ('docs/paper_outline.md', r'(\d+) EDA, (\d+) baseline and (\d+) intervention and monitoring figures', (eda, baseline, stage)),
+        ('README.md', r'with (\d+) EDA figures and (\d+) baseline figures', (eda, baseline)),
+        ('README.md', r'with (\d+) figures: (\d+) from the seven domain scripts, (\d+) aggregation and (\d+) cross-domain',
+         (domain + aggregation + cross, domain, aggregation, cross)),
+        ('README.md', r'regress under the shift[^\n]*?; (\d+) figures committed', (drift,)),
+    ]
+    for rel, pattern, want in statements:
+        found = re.search(pattern, read(rel))
+        if not found:
+            problem(rel, f'no figure count statement matching {pattern!r}')
+        elif tuple(int(g) for g in found.groups()) != want:
+            problem(rel, f'states figure counts {tuple(int(g) for g in found.groups())}, figures/ holds {want}')
+
+
+# Named by code point so this file holds none of the characters it looks for.
+TYPOGRAPHIC = {chr(code): name for code, name in [
+    (0x2013, 'en dash'), (0x2014, 'em dash'), (0x2015, 'horizontal bar'), (0x2212, 'minus sign'),
+    (0x2018, 'curly quote'), (0x2019, 'curly quote'), (0x201c, 'curly quote'), (0x201d, 'curly quote'),
+    (0x2026, 'ellipsis character')]}
+# A hyphen with a space on each side, standing in for a dash between two words.
+SPACED_HYPHEN = re.compile(r"(?<=[\w)\]%.!?'\"])[ \t]-[ \t](?=[\w(\[+$'\"])")
+
+
+def literal_text(token):
+    """The literal part of a string token: an f-string's replacement fields hold code, not prose."""
+    prefix = re.match(r"([rRbBuUfF]*)", token).group(1)
+    if 'f' not in prefix.lower():
+        return token
+    out, buf, depth, i = [], [], 0, 0
+    while i < len(token):
+        char = token[i]
+        if depth == 0 and token.startswith('{{', i):
+            buf.append('{{'); i += 2; continue
+        if depth == 0 and char == '{':
+            out.append(''.join(buf)); buf = []; depth = 1; i += 1; continue
+        if depth:
+            depth += (char == '{') - (char == '}')
+            i += 1; continue
+        buf.append(char); i += 1
+    out.append(''.join(buf))
+    return ' '.join(out)
+
+
+def prose_of_python(source):
+    """Every comment, docstring and string literal, as (line number, text)."""
+    masked = '\n'.join('#' + line if line.lstrip().startswith(('%', '!')) else line
+                       for line in source.split('\n'))
+    try:
+        tokens = list(tokenize.generate_tokens(io.StringIO(masked).readline))
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        return
+    for token in tokens:
+        if token.type == tokenize.COMMENT:
+            yield token.start[0], token.string
+        elif token.type == tokenize.STRING:
+            yield token.start[0], literal_text(token.string)
+
+
+def prose_pieces(rel):
+    """Prose only: markdown, and the comments, docstrings and string literals of code."""
+    if rel.endswith('.ipynb'):
+        for index, cell in enumerate(json.loads(read(rel))['cells']):
+            source = ''.join(cell['source'])
+            if cell['cell_type'] == 'markdown':
+                yield f'cell {index}', source
+            else:
+                for line, text in prose_of_python(source):
+                    yield f'cell {index} line {line}', text
+    elif rel.endswith('.py'):
+        for line, text in prose_of_python(read(rel)):
+            yield f'line {line}', text
+    else:
+        yield '', read(rel)
+
+
+def check_writing_marks():
+    """No typographic dashes or quotes, and no hyphen standing in for a dash, in any prose."""
+    files = (['README.md'] + sorted(glob.glob('docs/*.md', root_dir=REPO_ROOT))
+             + sorted(glob.glob('src/*.py', root_dir=REPO_ROOT))
+             + sorted(glob.glob('notebooks/*.ipynb', root_dir=REPO_ROOT)))
+    for rel in files:
+        for where, text in prose_pieces(rel):
+            place = f'{rel}, {where}' if where else rel
+            fences = re.sub(r'```.*?```|`[^`\n]*`', ' ', text, flags=re.S) if rel.endswith(('.md', '.ipynb')) else text
+            for char, name in TYPOGRAPHIC.items():
+                if char in fences:
+                    problem(place, f'{name} ({char!r}) in prose; write it out or use plain ASCII')
+            found = SPACED_HYPHEN.search(fences)
+            if found:
+                around = fences[max(0, found.start() - 40):found.end() + 40].replace('\n', ' ')
+                problem(place, f'hyphen used as a dash in "{around.strip()}"')
+
+
 def check_retired_phrases():
     files = (['README.md'] + sorted(glob.glob('docs/*.md', root_dir=REPO_ROOT))
              + sorted(glob.glob('src/*.py', root_dir=REPO_ROOT)) + sorted(glob.glob('notebooks/*.ipynb', root_dir=REPO_ROOT)))
@@ -433,8 +585,11 @@ def main():
         ('embedded figures', lambda: check_figures(paper)),
         ('word limits', lambda: check_limits(paper_lines)),
         ('notebooks', check_notebooks),
+        ('figures newer than the scripts that draw them', check_figures_current),
         ('feature fixes and retired phrases', lambda: (check_feature_fixes(), check_retired_phrases())),
         ('numbers typed into printed or plotted text', check_typed_numbers),
+        ('figure counts', check_figure_counts),
+        ('dashes and quotes in prose', check_writing_marks),
     ]
     for label, run in checks:
         before = len(problems)
