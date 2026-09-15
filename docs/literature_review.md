@@ -1,6 +1,6 @@
 # FAPE, Literature Review Notes
 
-> **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it. The Breck et al. (2017) entry should also be read with Decision 27 in methodology_decisions.md: their rubric includes a pre-release inclusion test, and only its monitoring tests lack a fairness check. Stage 2 is also named "ensemble modeling" further down, which dates from the project's original Fairness-Aware Predictive Ensemble design. Stage 2 is baseline classification: logistic regression, random forest and gradient boosting are each trained and constrained separately, never combined into one ensemble predictor. Section 6.4 of the paper states this scope explicitly.
+> **Record note, September 15 2026.** Written November 2025 to January 2026 and corrected in place on September 15 2026 where it misdescribed a source or FAPE itself: the Breck et al. (2017), Kleinberg et al. (2018), Lambrecht and Tucker (2019) and Berk et al. (2021) entries; the claims that no tool monitors fairness in production and that no study compares interventions across datasets, now checked against Amazon SageMaker Clarify, Friedler et al. (2019) and Chen et al. (2023); and FAPE's own description (eight evaluations from seven data sources, baseline classification rather than ensemble modeling, no individual fairness metric). Decision 27 in methodology_decisions.md records the source checks, and docs/paper_draft.md is the current statement of the study.
 
 ## Fairness Auditing in Production ML Systems
 
@@ -14,14 +14,14 @@
 
 Eight years of building ML pipelines across industries, financial services, healthcare, workforce analytics, and the same problem kept showing up. A model ships. Aggregate metrics look clean. Stakeholders are happy. Then six months later someone notices the error rate in one demographic group is twice what it is in another. Not because anyone was careless. Because nobody was measuring the right thing.
 
-I started pulling on that thread in November 2025. What I found in the literature surprised me, not because the problem was undocumented, but because the gap between what researchers had solved and what actually happens in production was enormous. This document captures what I read, what I found useful, what I found frustrating, and what I couldn't find at all.
+I started pulling on that thread in November 2025. What I found in the literature surprised me, not because the problem was undocumented, but because the gap between what researchers had solved and what happens in production was enormous. This document captures what I read, what I found useful, what I found frustrating, and what I couldn't find at all.
 
 ---
 
 ## 1. Literature Review
 ### Overview of Prior Research on Algorithmic Fairness
 
-The fairness in ML literature has exploded since 2016. ProPublica's COMPAS investigation was the spark, suddenly everyone had a concrete, high-stakes example of algorithmic bias with real human consequences. What followed was a decade of theoretical work that produced genuinely important results but also, I think, some significant blind spots.
+The fairness in ML literature has exploded since 2016. ProPublica's COMPAS investigation was the spark, suddenly everyone had a concrete, high-stakes example of algorithmic bias with real human consequences. What followed was a decade of theoretical work that produced important results but also, I think, some significant blind spots.
 
 **Foundational papers that shaped my thinking:**
 
@@ -32,10 +32,10 @@ This result forced a fundamental reframing of what FAPE could claim to achieve. 
 The cleanest formalization of equalized odds I found. What's useful here beyond the definition is the post-processing approach, you can take any trained model and apply a fairness constraint after the fact without retraining. This is exactly what FAPE's Stage 3 does. What the paper doesn't address is whether this holds across domains. That's the gap.
 
 **Dwork et al. (2012), Fairness Through Awareness**
-Individual fairness, similar people should get similar predictions. Philosophically appealing. Practically difficult because defining "similar" requires a task-specific metric nobody agrees on. I include it in FAPE's evaluation because ignoring it would be a gap in the framework, but it's the metric I'm least confident defending in production settings.
+Individual fairness, similar people should get similar predictions. Philosophically appealing. Practically difficult because defining "similar" requires a task-specific metric nobody agrees on. I planned to include it in FAPE's evaluation, but it's the metric I'm least confident defending in production settings, and it was dropped for that reason (Decision 9).
 
 **Barocas & Hardt (2017), NeurIPS Tutorial**
-Best taxonomy of fairness definitions I found. The taxonomy here is the most comprehensive surveyed across the literature. The key takeaway for FAPE: fairness is not one thing. Different metrics capture different moral intuitions. A production auditing framework needs to surface all of them and let domain context determine which ones matter, not pick one and declare victory.
+Best taxonomy of fairness definitions I found. The key takeaway for FAPE: fairness is not one thing. Different metrics capture different moral intuitions. A production auditing framework needs to surface all of them and let domain context determine which ones matter, not pick one and declare victory.
 
 ---
 
@@ -47,7 +47,7 @@ The paper that started everything. What I appreciate about it beyond the finding
 **Dressel & Farid (2018), The Accuracy, Fairness, and Limits of Predicting Recidivism**
 Crowdsourced human predictions matched COMPAS accuracy. That finding is more unsettling than it first appears, it suggests the problem isn't that algorithms are uniquely biased, it's that the decision-making context itself is biased and algorithms inherit that. FAPE can't fix that. But it can make the bias visible and measurable.
 
-**Kleinberg et al. (2016), Human Decisions and Machine Predictions**
+**Kleinberg et al. (2018), Human Decisions and Machine Predictions**
 Judges make worse bail decisions than algorithms on accuracy. But accuracy isn't the only thing that matters in criminal justice, legitimacy, transparency, and equal treatment matter too. This tension between accuracy and fairness runs through everything in FAPE.
 
 ---
@@ -58,7 +58,7 @@ Judges make worse bail decisions than algorithms on accuracy. But accuracy isn't
 The most important paper I read after Chouldechova. A widely deployed healthcare algorithm systematically underestimated Black patients' illness severity, not because of explicit racial features, but because it used healthcare cost as a proxy for health need. The bias was invisible until someone looked for it. This is exactly the production deployment problem FAPE is designed to surface. It also motivated healthcare as a non-negotiable domain in the evaluation, if FAPE can't catch what happened here, it's not useful.
 
 **Lambrecht & Tucker (2019), Algorithmic Bias in Ad Delivery**
-Bias emerged from economic optimization, not discriminatory intent. The algorithm wasn't programmed to discriminate, it was programmed to maximize clicks, and demographic patterns in historical data did the rest. This paper solidified my thinking that bias in production ML is usually emergent rather than designed. Which means auditing after the fact is necessary, not optional.
+Bias emerged from economic optimization, not discriminatory intent. An ad for STEM jobs reached fewer women because young women are costlier to reach, so delivery that bought impressions cost-effectively went to men. Nobody programmed it to discriminate. This paper solidified my thinking that bias in production ML is usually emergent rather than designed. Which means auditing after the fact is necessary, not optional.
 
 ---
 
@@ -71,7 +71,7 @@ Not a fairness paper, but possibly the most consequential for FAPE's design. The
 Good idea, limited execution. Static documentation snapshots don't capture fairness drift over time. Useful as a starting point but not sufficient for production environments. FAPE is partly an answer to the question: what would Model Cards look like if they were continuous and cross-domain rather than static and single-model?
 
 **Breck et al. (2017), ML Test Score**
-Google's production readiness rubric has 28 tests. Zero of them are fairness tests. That absence is a policy statement, whether intentional or not. FAPE exists partly to fill that gap.
+Google's production readiness rubric has 28 tests. One pre-release model test asks whether the model has been tested for considerations of inclusion, but none of the seven monitoring tests covers fairness. A fairness check at launch with nothing after it is the gap FAPE's Stage 4 is meant to address.
 
 ---
 
@@ -93,21 +93,22 @@ Google's production readiness rubric has 28 tests. Zero of them are fairness tes
 
 **Key frameworks evaluated:**
 
-| Framework | Approach | Domains Tested | Production Ready | Cross-Domain |
-|-----------|----------|----------------|-----------------|--------------|
-| AIF360 (IBM) | Pre/in/post-processing | 1-2 datasets | No | No |
-| Fairlearn (Microsoft) | Post-processing + reductions | 1-2 datasets | Partial | No |
+| Framework | Approach | Data Tested | Post-deployment Monitoring | Cross-Domain |
+|-----------|----------|-------------|---------------------------|--------------|
+| AIF360 (IBM) | Pre/in/post-processing | Bundled benchmarks (Adult, COMPAS, German Credit, Bank Marketing, MEPS) | No | No |
+| Fairlearn (Microsoft) | Post-processing + reductions | Bundled benchmark datasets | No | No |
 | What-If Tool (Google) | Visualization + analysis | Single model | No | No |
-| Aequitas | Audit reporting | Criminal justice | Partial | No |
-| FAPE (this work) | Post-processing audit | 7 domains | Yes | Yes |
+| Aequitas | Audit reporting | Criminal justice and public policy case studies | No | No |
+| Amazon SageMaker Clarify | Bias metrics on deployed models (commercial) | Any deployed model | Yes, per monitoring window | No |
+| FAPE (this work) | Post-processing audit + sequential monitor | 8 evaluations, 7 data sources | Simulated shift only | Yes |
 
 **Critical finding from systematic review:**
-Every existing framework was designed for research and development contexts. None of them address the specific operational challenges of production deployment: continuous monitoring, feature drift, model versioning, multi-domain generalization. This gap is the primary justification for FAPE.
+The open-source frameworks were designed for research and development contexts. None of them addresses the operational side of production deployment: continuous monitoring, feature drift, model versioning, multi-domain generalization. Commercial platforms cover part of this, and SageMaker Clarify monitors bias metrics on live data, but nothing open tests a fairness monitor alongside an intervention across domains. That gap is the primary justification for FAPE.
 
 **Methodology quality assessment:**
-- AIF360 and Fairlearn have strong algorithmic foundations but evaluate on legacy datasets (Adult Income, COMPAS only)
+- AIF360 and Fairlearn have strong algorithmic foundations but ship with legacy benchmark datasets such as Adult Income and COMPAS
 - Ding et al. (2021) demonstrated Adult Income has serious flaws as a fairness benchmark, yet it remains the default in most frameworks
-- No framework evaluated cross-domain generalization of fairness constraints
+- No framework evaluates whether a fairness constraint's effect generalizes across domains; comparative studies (Friedler et al. 2019; Chen et al. 2023) compare methods on a handful of benchmark datasets instead
 
 ---
 
@@ -121,11 +122,12 @@ Every existing framework was designed for research and development contexts. Non
 I searched for papers that explicitly tested whether fairness interventions developed in one domain transfer to another. The literature is almost entirely single-domain. The closest work:
 
 - **Friedler et al. (2019)**, Comparative study of fairness algorithms across datasets, but datasets are all from similar domains and the study doesn't frame cross-domain generalization as the research question
-- **Berk et al. (2021)**, Cross-validation of fairness metrics within criminal justice, not across domains
+- **Chen et al. (2023)**, Seventeen bias mitigation methods, equalized odds post-processing among them, compared on the five AIF360 benchmark datasets (income, criminal justice, credit, bank marketing, healthcare); it asks which method does best, not whether one method's effect transfers across domains
+- **Berk et al. (2021)**, Review of fairness definitions and their tradeoffs in criminal justice risk assessment, within one domain
 - **Wachter et al. (2021)**, Legal analysis of fairness across EU regulatory domains, conceptual, not empirical
 
 **Conclusion from scoping review:**
-The cross-domain generalization question is genuinely open. No paper has empirically tested whether post-processing fairness constraints achieve comparable performance across criminal justice, healthcare, education, and financial services simultaneously. This is the hole FAPE fills.
+The cross-domain generalization question is still open. The closest study, Chen et al. (2023), covers criminal justice, healthcare and finance but not education, and compares methods rather than following one intervention across domains. FAPE takes up that question.
 
 ---
 
@@ -140,20 +142,20 @@ Pulled quantitative results from 23 papers reporting demographic parity differen
 Across papers, post-processing fairness constraints reduce accuracy by 1-8% on COMPAS. The range is wide because it depends heavily on which fairness metric is being optimized and at what threshold. Papers that report clean tradeoffs are usually optimizing for one metric, papers that try to satisfy multiple metrics simultaneously show steeper accuracy costs.
 
 **Pattern 2, African-American/white disparity in COMPAS is robust**
-Across every paper that reports it, the false positive rate disparity between African-American and white defendants ranges from 1.7x to 2.1x. This is consistent enough to treat as a ground truth for model validation.
+Across every paper that reports it, the false positive rate disparity between African-American and white defendants ranges from 1.7x to 2.1x. This is consistent enough to use as a sanity check on a new COMPAS model.
 
 **Pattern 3, Results don't transfer across datasets**
 Papers reporting good fairness results on Adult Income typically show worse results when the same method is applied to COMPAS and vice versa. Nobody reports this explicitly as a finding, it's visible in the numbers when you compare across papers. This pattern is what FAPE formalizes as a research question.
 
 **Pattern 4, Demographic parity and equalized odds move in opposite directions**
-Interventions that improve demographic parity often worsen equalized odds and vice versa. Chouldechova's impossibility theorem predicts this but seeing it consistently in empirical results across papers makes it concrete. FAPE needs to report both.
+Interventions that improve demographic parity often worsen equalized odds and vice versa. Impossibility results predict tension between fairness criteria when base rates differ, and seeing it across papers makes it concrete. FAPE needs to report both.
 
 ---
 
 ## 5. Narrative/Landscape Review
 ### Where the Field Is and Where It's Going
 
-The fairness in ML field is at an inflection point. The theoretical foundations are solid, we have good definitions, proven impossibility results, and working algorithmic interventions. What the field is missing is the engineering and operational infrastructure to deploy these interventions at production scale.
+The fairness in ML field is shifting its focus. The theoretical foundations are solid, we have good definitions, proven impossibility results, and working algorithmic interventions. What the field is missing is the engineering and operational infrastructure to deploy these interventions at production scale.
 
 **Where the field has been (2016-2020):**
 Definitional debates. Chouldechova vs Hardt vs Dwork. Which fairness metric is the right one. These debates were necessary and produced important results but also consumed enormous research energy on a question that may be unanswerable, different fairness metrics capture different moral intuitions and different regulatory requirements. There is no universal answer.
@@ -162,9 +164,9 @@ Definitional debates. Chouldechova vs Hardt vs Dwork. Which fairness metric is t
 Moving toward empirical benchmarking. FairGround (Simson et al. 2025) is the clearest signal, the community recognizes that evaluation on two legacy datasets is insufficient and is building the infrastructure for broader evaluation. But the benchmarking is still primarily research-oriented, not production-oriented.
 
 **Where the field needs to go (2025 onwards):**
-Production deployment infrastructure. The questions that matter in enterprise settings, how do you monitor fairness continuously, how do you handle model updates without re-auditing from scratch, how do you satisfy different regulatory requirements across jurisdictions simultaneously, are almost completely unaddressed in the academic literature.
+Production deployment infrastructure. The questions that matter in enterprise settings, how do you monitor fairness continuously, how do you handle model updates without re-auditing from scratch, how do you satisfy different regulatory requirements across jurisdictions simultaneously, are largely unaddressed in the academic literature.
 
-FAPE is positioned at this frontier. The 4-stage framework (data preprocessing → ensemble modeling → fairness auditing → deployment monitoring) is designed to bridge the gap between what the research community has built and what production environments actually need.
+FAPE is aimed at this gap. The 4-stage framework (data preprocessing → baseline classification → fairness intervention → deployment monitoring) is designed to bridge the gap between what the research community has built and what production environments actually need.
 
 ---
 
@@ -174,7 +176,7 @@ FAPE is positioned at this frontier. The 4-stage framework (data preprocessing �
 
 *Conflict 1:* Chouldechova (2017) proves fairness metric incompatibility. Hardt et al. (2016) proposes equalized odds as the solution. These are not in conflict mathematically but create confusion in practice, papers cite both without acknowledging the impossibility result constrains what equalized odds can achieve.
 
-*Conflict 2:* Dressel & Farid (2018) argue humans are as biased as algorithms. Kleinberg et al. (2016) argue algorithms outperform humans on accuracy. Both are right in different senses. The field hasn't developed a coherent framework for when accuracy matters more than fairness, FAPE doesn't resolve this but surfaces it explicitly in the results.
+*Conflict 2:* Dressel & Farid (2018) argue humans are as biased as algorithms. Kleinberg et al. (2018) argue algorithms outperform humans on accuracy. Both are right in different senses. The field hasn't developed a coherent framework for when accuracy matters more than fairness, FAPE doesn't resolve this but surfaces it explicitly in the results.
 
 **Open questions FAPE does not answer:**
 - Causal vs statistical fairness, FAPE uses statistical definitions throughout
@@ -187,8 +189,8 @@ FAPE is positioned at this frontier. The 4-stage framework (data preprocessing �
 
 The literature review produced three findings that directly shaped FAPE:
 
-1. Cross-domain generalization of fairness constraints is an open empirical question, no paper has tested it systematically
-2. Production deployment of fairness interventions is an unsolved engineering problem, existing frameworks stop at research validation
+1. Whether a fairness constraint's effect generalizes across domains is an open empirical question; comparative studies stop at a few benchmark datasets
+2. Production deployment of fairness interventions is an unsolved engineering problem, and the open-source frameworks stop at research validation
 3. Multi-metric evaluation is necessary, single-metric optimization produces misleading results that don't hold under scrutiny
 
 These three findings are the justification for FAPE's existence. Every design decision in the framework traces back to one of them.

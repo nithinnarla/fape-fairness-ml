@@ -1,270 +1,189 @@
-# FAPE: Fairness-Aware Production ML Pipeline Evaluation
+# FAPE: Fairness Auditing for Production Environments
 
-> **Record note, September 14 2026.** This document is a phase record and is kept as written. The study has since grown from seven domains to eight evaluations across seven independent data sources, after a healthcare evaluation (MEPS Panel 19) was added and the Law School / FairGround data overlap was identified. Where this document says seven domains, four metrics for every domain, or states the DPD effectiveness pattern as a rule, docs/paper_draft.md supersedes it. The same applies to the baseline-accuracy comparison in Section 3.3 below: with MEPS added, GradientBoosting wins 3 of 5 true-accuracy evaluations (Folktables, Student, MEPS), not 2 of 4.
+> **Record note, September 15 2026.** Revised to match docs/paper_draft.md after the September verification work (Decisions 20 to 27 in methodology_decisions.md). The July planning outline, which used the project's earlier name, seven domains, and results from before the MEPS and Folktables fixes, is in the git history. The draft is the authoritative text; this outline tracks its structure and main numbers.
 
-> **Record note, September 15 2026.** Four later findings also supersede parts of this outline. The drift claims, that Law School, FairGround and Student alert earliest and that CUSUM is calibrated to an EEOC threshold, came from a monitor that scored pre-deployment baseline values; corrected, it flags nine constrained models already above DPD 0.1 at deployment and five that regress under the simulated shift (eight before the Decision 24 rerun of MEPS), and 0.1 DPD is a research convention rather than an EEOC threshold. Both lending domains predict default, so their DIRs reached parity by raising every group's predicted default rate, not by overcorrecting a fair outcome. COMPAS's worsening under logistic regression and random forest, and its tension with six racial groups, are set by test groups of seven and one records; on the four larger groups all three models improve. Decisions 20 to 23 in methodology_decisions.md record each correction.
+## Paper Outline, JASIST Submission Target September 29 2026
 
-> **Record note, September 15 2026, later.** Three more changes supersede results and citations below. MEPS was rerun on FairGround's documented features after its raw file's visit counts turned out to define the label (Decision 24), and Folktables was rerun without POVPIP, which is built from family income (Decision 25); every MEPS and Folktables number here predates those reruns. Random forest's worsening under the constraint in Student and MEPS reverses when thresholds are fit on held-out data (Decision 26), and Folktables' small groups set its values the way COMPAS's do (Decision 22). The Ajarra and Basu (2026) and Sariola et al. (2026) summaries below overstate those papers, and the Sariola entry in the reference list has the wrong title and venue; Decision 27 and the paper's reference list give the correct versions.
-
-## Paper Outline, JASIST Submission Target Sep 11 2026
+Title: When Post-Processing Fairness Constraints Help and When They Harm: Evidence from Eight Cross-Domain Evaluations
 
 ---
 
-## Abstract (250 words)
+## Abstract (200 words maximum)
 
-Production ML systems deployed in high-stakes domains, lending, criminal justice, hiring
-are audited for fairness at launch and rarely monitored thereafter. Existing frameworks
-(AIF360, Fairlearn) produce point-in-time fairness snapshots that fail to capture
-post-deployment degradation. We present FAPE (Fairness-Aware Production ML Pipeline
-Evaluation), a cross-domain framework that evaluates fairness interventions across seven
-real-world deployment contexts simultaneously and monitors fairness drift under distribution shift.
-
-FAPE applies ThresholdOptimizer post-processing constraints (demographic parity, equalized
-odds) to three classifier architectures (LR, RF, GB) across seven domains: COMPAS
-recidivism, Folktables income prediction, Law School bar passage, Lending Club credit risk,
-Agricultural loan approval, FairGround synthetic bias, and Student performance prediction.
-We evaluate four regulatory-aligned metrics simultaneously, demographic parity difference
-(DPD), equalized odds difference (EOD), disparate impact ratio (DIR), and accuracy cost
-and introduce CUSUM-based continuous monitoring for post-deployment fairness drift detection.
-
-Key findings: (1) ThresholdOptimizer effectiveness is strongly domain-dependent, strongest
-improvement in Law School (DPD 0.351→0.030, DIR 0.643→0.957) but counterproductive in
-Agricultural (DPD 0.009→0.035) where near-fair baselines exist; (2) no single model
-dominates across all domains, requiring domain-specific model selection; (3) fairness
-constraints achieved at deployment are not permanent, CUSUM detects measurable drift under
-synthetic distribution shift, with Law School, FairGround, and Student domains most
-sensitive. FAPE establishes that production fairness auditing requires continuous
-cross-domain monitoring rather than point-in-time evaluation.
+- One-time, single-domain fairness audits miss both drift after deployment and variation across domains
+- FAPE: a four-stage framework evaluating one post-processing intervention, Fairlearn's ThresholdOptimizer, across eight evaluations (criminal justice, income prediction, legal admissions, credit lending, agricultural lending, a benchmark corpus, healthcare, education)
+- DPD and EOD everywhere, DIR and accuracy cost where computable
+- Effectiveness tracks baseline disparity: improved in 9 of 14 high-disparity pairs (13 of 14 on groups of at least 30 test records; 6 of 11 to 7 of 12 counting the duplicated dataset once), worsened in 3 of 4 near-fair pairs
+- A CUSUM monitor started at deployment, tested on a simulated shift, separates models that never met the 0.1 DPD convention from models that met it and later regressed
 
 ---
 
-## 1. Introduction (~800 words)
+## 1. Introduction
 
 ### 1.1 The Production Fairness Gap
-- ML systems deployed in consequential domains are audited once, rarely monitored after
-- Sculley et al. (2015): production ML systems degrade silently over time
-- Ajarra and Basu (2026): model updates fundamentally alter fairness properties
-- AIF360, Fairlearn: research-grade, point-in-time, single-domain, stop at validation
-- Gap: no framework tests cross-domain generalizability AND post-deployment monitoring together
+- Consequential ML systems are usually audited once, at launch
+- Sculley et al. (2015): production ML degrades silently; Ajarra and Basu (2026): fairness auditing under model updates as its own problem
+- AIF360 and Fairlearn produce point-in-time reports and are not designed for post-deployment checks
+- Illustration: a credit model that passes at launch, is retrained, and drifts past the parity threshold while accuracy holds
 
 ### 1.2 The Cross-Domain Generalization Problem
-- Most fairness papers: one dataset, one domain, one metric, claim generalizability
-- Does ThresholdOptimizer that works in criminal justice also work in credit lending?
-- Does it work in agricultural loan approval? In student performance prediction?
-- No systematic empirical answer in the literature
-- FAPE answers this across 7 real deployment contexts simultaneously
+- Most studies test one dataset; comparative studies reuse a small pool of benchmarks (Section 2.3)
+- Open question: does an intervention that works in criminal justice behave the same way in agricultural lending or education?
 
-### 1.3 FAPE Contributions
-1. First systematic cross-domain evaluation of ThresholdOptimizer across 7 real deployment contexts
-2. Simultaneous 4-metric evaluation (DPD, EOD, DIR, accuracy cost), single-metric papers miss tradeoffs
-3. CUSUM-based continuous drift detection for post-deployment fairness monitoring
-4. Empirical effectiveness pattern: DPD > 0.2 effective and DPD < 0.05 counterproductive in 5 of 7 domains, with Folktables and Lending Club as documented exceptions -- see Decision 19
+### 1.3 Contributions
+1. One post-processing intervention evaluated across eight evaluations from seven data sources
+2. Several metrics per domain, so tradeoffs between criteria stay visible
+3. CUSUM sequential monitoring after deployment, tested on a simulated shift
+4. An effectiveness pattern with counts (9 of 14, 3 of 4), and each of the five high-disparity exceptions reverses under a group-size check or held-out thresholds
 
 ### 1.4 Paper Organization
-Section 2: Related work. Section 3: Methodology. Section 4: Experimental setup.
-Section 5: Results. Section 6: Discussion. Section 7: Conclusion.
 
 ---
 
-## 2. Related Work (~600 words)
+## 2. Related Work
 
 ### 2.1 Fairness Interventions
-- Pre-processing: reweighting, resampling (Kamiran & Calders 2012)
-- In-processing: adversarial debiasing (Zhang et al. 2018)
-- Post-processing: ThresholdOptimizer (Hardt et al. 2016), FAPE's primary intervention
-- Why post-processing: no retraining required, production-deployable without model access
+- Pre-processing (Kamiran and Calders 2012), in-processing (Zhang et al. 2018), post-processing (Hardt et al. 2016)
+- Post-processing chosen because it works on a model the auditor does not own
 
 ### 2.2 Fairness Metrics and Impossibility
-- Demographic parity (Dwork et al. 2012)
-- Equalized odds (Hardt et al. 2016)
-- Disparate impact ratio, EEOC 4/5ths rule (DIR > 0.8 = compliant)
-- Chouldechova (2017) impossibility theorem: cannot satisfy all metrics simultaneously
-- Sariola et al. (2026): optimizing one metric can mask 10% disparity on another
-- FAPE: reports all four simultaneously, practitioners choose based on regulatory context
+- Individual fairness (Dwork et al. 2012); demographic parity and equalized odds (Hardt et al. 2016)
+- Disparate impact ratio from the EEOC four-fifths rule, used here as a research convention
+- Chouldechova (2017): calibration and equal error rates cannot all hold when base rates differ
+- Sariola et al. (2026): equalizing base rates looked like parity on traditional measures but left about 10% disparity measured with audit-study data
 
 ### 2.3 Cross-Domain Fairness Evaluation
-- Most papers: single dataset, single metric, single model architecture
-- FairGround (Simson et al. 2025): multi-domain benchmark, FAPE includes it and 6 additional domains
-- No prior work: systematic cross-domain ThresholdOptimizer evaluation across 7 domains
+- Friedler et al. (2019): interventions compared across benchmark datasets, sensitive to the train-test split
+- Chen et al. (2023): seventeen mitigation methods, equalized odds post-processing among them, on the five AIF360 datasets
+- Simson et al. (2025): FairGround corpus
+- FAPE: COMPAS and MEPS from that pool, Folktables in place of Adult, plus Law School, Lending Club, SBA agricultural loans and Student Performance
 
 ### 2.4 Production Fairness Monitoring
-- Sculley et al. (2015): ML technical debt, systems degrade post-deployment
-- Ajarra and Basu (2026): fairness degradation specifically under model updates
-- No existing framework: continuous post-deployment fairness monitoring
-- FAPE Stage 4: CUSUM-based detection fills this gap
+- Breck et al. (2017): a pre-release inclusion test, but no fairness test among the seven monitoring tests
+- Open-source toolkits audit once; Amazon SageMaker Clarify monitors bias per window on live data
+- FAPE Stage 4: an open, sequential alternative that accumulates small excesses across windows
 
 ---
 
-## 3. Methodology (~1000 words)
+## 3. Methodology
 
-### 3.1 Framework Overview
-- 4-stage pipeline: data preprocessing → baseline classification → fairness intervention → drift monitoring
-- Post-processing only: no retraining required, production-deployable
-- Regulatory alignment: each metric mapped to domain-specific legal standard (ECOA, EEOC, Title VII)
+### 3.1 Framework Overview (Figure 1)
+- Four stages: data preprocessing, baseline classification, fairness intervention, drift monitoring
+- ECOA provisions for the two lending domains; the 0.8 ratio as a research convention elsewhere; Title VI, Title IX and ACA Section 1557 may apply to deployments, a question the study does not settle
 
-### 3.2 Datasets and Domains
+### 3.2 Datasets and Domains (Table 1)
 
-| Domain | Dataset | Sensitive attr | N | Regulatory context |
-|--------|---------|----------------|---|-------------------|
-| Criminal justice | COMPAS | Race (6 groups) | 6,172 | ECOA |
-| Income prediction | Folktables ACS | Race, Sex | 1,589,032¹ | ECOA |
-| Legal profession | Law School | Race, Sex | 18,692 | Title VII |
-| Credit risk | Lending Club | Income band | 1,348,099² | ECOA/FCRA |
-| Agricultural lending | SBA 7(a) | Business type | 15,845 | ECOA/FCA |
-| Synthetic bias | FairGround | Multiple | 1,964,010 | EEOC |
-| Education | Student Performance | Sex | 1,044 (395+649)³ | Title IX |
+| Domain | Dataset | Sensitive attribute | Records | Regulatory context |
+|---|---|---|---|---|
+| Criminal justice | COMPAS | Race (6 groups) | 6,172 | 0.8 convention |
+| Socioeconomic | Folktables ACS | Race | 1,589,032 (100,000 sample) | 0.8 convention |
+| Legal admissions | Law School | Race | 18,692 | 0.8 convention |
+| Credit lending | Lending Club | Income band | 1,348,099 filtered (100,000 sample) | ECOA, individual applicants |
+| Agricultural lending | SBA 7(a) | Business type | 15,845 | ECOA, business credit |
+| Benchmark corpus | FairGround law_school_lequy | Race | 18,692 | 0.8 convention |
+| Healthcare | MEPS Panel 19 FY2015 | Race | 15,830 | 0.8 convention |
+| Education | Student Performance | Sex | 395 Math, 649 Portuguese | 0.8 convention |
 
-¹ Full ACS national sample across 50 states; 100K stratified sample used for model training (50K per income group)
-² After binary outcome filter (paid off vs charged off) from 2,260,701 raw records; 500K stratified sample used for model training
-³ Two subjects: Math (395) and Portuguese (649); both used independently
+- Feature choices that keep label information out: MEPS uses FairGround's 41 documented features; Folktables drops POVPIP; Student drops the interim grades
 
 ### 3.3 Baseline Models
-- LR, RF, GB with default hyperparameters across all domains
-- Identical architecture isolates fairness intervention as the variable
-- Baseline performance is model-dependent, not uniformly GB-dominant: GB achieves highest AUC in all 3 AUC-only domains (Law School, Lending Club, Agricultural), but among the 4 true-accuracy domains GB wins in 2 (Folktables, Student) while LogisticRegression wins in 2 (COMPAS, FairGround/law_school_lequy) -- see Section 5.1 and methodology_decisions.md Decisions 13 and 18
+- Logistic regression, random forest, gradient boosting, scikit-learn defaults, no tuning
+- Random forest carried through the intervention in five of eight evaluations; Law School, Lending Club and Agricultural use two models and report AUC
 
 ### 3.4 Fairness Intervention
-- ThresholdOptimizer (Fairlearn), post-processing threshold optimization
-- Two constraints: demographic parity (DP), equalized odds (EO)
-- EEOC regulatory boundaries: DPD < 0.1 and DIR > 0.8
+- ThresholdOptimizer under demographic parity and equalized odds, fit on each training split, balanced-accuracy objective
+- random_state passed to all 22 predict calls, so runs are identical
 
 ### 3.5 Evaluation Metrics
-- DPD: demographic parity difference, primary EEOC alignment metric
-- EOD: equalized odds difference, equal error rates across groups
-- DIR: disparate impact ratio, min/max prediction rate ratio per domain (EEOC 4/5ths rule)
-- Accuracy cost: baseline_acc minus constrained_acc, price paid for fairness constraint
+- DPD and EOD for all eight; DIR (fixed pairs) and accuracy cost where computable
+- DIR direction depends on the outcome: bar passage is favorable, predicted default is adverse
 
-### 3.6 Drift Detection (Stage 4)
-- CUSUM algorithm calibrated to EEOC threshold (DPD > 0.1)
-- 3 model versions: v1=baseline, v2=post-constraint, v3=distribution shift
-- Synthetic distribution shift, proof-of-concept validation (Decision 7, acknowledged limitation)
-- np.random.seed(42), reproducible drift simulation
+### 3.6 Drift Detection
+- 30 simulated observations per model: baseline, deployed constrained model, synthetic shift 60% back toward baseline
+- CUSUM from deployment, reference 0.1 plus 0.01 slack, alert when accumulated excess passes 0.1; proof of concept only
 
 ---
 
-## 4. Experimental Setup (~400 words)
+## 4. Experimental Setup
 
 ### 4.1 Implementation
-- Python 3.11, Fairlearn 0.10, scikit-learn 1.4
-- ThresholdOptimizer: grid search over threshold space
-- Lending Club: stratified 100K sample, calibration stable beyond this scale (Decision 8)
-- All experiments: random seed 42
+- Python 3.11.9, scikit-learn 1.9.1, Fairlearn 0.13.0, seed 42
+- Law School and FairGround both load law_school_lequy (Section 6.4)
 
 ### 4.2 Reproducibility
-- GitHub: github.com/nithinnarla/fape-fairness-ml
-- All datasets publicly available (COMPAS, ACS, Law School, Lending Club, SBA, FairGround, UCI)
-- Full pipeline reproducible from repo, 83 EDA figures + 60 Stage 2 figures committed
+- All code, figures and loaders public; 83 EDA, 68 baseline and 77 Stage 2 and 4 figures
+- All seven domain scripts and both checks reproduced exactly in a fresh environment built from requirements.txt
 
 ---
 
-## 5. Results (~1200 words)
+## 5. Results
 
-### 5.1 Baseline Model Performance
-- No single model dominates across all 7 domains -- GB wins baseline AUC in all 3 AUC-only domains, but among the 4 true-accuracy domains GB wins 2 (Folktables, Student) and LR wins 2 (COMPAS, FairGround/law_school_lequy); RF is never highest in any domain -- see Decision 18
-- 4 domains report true classification accuracy: COMPAS (GB=0.674, second-lowest of these 4 -- 6-group racial classification challenge), Folktables (GB=0.845), FairGround (GB=0.910, specifically the law_school_lequy sub-dataset -- see Decision 14), Student (GB=0.658, lowest of these 4, small-scale dataset)
-- 3 domains report AUC rather than accuracy, since their Stage 2 scripts never compute accuracy_score for the baseline model -- see Decision 13: Law School (GB=0.878, LR=0.872, smallest LR-GB gap of these 3), Lending Club (GB=0.712, LR=0.706, similarly small gap), Agricultural (GB=0.938, LR=0.727, largest LR-GB gap of these 3, also highest AUC overall)
-- These two groups use different metrics and are not directly ranked against each other as a single ordered list; within-group comparisons (accuracy-to-accuracy, AUC-to-AUC) are valid, cross-group comparisons are not
+### 5.1 Baseline Performance
+- Accuracy: gradient boosting highest for Folktables (0.756), Student (0.658) and MEPS (0.859); logistic regression for COMPAS (0.686) and FairGround (0.913)
+- AUC: gradient boosting highest for Law School (0.878), Lending Club (0.712) and Agricultural (0.938)
 
-### 5.2 Post-DP Constraint: DPD Results
-- Law School: LR and GB both improve, GB strongest (DPD 0.351→0.030, 91.5% reduction); RF not tested in this domain, see Decision 13 footnote
-- FairGround GB: DPD 0.342→0.014 (95.9% reduction), highest accuracy cost (0.159); LR and RF also improve substantially (0.329→0.010 and 0.336→0.012 respectively)
-- Agricultural GB: DPD 0.009→0.031 (-244.4%), counterproductive; LR also worsens (0.005→0.016); RF not tested in this domain, see Decision 13 footnote
-- COMPAS GB: DPD 0.857→0.571, improves but above EEOC threshold; LR+RF worsen
-- Folktables GB: DPD 0.320→0.339, slightly counterproductive; LR improves (0.352→0.340), RF worsens (0.319→0.394)
-- Student: LR and GB improve (DPD 0.212→0.010 and 0.237→0.215), RF worsens (DPD 0.235→0.363, +54.5%)
-- Effectiveness is model-dependent within domains, GB most effective in high-DPD contexts
+### 5.2 DPD Under the DP Constraint (Table 2)
+- FairGround 96 to 97% reductions; Law School 96.7% and 91.5%
+- Agricultural worsens under both models; COMPAS improves only under gradient boosting and Folktables only under random forest, both set by small groups
+- MEPS: logistic regression and gradient boosting improve by 81% and 86%, random forest worsens to 0.253
+- Lending Club and Student split by model
 
-### 5.3 Post-EO Constraint: EOD Results
-- Law School: LR and GB both improve, GB strongest (EOD 0.528→0.007, 98.7% reduction); RF not tested in this domain
-- Student: all 3 models improve, GB strongest (EOD 0.314→0.114, 63.7% reduction)
-- FairGround creditcard sub-dataset: all 3 models worsen under EO (LR 0.011→0.030, RF 0.013→0.033, GB 0.018→0.019), baseline already near-fair leaves optimizer nothing to improve
-- COMPAS GB: EOD 1.000→0.659, improves but remains high; RF worsens (0.686→0.731)
-- Agricultural GB: counterproductive under EO (EOD 0.073→0.177); LR also worsens (0.005→0.047); RF not tested in this domain
-- Folktables GB: slightly worsens (0.333→0.334); LR improves (0.571→0.333), RF worsens (0.823→0.861)
-- Lending Club GB: slightly improves (0.053→0.049), not the worsening previously claimed; LR EOD worsens (0.038→0.047)
+### 5.3 EOD Under the EO Constraint
+- Law School strongest (98.7% for gradient boosting); all three Student models improve
+- FairGround law_school_lequy improves (89%, 10%, 97%); creditcard worsens on all three
+- COMPAS, Folktables and MEPS improve under logistic regression and gradient boosting and worsen under random forest; Agricultural worsens; Lending Club barely moves
 
-### 5.4 Disparate Impact Ratio (DIR)
-- DIR computed per domain using domain-specific sensitive attribute groups
-- Law School GB: DIR 0.643→0.957, passes EEOC 4/5ths rule post-constraint
-- Lending Club: DIR>1 at baseline (1.4x actual, 2.8x predicted), proxy-based audit
-- Agricultural GB: DIR overcorrects (0.653→1.042), surpasses parity threshold
-- COMPAS: DIR not computed, script has no DIR calculation for this domain, see Table 1 N/A entries
-- Note: DIR not aggregated cross-domain, sensitive attributes differ per domain
+### 5.4 Disparate Impact Ratio (Figure 2)
+- Law School 0.643 to 0.957
+- Lending Club 2.778 to 0.973 and Agricultural 0.653 to 1.042, reached by raising every group's predicted default rate
+- Folktables per race against White under EO: four of five groups below 0.8 cross it
+- COMPAS, FairGround and MEPS have no fixed-pair ratio; Student has a baseline-only ratio
 
-### 5.5 Cross-Domain Comparison
-- Core empirical finding: effectiveness pattern, not a universal rule (Decision 19)
-  - DPD > 0.2 at baseline → ThresholdOptimizer effective in 3 of 4 such domains (COMPAS, Law School, FairGround); Folktables is the exception, where it got worse (+5.9%)
-  - DPD < 0.05 at baseline → ThresholdOptimizer counterproductive in 1 of 2 such domains (Agricultural); Lending Club is the exception, where it improved (-25%)
-- Effectiveness is model-dependent within domains, not just domain-dependent
-- No single model dominates across all domains, domain-specific selection required
-- LR most stable: smallest accuracy cost, fewest counterproductive outcomes
-- GB is not uniformly highest baseline performance (see Decision 18) but is the most aggressive under constraints, highest accuracy cost in FairGround (0.159, law_school_lequy sub-dataset)
+### 5.5 Cross-Domain Comparison (Figure 3)
+- 9 of 14 high-disparity pairs improve; 3 of 4 near-fair pairs worsen
+- Four exceptions (COMPAS, Folktables) disappear on groups of at least 30 records; the fifth (Student random forest) with held-out thresholds
+- MEPS is the only middle-range evaluation; two of three pairs improve
 
 ### 5.6 Accuracy-Fairness Tradeoff
-- FairGround GB: highest accuracy cost (0.159 (!)), strongest fairness gain
-- FairGround LR: also high cost (0.148 (!)) with weaker fairness gain
-- Lending Club: accuracy cost not computable, script reports AUC not accuracy, see Table 4 footnote
-- Student GB: meaningful cost (0.076 (!)) with strong fairness improvement; RF also high cost (0.076 (!))
-- Law School: accuracy cost not computable, script reports AUC not accuracy, see Table 4 footnote; DPD improvement (91.5%) still the largest observed
-- Agricultural: accuracy cost not computable, script reports AUC not accuracy; DPD/EOD both counterproductive regardless, worst fairness outcome of the 7 domains
-- LR most stable among the 4 domains where accuracy cost is computable: no high-cost outcomes
+- FairGround: 0.148 and 0.159 for logistic regression and gradient boosting, 0.010 for random forest
+- MEPS 0.071 to 0.133; Student gradient boosting and random forest 0.076; COMPAS and Folktables 0.035 or less
 
-### 5.7 Drift Detection Results
-- Law School + FairGround + Student: earliest CUSUM alerts in v3
-- Lending Club + Agricultural: no alerts, near-fair baseline
-- Per-model drift stability not available, script reports domain-level alert counts only, no model breakdown
-- Separate DPD and EOD drift patterns not compared, script computes a single combined alert count per domain, not separately by metric
+### 5.7 Drift Detection (Figure 4)
+- Nine models flagged within two steps of deployment, five flagged seven to eight steps into the shift, seven never flagged
+- Regression size is fixed by construction, so these groups describe the monitor, not real fragility
 
 ---
 
-## 6. Discussion (~600 words)
+## 6. Discussion
 
-### 6.1 The Effectiveness Threshold Finding
-- Near-fair baselines make ThresholdOptimizer counterproductive
-- Agricultural DPD=0.009 at baseline, optimizer overshoots
-- Practical implication: audit baseline DPD before applying any post-processing constraint
-- Proposed rule: DPD > 0.2 → apply ThresholdOptimizer; DPD < 0.05 → investigate root cause
+### 6.1 The Effectiveness Pattern
+- A strong but imperfect guide; audit baseline DPD before applying a constraint
+- Folktables' domain-level exception falls to 0.078 on groups of at least 30 records; Lending Club's near-fair exception remains
 
 ### 6.2 Multi-Metric Tradeoffs
-- Chouldechova impossibility confirmed empirically, improving DPD often worsens EOD
-- DIR reveals overcorrection cases missed by DPD alone (Agricultural GB: DIR→1.042)
-- FAPE surfaces these tradeoffs; single-metric papers hide them
-- COMPAS: irreducible fairness tension with 6 racial groups
+- Student gradient boosting: EOD down 64%, DPD down 9%; MEPS logistic regression the reverse
+- Lending Club and Agricultural DIRs look like successes but come from predicting default for everyone more often
+- Small groups: group-size check results (Table 6 of cross_domain_results_table.md)
 
 ### 6.3 Production Monitoring Implications
-- Fairness constraints achieved at deployment are not permanent
-- Distribution shift erodes gains, especially in high-improvement domains
-- CUSUM provides actionable early warning before violations become systematic
-- Recommendation: deploy CUSUM monitoring alongside any fairness intervention
+- Recommend CUSUM or comparable monitoring alongside any post-processing constraint; validate on real deployments
 
 ### 6.4 Limitations
-- Synthetic distribution shift, proof-of-concept, not real production telemetry
-- ThresholdOptimizer only, pre/in-processing comparison out of scope
-- COMPAS 6-group racial categorization reflects data collection, not endorsement
-- Lending Club uses income/housing as socioeconomic proxies, no direct race/gender
-- Agricultural domain inclusion outside traditional fairness literature scope, justified by consequential algorithmic decisions in agricultural lending
-- Cross-domain comparison validity requires identical model architecture and hyperparameters across all domains, any domain-specific tuning would make results uninterpretable
+- Agricultural concerns business entities under ECOA's business-credit provisions
+- Before-and-after comparisons also change the decision objective; no minimum group size in the reported metrics
+- Thresholds fit on the training split; held-out check for random forest
+- Healthcare only through MEPS, a survey dataset; MIMIC-III access not obtained
+- Each classifier constrained separately, not a combined ensemble
+- Law School and FairGround share law_school_lequy: seven independent sources
 
 ---
 
-## 7. Conclusion (~300 words)
-- FAPE: first systematic cross-domain fairness evaluation across 7 real deployment contexts
-- ThresholdOptimizer effectiveness is domain-dependent, not universally applicable
-- Empirical effectiveness pattern: DPD > 0.2 effective and DPD < 0.05 counterproductive in 5 of 7 domains, with Folktables and Lending Club as documented exceptions -- see Decision 19
-- No single model dominates, domain-specific model selection required
-- DIR reveals overcorrection cases that DPD alone misses
-- CUSUM drift detection: production fairness requires continuous monitoring
-- Future: pre/in-processing comparison; real production deployment validation; healthcare domain
+## 7. Conclusion
+- Effectiveness tracks baseline disparity, and the high-disparity exceptions trace to small groups or to where thresholds were fit
+- Audit baseline disparity, report several metrics on adequately sized groups, and monitor continuously
+- Next steps: validate monitoring on real deployment data; test constraints on combined ensembles
 
 ---
 
 ## References
-- Hardt et al. (2016), Equality of Opportunity in Supervised Learning, NeurIPS
-- Chouldechova (2017), Fair Prediction with Disparate Impact, Big Data
-- Sculley et al. (2015), Hidden Technical Debt in ML Systems, NeurIPS
-- Ajarra and Basu (2026), Auditing Fairness under Model Updates, arXiv 2601.05909
-- Simson et al. (2025), FairGround Corpus: Bias Begins with Data, arXiv
-- Sariola et al. (2026), Multi-Metric Fairness Evaluation, arXiv
-- Ding et al. (2021), Retiring Adult: New Datasets for Fair ML, NeurIPS
-- Kamiran & Calders (2012), Data Preprocessing Techniques for Classification, KAIS
-- Dwork et al. (2012), Fairness Through Awareness, ITCS
+The paper's reference list (docs/references.md) is the single source: Ajarra and Basu (2026); Amazon Web Services (n.d.); Angwin et al. (2016); Breck et al. (2017); Chen et al. (2023); Chouldechova (2017); Ding et al. (2021); Dwork et al. (2012); Friedler et al. (2019); Hardt et al. (2016); Kamiran and Calders (2012); Obermeyer et al. (2019); Sariola et al. (2026); Sculley et al. (2015); Simson et al. (2025); Zhang et al. (2018).

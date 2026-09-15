@@ -80,7 +80,7 @@ The field is actively contested on two questions FAPE addresses. First: whether 
 | Folktables ACS | 2021 | 1,589,032 | Socioeconomic | Public |
 | FairGround Corpus | 2025 | 1,964,010 | Multi-domain | Public |
 | Student Performance | 2008 | 1,044 | Education | UCI ML |
-| Law School Admissions | 1991-2000 | 18,692 | Education/Legal | Public |
+| Law School Admissions | 1991-2000 | 18,692 | Education/Legal | Public (via FairGround) |
 | Lending Club | 2007-2018 | 1,348,099 | Financial | Kaggle |
 | USDA NASS Census | 2022 | 7,334 | Agriculture (baseline) | Public |
 | SBA 7(a) NAICS-11 | FY1991-2024 | 15,845 | Agriculture | Public |
@@ -88,7 +88,7 @@ The field is actively contested on two questions FAPE addresses. First: whether 
 | MEPS Panel 19 FY2015 | 2015 | 15,830 | Healthcare | Public (via FairGround) |
 | MIMIC-III Clinical | 2001-2012 | not obtained | Healthcare (dropped) | PhysioNet |
 
-**Verified: 4,980,540 records.** MEPS Panel 19 is a sub-dataset of the FairGround corpus, so its 15,830 records are already inside FairGround's 1,964,010 and are not added again here. MIMIC-III was never obtained and is not part of the study. USDA NASS is used descriptively in EDA only and LSMS-ISA Nigeria was excluded from modeling (Decision 11); both are counted here as collected.
+**Verified: 4,961,848 distinct records.** Law School Admissions (law_school_lequy) and MEPS Panel 19 are both sub-datasets of the FairGround corpus, so their 18,692 and 15,830 records are already inside FairGround's 1,964,010 and are counted once. MIMIC-III was never obtained and is not part of the study. USDA NASS is used descriptively in EDA only and LSMS-ISA Nigeria was excluded from modeling (Decision 11); both are counted here as collected.
 
 Dataset notes:
 - COMPAS: 6,172 records verified, ProPublica Broward County Florida 2013-2014
