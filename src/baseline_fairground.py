@@ -13,7 +13,7 @@ Baseline models across 5 representative FairGround datasets:
 Features are the columns FairGround documents for each dataset
 (fairground_loader.documented_feature_columns). The raw MEPS and compas_2_years
 files also carry label-defining and outcome columns, which that list leaves out.
-Sets up for Stage 2 ThresholdOptimizer cross-domain intervention.
+Sets up for the Stage 3 ThresholdOptimizer cross-domain intervention.
 """
 
 import pandas as pd

@@ -50,7 +50,7 @@ def run_eda():
     print(f"  Paid In Full (0): {label_counts[0]:,} ({label_pct[0]:.1%})")
     print(f"  Charged Off (1):  {label_counts[1]:,} ({label_pct[1]:.1%})")
     print(f"  Note: 5.2% default rate, severe class imbalance")
-    print(f"  Note: FAPE Stage 2 uses equalized odds not accuracy")
+    print(f"  Note: FAPE Stage 3 uses equalized odds not accuracy")
 
     print(f"\n--- Business Type vs Default Rate ---")
     btype_stats = df.groupby("businesstype").agg(
@@ -153,11 +153,11 @@ def run_eda():
     print(f"  Note: No race or ethnicity fields in the SBA loan file")
     print(f"  Note: MS has the most loans (n=3,670), consistent with its poultry farming")
     print(f"  Note: LA 14.4% default rate, highest among states with at least 50 loans, possibly related to Hurricane Katrina")
-    print(f"  Note: 5.2% default rate requires careful threshold selection in Stage 2")
+    print(f"  Note: 5.2% default rate requires careful threshold selection in Stage 3")
 
     print(f"\n--- SBA Agricultural EDA complete ---")
     print(f"  Total records: {len(df):,}")
-    print(f"  Ready for Stage 1 preprocessing and baseline modeling")
+    print(f"  Ready for preprocessing and baseline modeling")
 
     return df
 

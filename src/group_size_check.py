@@ -2,14 +2,14 @@
 FAPE, group-size check for COMPAS and Folktables (Section 6.2 of the paper)
 
 Demographic parity difference is the gap between the most and least favored
-group, and neither Stage 2 script applies a minimum group size when computing
+group, and neither intervention script applies a minimum group size when computing
 it. Groups with a handful of test records have selection rates that move in
 large steps, so they can set the reported gap on their own:
 - COMPAS test split: 7 Asian defendants, 1 Native American defendant
 - Folktables test split: 5 Alaska Native and 25 American Indian and Alaska
   Native respondents
 
-For each domain this script reproduces the Stage 2 setup exactly (loader,
+For each domain this script reproduces the intervention setup exactly (loader,
 sampling, split, models, scaling, ThresholdOptimizer settings, random_state)
 and prints, per model, the selection rate of every race group before and
 after the demographic parity constraint, the reported gap over all groups,

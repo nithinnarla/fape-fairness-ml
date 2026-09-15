@@ -1,6 +1,6 @@
 """
-FAPE - Student Performance Stage 2: ThresholdOptimizer
-Phase 4 - Stage 2 Fairness Intervention
+FAPE, Student Performance Fairness Intervention: ThresholdOptimizer
+Phase 4, fairness intervention (Stage 3 of the framework)
 Education Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Student Performance baseline.
@@ -84,7 +84,7 @@ def run_threshold(model, X_tr, y_tr, X_te, y_te, s_tr, s_te, constraint):
 
 
 def run_stage2():
-    print("FAPE Phase 4 - Student Performance Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4, Student Performance Fairness Intervention: ThresholdOptimizer")
     print("=" * 62)
 
     print("\n--- Loading Student Performance Data ---")
@@ -179,7 +179,7 @@ def run_stage2():
     models = list(MODELS.keys()); short = ["LR","RF","GB"]
     x = np.arange(len(models)); width = 0.25
 
-    # Fig 1 - Accuracy vs Fairness by Subject
+    # Fig 1, Accuracy vs Fairness by Subject
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -192,12 +192,12 @@ def run_stage2():
         ax.set_xticks(x); ax.set_xticklabels(short)
         ax.set_title(f"{subj.capitalize()} (n={all_results[subj]['n']})", fontsize=11, fontweight="bold")
         ax.set_ylabel("Accuracy"); ax.legend(); ax.set_ylim(0.4, 1.0)
-    plt.suptitle("Student Performance - Accuracy: Baseline vs Constrained", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance, Accuracy: Baseline vs Constrained", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "student_accuracy_comparison.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 1 saved - student_accuracy_comparison.png")
+    plt.close(); print("Fig 1 saved, student_accuracy_comparison.png")
 
-    # Fig 2 - DPD by Subject Before vs After
+    # Fig 2, DPD by Subject Before vs After
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -213,12 +213,12 @@ def run_stage2():
         ax.set_xticks(x); ax.set_xticklabels(short)
         ax.set_title(f"{subj.capitalize()} - DPD Before vs After", fontsize=11, fontweight="bold")
         ax.set_ylabel("DPD"); ax.legend()
-    plt.suptitle("Student Performance - Sex Fairness: DPD Before vs After DP Constraint", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance, Sex Fairness: DPD Before vs After DP Constraint", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "student_dpd_before_after.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 2 saved - student_dpd_before_after.png")
+    plt.close(); print("Fig 2 saved, student_dpd_before_after.png")
 
-    # Fig 3 - EOD by Subject Before vs After
+    # Fig 3, EOD by Subject Before vs After
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -230,12 +230,12 @@ def run_stage2():
         ax.set_xticks(x); ax.set_xticklabels(short)
         ax.set_title(f"{subj.capitalize()} - EOD Before vs After", fontsize=11, fontweight="bold")
         ax.set_ylabel("EOD"); ax.legend()
-    plt.suptitle("Student Performance - Sex Fairness: EOD Before vs After EO Constraint", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance, Sex Fairness: EOD Before vs After EO Constraint", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "student_eod_before_after.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 3 saved - student_eod_before_after.png")
+    plt.close(); print("Fig 3 saved, student_eod_before_after.png")
 
-    # Fig 4 - Sex prediction rates Math vs Portuguese
+    # Fig 4, Sex prediction rates Math vs Portuguese
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -256,12 +256,12 @@ def run_stage2():
         ax.set_xticks(x4); ax.set_xticklabels(categories)
         ax.set_title(f"{subj.capitalize()} - True vs Predicted by Sex", fontsize=11, fontweight="bold")
         ax.set_ylabel("Positive Rate"); ax.legend()
-    plt.suptitle("Student Performance - Sex Gap: True Rate vs GB Predicted Rate", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance, Sex Gap: True Rate vs GB Predicted Rate", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "student_sex_prediction_rates.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 4 saved - student_sex_prediction_rates.png")
+    plt.close(); print("Fig 4 saved, student_sex_prediction_rates.png")
 
-    # Fig 5 - F1 comparison
+    # Fig 5, F1 comparison
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -274,13 +274,13 @@ def run_stage2():
         ax.set_xticks(x); ax.set_xticklabels(short)
         ax.set_title(f"{subj.capitalize()} - F1 Comparison", fontsize=11, fontweight="bold")
         ax.set_ylabel("F1 Score"); ax.legend(); ax.set_ylim(0, 1.0)
-    plt.suptitle("Student Performance - F1 Score: Baseline vs Constrained", fontsize=12, fontweight="bold")
+    plt.suptitle("Student Performance, F1 Score: Baseline vs Constrained", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "student_f1_comparison.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 5 saved - student_f1_comparison.png")
+    plt.close(); print("Fig 5 saved, student_f1_comparison.png")
 
 
-    # Fig 6 - DIR by Sex, GB baseline
+    # Fig 6, DIR by Sex, GB baseline
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     for ax, subj in zip(axes, subjects):
         res = all_results[subj]
@@ -306,13 +306,13 @@ def run_stage2():
         ax.set_title(f'{subj.capitalize()} - DIR by Sex, GB Baseline\n(one ratio is the inverse of the other)',
                     fontsize=11, fontweight='bold')
         ax.set_ylabel('Disparate Impact Ratio'); ax.legend(); ax.set_ylim(0, 1.5)
-    plt.suptitle('Student Performance - Selection-Rate Ratio by Sex',
+    plt.suptitle('Student Performance, Selection-Rate Ratio by Sex',
                 fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'student_dir_by_sex.png'), dpi=150, bbox_inches='tight')
-    plt.close(); print('Fig 6 saved - student_dir_by_sex.png')
+    plt.close(); print('Fig 6 saved, student_dir_by_sex.png')
 
-    print(f"\n--- Student Stage 2 complete ---")
+    print(f"\n--- Student intervention complete ---")
     print(f"  6 figures saved to figures/stage2/")
 
 

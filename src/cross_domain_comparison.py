@@ -1,6 +1,6 @@
 """
 FAPE, Cross-Domain Fairness Comparison
-Stage 2: ThresholdOptimizer Results Across the Eight Evaluations
+Fairness Intervention: ThresholdOptimizer Results Across the Eight Evaluations
 
 Compares gradient boosting's fairness intervention results across the eight
 evaluations:
@@ -15,7 +15,7 @@ evaluations:
 
 Every DPD, EOD and accuracy value is read from threshold_aggregation.RESULTS
 and MEPS_RESULTS, so these figures cannot disagree with Table 2. Accuracy cost is left empty for
-Law School, Lending Club and Agricultural, whose Stage 2 scripts report AUC
+Law School, Lending Club and Agricultural, whose intervention scripts report AUC
 rather than accuracy. Disparate impact ratio is shown only for the three
 domains that compute a fixed-pair ratio before and after the constraint; both
 lending domains predict default, so there a ratio above 1.0 is the adverse
@@ -62,7 +62,7 @@ RESULTS_KEY = {
 }
 
 # Fixed-pair disparate impact ratio under gradient boosting, before and after the
-# DP constraint, as printed by each Stage 2 script (Section 3.5 of the paper):
+# DP constraint, as printed by each intervention script (Section 3.5 of the paper):
 # minority over majority (bar passage), partnership over corporation (predicted
 # default), lowest income quartile over highest (predicted default).
 FIXED_PAIR_DIR = {
@@ -144,13 +144,13 @@ def run_cross_domain_comparison():
     ax.axhline(y=DPD_CONVENTION, color='black', linestyle='--', linewidth=1, label='DPD 0.1 convention')
     ax.set_xticks(x)
     ax.set_xticklabels(domain_names, rotation=15, ha='right', fontsize=9)
-    ax.set_title(f'Demographic Parity Difference - Before vs After ThresholdOptimizer\n{subtitle}', fontsize=12)
+    ax.set_title(f'Demographic Parity Difference, Before vs After ThresholdOptimizer\n{subtitle}', fontsize=12)
     ax.set_ylabel('Demographic Parity Difference (DPD)')
     ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_dpd_comparison.png'), dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 1 saved - cross_domain_dpd_comparison.png")
+    print("  Fig 1 saved, cross_domain_dpd_comparison.png")
 
     # Figure 2, EOD before/after across domains
     fig, ax = plt.subplots(figsize=(14, 6))
@@ -161,13 +161,13 @@ def run_cross_domain_comparison():
     ax.axhline(y=DPD_CONVENTION, color='black', linestyle='--', linewidth=1, label='0.1 reference')
     ax.set_xticks(x)
     ax.set_xticklabels(domain_names, rotation=15, ha='right', fontsize=9)
-    ax.set_title(f'Equalized Odds Difference - Before vs After ThresholdOptimizer\n{subtitle}', fontsize=12)
+    ax.set_title(f'Equalized Odds Difference, Before vs After ThresholdOptimizer\n{subtitle}', fontsize=12)
     ax.set_ylabel('Equalized Odds Difference (EOD)')
     ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_eod_comparison.png'), dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 2 saved - cross_domain_eod_comparison.png")
+    print("  Fig 2 saved, cross_domain_eod_comparison.png")
 
     # Figure 3, Accuracy cost vs fairness improvement, domains with a true accuracy metric only
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
@@ -191,7 +191,7 @@ def run_cross_domain_comparison():
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_acc_fairness_scatter.png'), dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 3 saved - cross_domain_acc_fairness_scatter.png")
+    print("  Fig 3 saved, cross_domain_acc_fairness_scatter.png")
 
     # Figure 4, Fixed-pair DIR before/after (paper Figure 2)
     dir_names = [d for d in domain_names if DOMAINS[d]['dir'] is not None]
@@ -208,17 +208,19 @@ def run_cross_domain_comparison():
     ax.set_xticks(x_dir)
     outcome = {'Law School': 'bar passage', 'Lending Club': 'predicted default', 'Agricultural': 'predicted default'}
     ax.set_xticklabels([f'{d}\n({outcome[d]})' for d in dir_names], fontsize=10)
-    ax.set_title('Fixed-Pair Disparate Impact Ratio - Before vs After DP Constraint (Gradient Boosting)\n'
+    ax.set_title('Fixed-Pair Disparate Impact Ratio, Before vs After DP Constraint (Gradient Boosting)\n'
                  'For predicted default, a ratio above 1.0 is the adverse direction', fontsize=11)
     ax.set_ylabel('Disparate Impact Ratio (DIR)')
     ax.legend(fontsize=9)
     for i, (b, p) in enumerate(zip(baseline_dirs, post_dirs)):
-        ax.text(x_dir[i] - w/2, b + 0.02, f'{b:.3f}', ha='center', fontsize=9)
-        ax.text(x_dir[i] + w/2, p + 0.02, f'{p:.3f}', ha='center', fontsize=9)
+        # white boxes keep the labels readable where they sit on the parity line
+        label_box = dict(boxstyle='round,pad=0.15', facecolor='white', edgecolor='none', alpha=0.9)
+        ax.text(x_dir[i] - w/2, b + 0.02, f'{b:.3f}', ha='center', fontsize=9, bbox=label_box)
+        ax.text(x_dir[i] + w/2, p + 0.02, f'{p:.3f}', ha='center', fontsize=9, bbox=label_box)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_dir_comparison.png'), dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 4 saved - cross_domain_dir_comparison.png")
+    print("  Fig 4 saved, cross_domain_dir_comparison.png")
 
     # Figure 5, Metrics summary heatmap
     fig, ax = plt.subplots(figsize=(12, 5))
@@ -237,7 +239,7 @@ def run_cross_domain_comparison():
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_metrics_heatmap.png'), dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 5 saved - cross_domain_metrics_heatmap.png")
+    print("  Fig 5 saved, cross_domain_metrics_heatmap.png")
 
     # Figure 6, DP and EO improvement % ranking (paper Figure 3)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
@@ -262,7 +264,7 @@ def run_cross_domain_comparison():
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'cross_domain_improvement_ranking.png'), dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 6 saved - cross_domain_improvement_ranking.png")
+    print("  Fig 6 saved, cross_domain_improvement_ranking.png")
 
     print("\n--- Cross-Domain Comparison complete ---")
     print("  6 figures saved to figures/stage2/")

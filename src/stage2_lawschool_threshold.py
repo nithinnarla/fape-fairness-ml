@@ -1,6 +1,6 @@
 """
-FAPE, Law School Admissions Stage 2: ThresholdOptimizer
-Phase 4, Stage 2 Fairness Intervention
+FAPE, Law School Admissions Fairness Intervention: ThresholdOptimizer
+Phase 4, fairness intervention (Stage 3 of the framework)
 Education/Legal Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Law School baseline models.
@@ -53,7 +53,7 @@ MODELS = {
 
 
 def run_stage2():
-    print("FAPE Phase 4, Law School Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4, Law School Fairness Intervention: ThresholdOptimizer")
     print("=" * 55)
 
     result = load_law_school()
@@ -81,7 +81,7 @@ def run_stage2():
     print(f"  Note: ThresholdOptimizer.predict is seeded with random_state=42, so runs are identical")
 
     baseline = {}
-    print(f"\n--- Baseline Results (Stage 1 reference) ---")
+    print(f"\n--- Baseline Results (unconstrained models) ---")
     for name, model in MODELS.items():
         if name == "LogisticRegression":
             model.fit(X_tr_sc, y_train)
@@ -211,7 +211,7 @@ def run_stage2():
     ax2.bar(x, dp_dps, width, label='DP Constraint', color='coral', edgecolor='black', linewidth=0.5)
     ax2.bar(x+width, eo_dps, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax2.set_xticks(x); ax2.set_xticklabels(['LR','GB']); ax2.set_title('DP Difference (lower=fairer)'); ax2.legend(fontsize=8)
-    plt.suptitle('Law School - Accuracy-Fairness Tradeoff', fontsize=13)
+    plt.suptitle('Law School, Accuracy-Fairness Tradeoff', fontsize=13)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_accuracy_fairness_tradeoff.png'), dpi=150, bbox_inches='tight')
     plt.close()
@@ -224,7 +224,7 @@ def run_stage2():
     ax.bar(x+width/2, eo_improvements, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax.axhline(y=0, color='black', linewidth=1)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Fairness Improvement - Race\n(positive = fairness improved)', fontsize=12)
+    ax.set_title('Fairness Improvement, Race\n(positive = fairness improved)', fontsize=12)
     ax.set_ylabel('DP/EO Difference Reduction'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_fairness_improvement.png'), dpi=150, bbox_inches='tight')
@@ -247,7 +247,7 @@ def run_stage2():
     ax.axhline(y=0, color='gray', linestyle='--', linewidth=1)
     ax.axvline(x=0, color='gray', linestyle='--', linewidth=1)
     ax.set_xlabel('Accuracy Cost'); ax.set_ylabel('Fairness Gain')
-    ax.set_title('Cost-Gain Scatter - Law School\n(top-left = best tradeoff)', fontsize=12)
+    ax.set_title('Cost-Gain Scatter, Law School\n(top-left = best tradeoff)', fontsize=12)
     ax.legend(fontsize=8)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_cost_gain_scatter.png'), dpi=150, bbox_inches='tight')
@@ -260,7 +260,7 @@ def run_stage2():
     ax.bar(x-width/2, [abs(v) for v in sex_dps_base], width, label='Baseline', color='steelblue', edgecolor='black', linewidth=0.5)
     ax.bar(x+width/2, [abs(v) for v in sex_dps_dp], width, label='DP Constraint', color='coral', edgecolor='black', linewidth=0.5)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Sex Fairness - DP Difference\n(sex gap minimal vs race gap)', fontsize=12)
+    ax.set_title('Sex Fairness, DP Difference\n(sex gap minimal vs race gap)', fontsize=12)
     ax.set_ylabel('|DP Difference|'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_sex_fairness.png'), dpi=150, bbox_inches='tight')
@@ -276,7 +276,7 @@ def run_stage2():
     for bar, val in zip(ax.patches[:len(names)], base_f1s):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.003, f'{val:.3f}', ha='center', fontsize=9)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('F1 Comparison - Baseline vs DP Constraint\n(F1 inflated by 90.2% positive rate)', fontsize=12)
+    ax.set_title('F1 Comparison, Baseline vs DP Constraint\n(F1 inflated by 90.2% positive rate)', fontsize=12)
     ax.set_ylabel('F1'); ax.legend(); ax.set_ylim(0.8, 1.05)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_f1_comparison.png'), dpi=150, bbox_inches='tight')
@@ -293,7 +293,7 @@ def run_stage2():
     for bar, val in zip(ax.patches, gb_base_rates+gb_dp_rates):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
     ax.set_xticks(xg); ax.set_xticklabels(groups)
-    ax.set_title('Race Prediction Rates - GB Before vs After DP Constraint', fontsize=12)
+    ax.set_title('Race Prediction Rates, GB Before vs After DP Constraint', fontsize=12)
     ax.set_ylabel('Positive Prediction Rate'); ax.legend(); ax.set_ylim(0, 1.2)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_race_prediction_rates.png'), dpi=150, bbox_inches='tight')
@@ -327,7 +327,7 @@ def run_stage2():
         ax.set_xticks(xg); ax.set_xticklabels(groups_labels)
         ax.set_title(f'FPR/FNR by Race, {title}', fontsize=11)
         ax.set_ylabel('Rate'); ax.legend(fontsize=8)
-    plt.suptitle('Law School - FPR/FNR by Race Before vs After DP Constraint', fontsize=12)
+    plt.suptitle('Law School, FPR/FNR by Race Before vs After DP Constraint', fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_fpr_fnr_by_race.png'), dpi=150, bbox_inches='tight')
     plt.close()
@@ -382,8 +382,9 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
     ax.axhline(y=0.8, color='red', linestyle='--', linewidth=2, label='0.8 four-fifths convention')
     ax.set_xticks(xd); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Disparate Impact Ratio - Before vs After DP Constraint\n(outcome is bar passage; both models move above the 0.8 convention)', fontsize=12)
-    ax.set_ylabel('DIR'); ax.set_ylim(0, 1.2); ax.legend()
+    ax.set_title('Disparate Impact Ratio, Before vs After DP Constraint\n(outcome is bar passage; both models move above the 0.8 convention)', fontsize=12)
+    ax.set_ylabel('DIR'); ax.set_ylim(0, 1.5)
+    ax.legend(loc='upper center', ncol=3, fontsize=9)   # above the bars, clear of the value labels
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close()
@@ -404,13 +405,13 @@ def run_stage2():
     for bar, val in zip(bars2, afters_dp):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=9)
     ax.set_xticks(xi); ax.set_xticklabels(intersect_groups)
-    ax.set_title('Intersectional Analysis - Race x Sex\n(Minority groups improve; White groups converge toward parity)', fontsize=12)
+    ax.set_title('Intersectional Analysis, Race x Sex\n(Minority groups improve; White groups converge toward parity)', fontsize=12)
     ax.set_ylabel('Positive Prediction Rate'); ax.set_ylim(0, 1.2); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lawschool_intersectional_stage2.png'), dpi=150, bbox_inches='tight')
     plt.close()
 
-    print(f"\n--- Law School Stage 2 complete ---")
+    print(f"\n--- Law School intervention complete ---")
     print(f"  ThresholdOptimizer applied, racial gap targeted")
     print(f"  GradientBoosting minority/majority DIR before the constraint: "
           f"{dir_befores[names_list.index('GradientBoosting')]:.3f}")

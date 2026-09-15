@@ -4,7 +4,7 @@ Phase 4, Exploratory Data Analysis
 Multi-Domain Benchmark
 
 EDA on FairGround corpus, 37 fairness-annotated datasets
-totaling 1,955,063 records (1,964,010 with a cached copy of stop_question_and_frisk_data, which fairml-datasets 0.2.5 cannot load under numpy 1.26) across criminal justice, financial,
+totaling 1,964,010 records across criminal justice, financial,
 healthcare, education, and socioeconomic domains.
 
 FairGround addresses the benchmark monoculture problem identified

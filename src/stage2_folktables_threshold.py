@@ -1,6 +1,6 @@
 """
-FAPE, Folktables ACS Stage 2: ThresholdOptimizer
-Phase 4, Stage 2 Fairness Intervention
+FAPE, Folktables ACS Fairness Intervention: ThresholdOptimizer
+Phase 4, fairness intervention (Stage 3 of the framework)
 Socioeconomic Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Folktables ACS baseline.
@@ -58,7 +58,7 @@ MODELS = {
 
 
 def run_stage2():
-    print("FAPE Phase 4 - Folktables ACS Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4, Folktables ACS Fairness Intervention: ThresholdOptimizer")
     print("=" * 58)
 
     df = load_folktables_acs()
@@ -81,9 +81,9 @@ def run_stage2():
     sex_test   = sex.iloc[idx_test].reset_index(drop=True)
 
     print(f"\nTrain: {len(X_train):,} | Test: {len(X_test):,}")
-    print(f"Income >50k rate - Train: {y_train.mean():.1%} | Test: {y_test.mean():.1%}")
+    print(f"Income >50k rate, Train: {y_train.mean():.1%} | Test: {y_test.mean():.1%}")
 
-    print(f"\n--- Baseline Results (Stage 1 reference) ---")
+    print(f"\n--- Baseline Results (unconstrained models) ---")
     baseline_results = {}
     for name, model in MODELS.items():
         if name == "LogisticRegression":
@@ -104,7 +104,7 @@ def run_stage2():
         }
         print(f"  {name:<22} ACC={acc:.3f} F1={f1:.3f} DPD={dpd:.3f} EOD={eod:.3f}")
 
-    print(f"\n--- ThresholdOptimizer - Demographic Parity Constraint ---")
+    print(f"\n--- ThresholdOptimizer, Demographic Parity Constraint ---")
     dp_results = {}
     for name, res in baseline_results.items():
         try:
@@ -126,7 +126,7 @@ def run_stage2():
             print(f"  {name:<22} ERROR: {e}")
             dp_results[name] = None
 
-    print(f"\n--- ThresholdOptimizer - Equalized Odds Constraint ---")
+    print(f"\n--- ThresholdOptimizer, Equalized Odds Constraint ---")
     eo_results = {}
     for name, res in baseline_results.items():
         try:
@@ -148,19 +148,19 @@ def run_stage2():
             print(f"  {name:<22} ERROR: {e}")
             eo_results[name] = None
 
-    print(f"\n--- Fairness Improvement Summary - Race (Demographic Parity) ---")
+    print(f"\n--- Fairness Improvement Summary, Race (Demographic Parity) ---")
     for name, res in baseline_results.items():
         if dp_results.get(name):
             imp = (res["dpd"]-dp_results[name]["dpd"])/res["dpd"]*100 if res["dpd"] != 0 else 0
             print(f"  {name:<22} DPD: {res['dpd']:.3f} -> {dp_results[name]['dpd']:.3f} ({imp:+.1f}%) | ACC cost: {res['acc']-dp_results[name]['acc']:.3f}")
 
-    print(f"\n--- Fairness Improvement Summary - Race (Equalized Odds) ---")
+    print(f"\n--- Fairness Improvement Summary, Race (Equalized Odds) ---")
     for name, res in baseline_results.items():
         if eo_results.get(name):
             imp = (res["eod"]-eo_results[name]["eod"])/res["eod"]*100 if res["eod"] != 0 else 0
             print(f"  {name:<22} EOD: {res['eod']:.3f} -> {eo_results[name]['eod']:.3f} ({imp:+.1f}%) | ACC cost: {res['acc']-eo_results[name]['acc']:.3f}")
 
-    print(f"\n--- Sex Fairness - ThresholdOptimizer (Demographic Parity) ---")
+    print(f"\n--- Sex Fairness, ThresholdOptimizer (Demographic Parity) ---")
     sex_dp_results = {}
     for name, res in baseline_results.items():
         try:
@@ -181,7 +181,7 @@ def run_stage2():
             print(f"  {name:<22} ERROR: {e}")
             sex_dp_results[name] = None
 
-    print(f"\n--- Race-Level Prediction Rates - GB Before vs After EO Constraint ---")
+    print(f"\n--- Race-Level Prediction Rates, GB Before vs After EO Constraint ---")
     gb_model = baseline_results["GradientBoosting"]["model"]
     X_tr_gb = baseline_results["GradientBoosting"]["X_tr"]
     X_te_gb = baseline_results["GradientBoosting"]["X_te"]
@@ -219,7 +219,7 @@ def run_stage2():
                            r["constrained"] / race_level["White"]["constrained"])
         print(f"  {label:<20} n={r['n']:>5,} DIR {race_dir[label][0]:.2f} -> {race_dir[label][1]:.2f}")
 
-    print(f"\n--- FPR/FNR by Race - GB Before vs After EO Constraint ---")
+    print(f"\n--- FPR/FNR by Race, GB Before vs After EO Constraint ---")
     main_races = [(2,"Black"),(1,"White"),(6,"Asian"),(3,"Am.Indian"),(8,"Other"),(9,"Two or more")]
     fpr_fnr = {}
     for code, label in main_races:
@@ -287,10 +287,10 @@ def run_stage2():
     axes[1].set_xticks(x); axes[1].set_xticklabels(short)
     axes[1].set_title("Demographic Parity Difference\n(lower = fairer)", fontsize=11, fontweight="bold")
     axes[1].set_ylabel("DPD"); axes[1].legend()
-    plt.suptitle("Folktables ACS - Accuracy vs Fairness Tradeoff", fontsize=12, fontweight="bold")
+    plt.suptitle("Folktables ACS, Accuracy vs Fairness Tradeoff", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_accuracy_fairness_tradeoff.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 1 saved - folktables_accuracy_fairness_tradeoff.png")
+    plt.close(); print("Fig 1 saved, folktables_accuracy_fairness_tradeoff.png")
 
     # Fig 2
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
@@ -301,7 +301,7 @@ def run_stage2():
         axes[0].annotate(f"{imp:+.0f}%", xy=(i, max(b,a)+0.01), ha="center", fontsize=9,
                         color="green" if imp>0 else "red")
     axes[0].set_xticks(x); axes[0].set_xticklabels(short)
-    axes[0].set_title("DPD Reduction - DP Constraint", fontsize=11, fontweight="bold")
+    axes[0].set_title("DPD Reduction, DP Constraint", fontsize=11, fontweight="bold")
     axes[0].set_ylabel("DPD"); axes[0].legend()
     axes[1].bar(x-width/2, base_eods, width, label="Baseline", color="#95a5a6", edgecolor="white")
     axes[1].bar(x+width/2, eo_eods,   width, label="After EO Constraint", color="#e74c3c", edgecolor="white")
@@ -310,12 +310,12 @@ def run_stage2():
         axes[1].annotate(f"{imp:+.0f}%", xy=(i, max(b,a)+0.01), ha="center", fontsize=9,
                         color="green" if imp>0 else "red")
     axes[1].set_xticks(x); axes[1].set_xticklabels(short)
-    axes[1].set_title("EOD Reduction - EO Constraint", fontsize=11, fontweight="bold")
+    axes[1].set_title("EOD Reduction, EO Constraint", fontsize=11, fontweight="bold")
     axes[1].set_ylabel("EOD"); axes[1].legend()
-    plt.suptitle("Folktables ACS - Fairness Improvement by Constraint Type", fontsize=12, fontweight="bold")
+    plt.suptitle("Folktables ACS, Fairness Improvement by Constraint Type", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_fairness_improvement.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 2 saved - folktables_fairness_improvement.png")
+    plt.close(); print("Fig 2 saved, folktables_fairness_improvement.png")
 
     # Fig 3
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -348,10 +348,10 @@ def run_stage2():
     ]
     ax.legend(handles=legend_elements, fontsize=9)
     ax.set_xlabel("Accuracy Cost"); ax.set_ylabel("Fairness Gain")
-    ax.set_title("Folktables ACS - Accuracy Cost vs Fairness Gain\n(upper-left = best)", fontsize=11, fontweight="bold")
+    ax.set_title("Folktables ACS, Accuracy Cost vs Fairness Gain\n(upper-left = best)", fontsize=11, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_cost_gain_scatter.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 3 saved - folktables_cost_gain_scatter.png")
+    plt.close(); print("Fig 3 saved, folktables_cost_gain_scatter.png")
 
     # Fig 4
     sex_dpds = [sex_dp_results[m]["dpd"] if sex_dp_results.get(m) else 0 for m in models]
@@ -362,10 +362,10 @@ def run_stage2():
     for i,val in enumerate(sex_dpds): ax.text(i-width/2, val+0.002, f"{val:.3f}", ha="center", fontsize=9)
     for i,val in enumerate(sex_eods): ax.text(i+width/2, val+0.002, f"{val:.3f}", ha="center", fontsize=9)
     ax.set_xticks(x); ax.set_xticklabels(short)
-    ax.set_title("Folktables ACS - Sex Fairness After DP Constraint on Sex", fontsize=11, fontweight="bold")
+    ax.set_title("Folktables ACS, Sex Fairness After DP Constraint on Sex", fontsize=11, fontweight="bold")
     ax.set_ylabel("Fairness Metric"); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_sex_fairness.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 4 saved - folktables_sex_fairness.png")
+    plt.close(); print("Fig 4 saved, folktables_sex_fairness.png")
 
     # Fig 5
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -373,11 +373,11 @@ def run_stage2():
     ax.bar(x,       dp_f1s,   width, label="DP Constraint", color="#3498db", edgecolor="white")
     ax.bar(x+width, eo_f1s,   width, label="EO Constraint", color="#e74c3c", edgecolor="white")
     ax.set_xticks(x); ax.set_xticklabels(short)
-    ax.set_title("Folktables ACS - F1 Score Comparison", fontsize=11, fontweight="bold")
+    ax.set_title("Folktables ACS, F1 Score Comparison", fontsize=11, fontweight="bold")
     all_f1s = [v for v in base_f1s + dp_f1s + eo_f1s if v]
     ax.set_ylabel("F1 Score"); ax.legend(); ax.set_ylim(min(all_f1s) - 0.05, max(all_f1s) + 0.03); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_f1_comparison.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 5 saved - folktables_f1_comparison.png")
+    plt.close(); print("Fig 5 saved, folktables_f1_comparison.png")
 
     # Fig 6
     plot_labels = [l for l in ["White","Black","Asian","Am.Indian","Other","Two or more"] if l in race_level]
@@ -394,10 +394,10 @@ def run_stage2():
         ax.text(i,    b+0.005, f"{b:.2f}", ha="center", fontsize=7)
         ax.text(i+w6, c+0.005, f"{c:.2f}", ha="center", fontsize=7)
     ax.set_xticks(x6); ax.set_xticklabels(plot_labels, rotation=15, ha="right")
-    ax.set_title("Folktables ACS - Race-Level Prediction Rates: Baseline vs EO Constraint\n(groups with at least 30 test records)", fontsize=11, fontweight="bold")
+    ax.set_title("Folktables ACS, Race-Level Prediction Rates: Baseline vs EO Constraint\n(groups with at least 30 test records)", fontsize=11, fontweight="bold")
     ax.set_ylabel("Predicted Positive Rate"); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_race_prediction_rates.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 6 saved - folktables_race_prediction_rates.png")
+    plt.close(); print("Fig 6 saved, folktables_race_prediction_rates.png")
 
     # Fig 7
     plot_races = [l for _,l in [(2,"Black"),(1,"White"),(6,"Asian"),(3,"Am.Indian"),(8,"Other"),(9,"Two or more")] if l in fpr_fnr]
@@ -423,13 +423,13 @@ def run_stage2():
     axes[1].set_xticks(x7); axes[1].set_xticklabels(plot_races, rotation=15, ha="right")
     axes[1].set_title("False Negative Rate by Race\n(Chouldechova tradeoff)", fontsize=11, fontweight="bold")
     axes[1].set_ylabel("FNR"); axes[1].legend()
-    plt.suptitle("Folktables ACS - FPR/FNR by Race: Baseline vs EO Constraint", fontsize=12, fontweight="bold")
+    plt.suptitle("Folktables ACS, FPR/FNR by Race: Baseline vs EO Constraint", fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_fpr_fnr_by_race.png"), dpi=150, bbox_inches="tight")
-    plt.close(); print("Fig 7 saved - folktables_fpr_fnr_by_race.png")
+    plt.close(); print("Fig 7 saved, folktables_fpr_fnr_by_race.png")
 
 
-    # Fig 8 - DIR by Race vs EEOC 0.8 Threshold
+    # Fig 8, DIR by Race vs EEOC 0.8 Threshold
     dir_labels = []; dir_vals = []; dir_colors = []
     white_pred = y_pred_base_gb[race_test==1].mean()
     for code, label in [(1,'White'),(2,'Black'),(3,'Am.Indian'),(6,'Asian'),(8,'Other'),(9,'Two or more')]:
@@ -448,17 +448,17 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, val+0.02, f'{val:.3f}',
                 ha='center', fontsize=10, fontweight='bold')
     under = [f'{l} {v:.2f}' for l, v in zip(dir_labels, dir_vals) if v < 0.8]
-    ax.set_title('Folktables ACS - Disparate Impact Ratio by Race, GB Baseline\n'
+    ax.set_title('Folktables ACS, Disparate Impact Ratio by Race, GB Baseline\n'
                  f"(below 0.8: {', '.join(under) or 'none'})",
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend()
     ax.set_ylim(0, max(1.35, max(dir_vals) * 1.15))
     plt.xticks(rotation=15, ha='right'); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'folktables_dir_by_race.png'), dpi=150, bbox_inches='tight')
-    plt.close(); print('Fig 8 saved - folktables_dir_by_race.png')
+    plt.close(); print('Fig 8 saved, folktables_dir_by_race.png')
 
 
-    # Fig 9 - DIR Before vs After EO Constraint
+    # Fig 9, DIR Before vs After EO Constraint
     dir_groups = [(1,'White'),(2,'Black'),(3,'Am.Indian'),(6,'Asian'),(8,'Other'),(9,'Two or more')]
     dir_labels2=[]; dir_base_vals=[]; dir_con_vals=[]
     white_base = y_pred_base_gb[race_test==1].mean()
@@ -480,16 +480,16 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, val+0.015, f'{val:.3f}', ha='center', fontsize=8)
     ax.set_xticks(x9); ax.set_xticklabels(dir_labels2, rotation=15, ha='right')
     crossers = [f'{l} {b:.2f}->{c:.2f}' for l, b, c in zip(dir_labels2, dir_base_vals, dir_con_vals) if b < 0.8 <= c]
-    ax.set_title('Folktables ACS - DIR Before vs After EO Constraint, GB\n'
+    ax.set_title('Folktables ACS, DIR Before vs After EO Constraint, GB\n'
                  f"(crossing 0.8: {', '.join(crossers) or 'none'})",
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend()
     ax.set_ylim(0, max(1.35, max(dir_base_vals + dir_con_vals) * 1.15))
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'folktables_dir_before_after.png'), dpi=150, bbox_inches='tight')
-    plt.close(); print('Fig 9 saved - folktables_dir_before_after.png')
+    plt.close(); print('Fig 9 saved, folktables_dir_before_after.png')
 
-    print(f"\n--- Folktables Stage 2 complete ---")
+    print(f"\n--- Folktables intervention complete ---")
     print(f"  9 figures saved to figures/stage2/")
 
 

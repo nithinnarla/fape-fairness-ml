@@ -7,7 +7,7 @@ def load_compas(data_dir: str = "data/raw") -> pd.DataFrame:
     """
     Load and preprocess the COMPAS recidivism dataset.
 
-    Source: ProPublica - Broward County Florida (2013-2014)
+    Source: ProPublica, Broward County Florida (2013-2014)
     Records: 7,000+ criminal defendants
     Target: Two-year recidivism outcome
     """
@@ -59,7 +59,7 @@ def load_folktables_acs() -> pd.DataFrame:
     Target: Annual income > $50,000
     Replaces legacy Adult Income dataset (Ding et al., 2021)
 
-    Columns loaded (the Stage 2 and baseline scripts choose their features
+    Columns loaded (the intervention and baseline scripts choose their features
     from these):
         AGEP     - Age
         SEX      - Sex
@@ -72,7 +72,7 @@ def load_folktables_acs() -> pd.DataFrame:
         POVPIP   - Income to poverty ratio (EDA only; built from family
                    income, which includes the income the label is defined on,
                    so it is not a model feature)
-        NATIVITY - Native or foreign born
+        NATIVITY: native or foreign born
     """
     from folktables import ACSDataSource
 

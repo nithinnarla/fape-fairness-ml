@@ -139,11 +139,11 @@ def run_eda():
     print(f"  LSAT gap:                {abs(white_lsat - minority_lsat):.2f}")
     print(f"  Note: Minority group n=1,201 (6.4%), small sample relative to White n=17,491")
     print(f"  Note: 90.2% overall pass rate means fairness metrics will be dominated")
-    print(f"  by the majority class, FAPE Stage 2 will use equalized odds not accuracy")
+    print(f"  by the majority class, FAPE Stage 3 will use equalized odds not accuracy")
 
     print(f"\n--- Law School EDA complete ---")
     print(f"  Total records: {len(df):,}")
-    print(f"  Ready for Stage 1 preprocessing and baseline modeling")
+    print(f"  Ready for preprocessing and baseline modeling")
 
     return df
 

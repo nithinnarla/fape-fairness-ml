@@ -1,7 +1,7 @@
 """
 FAPE, threshold-fitting check for random forest (Section 6.4 of the paper)
 
-Every Stage 2 script hands ThresholdOptimizer an estimator and the training
+Every intervention script hands ThresholdOptimizer an estimator and the training
 split, so it refits the model and chooses its group thresholds on the same
 records the model was trained on. Logistic regression and gradient boosting
 score their training records much as they score new ones. A random forest
@@ -11,11 +11,11 @@ chosen from look nothing like the scores it gives the test split.
 This script runs two designs side by side for Student (Math) and MEPS, the two
 evaluations where random forest worsens under a constraint and small groups
 do not explain it:
-(a) the Stage 2 design: thresholds chosen on the training split
+(a) the design the intervention scripts use: thresholds chosen on the training split
 (b) held out: the model trains on 75% of the training split and the
     thresholds are chosen (prefit=True) on the other 25%
 
-Both designs score the same test split. Stage 2 results are not changed; (a)
+Both designs score the same test split. The intervention results are not changed; (a)
 reproduces them. Each model's accuracy on its own training records is printed
 first, since that is what separates random forest from the other two.
 """
@@ -55,7 +55,7 @@ HOLDOUT_SHARE = 0.25
 
 
 def student_math():
-    """Stage 2 Student setup: the script's own prepare_student, sex as the attribute."""
+    """The intervention script's Student setup: its own prepare_student, sex as the attribute."""
     path = os.path.join(SRC_DIR, 'stage2_student_threshold.py')
     tree = ast.parse(open(path).read())
     fn = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'prepare_student'][0]
@@ -70,7 +70,7 @@ def student_math():
 
 
 def meps():
-    """Stage 2 FairGround setup for MEPS: documented features, RACE dropped from X."""
+    """The intervention script's FairGround setup for MEPS: documented features, RACE dropped from X."""
     from fairml_datasets import Dataset
     from fairground_loader import documented_feature_columns
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):

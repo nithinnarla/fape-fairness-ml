@@ -154,7 +154,7 @@ def run_eda():
 
     print(f"\n--- Student Performance EDA complete ---")
     print(f"  Total records: 1,044 (math: 395 + portuguese: 649)")
-    print(f"  Ready for Stage 1 preprocessing and baseline modeling")
+    print(f"  Ready for preprocessing and baseline modeling")
 
     return datasets
 

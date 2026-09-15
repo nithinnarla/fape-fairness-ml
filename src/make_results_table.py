@@ -10,7 +10,7 @@ MEPS values come from the FairGround pipeline's meps_panel_19_fy2015 sub-dataset
 verified against a pinned-environment run.
 
 The disparate impact ratios and the two check tables are not in RESULTS. They are
-copied below from the printed output of the Stage 2 notebooks,
+copied below from the printed output of the intervention notebooks (notebooks/stage2_*),
 notebooks/group_size_check.ipynb and notebooks/threshold_holdout_check.ipynb, and
 src/check_consistency.py confirms each number still appears in that output. The
 sentences under each table are written by hand, so the claims they make are
@@ -41,10 +41,10 @@ ORDER = [
     ("Student (Math)", R["Student (math)"]),
 ]
 MODELS = ['LR', 'RF', 'GB']
-AUC_ONLY = {"Law School", "Lending Club", "Agricultural"}   # Stage 2 reports AUC, not accuracy
+AUC_ONLY = {"Law School", "Lending Club", "Agricultural"}   # their intervention scripts report AUC, not accuracy
 
 # Copied from printed output; check_consistency.py traces every number back to it.
-# Gradient boosting's fixed-pair disparate impact ratio (Stage 2 notebooks).
+# Gradient boosting's fixed-pair disparate impact ratio (intervention notebooks).
 DIR_ROWS = [
     ("Law School", "Minority / majority, predicted bar passage", "Favorable", "0.643", "0.957",
      "Moves above the 0.8 convention"),
@@ -57,28 +57,16 @@ DIR_ROWS = [
      "Black 0.72→0.83, multiracial 0.70→0.92, American Indian 0.61→1.00, "
      "Pacific Islander 0.72→1.03, Other 0.42→just under 0.8"),
 ]
-# DPD under the DP constraint over all race groups and over groups with at least 30
-# test records (notebooks/group_size_check.ipynb).
-GROUP_SIZE_ROWS = [
-    ("COMPAS", "LR", (0.545, 0.714), (0.385, 0.187)),
-    ("COMPAS", "RF", (0.568, 0.714), (0.202, 0.163)),
-    ("COMPAS", "GB", (0.857, 0.571), (0.361, 0.200)),
-    ("Folktables", "LR", (0.301, 0.348), (0.301, 0.114)),
-    ("Folktables", "RF", (0.290, 0.193), (0.276, 0.177)),
-    ("Folktables", "GB", (0.302, 0.373), (0.302, 0.078)),
-]
-# DPD under the DP constraint with thresholds chosen on the training split and on a
-# held-out quarter of it, plus each random forest's training accuracy
-# (notebooks/threshold_holdout_check.ipynb).
-HOLDOUT_ROWS = [
-    ("Student (Math)", "LR", (0.212, 0.010), (0.238, 0.186)),
-    ("Student (Math)", "RF", (0.235, 0.363), (0.235, 0.007)),
-    ("Student (Math)", "GB", (0.237, 0.215), (0.161, 0.159)),
-    ("MEPS", "LR", (0.069, 0.013), (0.068, 0.031)),
-    ("MEPS", "RF", (0.089, 0.253), (0.086, 0.037)),
-    ("MEPS", "GB", (0.092, 0.013), (0.092, 0.054)),
-]
-RF_TRAINING_ACCURACY = {"Student (Math)": "1.000", "MEPS": "0.996"}
+# The two checks live next to RESULTS in threshold_aggregation.py, which also draws them.
+# Group size: DPD under the DP constraint over all race groups and over groups with at
+# least 30 test records. Threshold fitting: thresholds chosen on the training split and on
+# a held-out quarter of it, plus each random forest's training accuracy.
+DISPLAY = {"Student (math)": "Student (Math)"}
+GROUP_SIZE_ROWS = [(DISPLAY.get(d, d), m, v["all_groups"], v["at_least_30"])
+                   for (d, m), v in ta.GROUP_SIZE_CHECK.items()]
+HOLDOUT_ROWS = [(DISPLAY.get(d, d), m, v["training_split"], v["held_out"])
+                for (d, m), v in ta.HOLDOUT_CHECK.items()]
+RF_TRAINING_ACCURACY = {DISPLAY.get(d, d): f"{v:.3f}" for d, v in ta.RF_TRAINING_ACCURACY.items()}
 
 
 def cell(entry, before, after):
@@ -163,7 +151,7 @@ def cross_table_text():
     w("")
     w("> **Record note, September 15 2026.** Rebuilt from `threshold_aggregation.RESULTS` and `MEPS_RESULTS` after the MEPS and Folktables feature fixes (Decisions 24 and 25 in methodology_decisions.md). The July to August version, which predated those fixes and had several key findings that no longer matched its own tables, is in the git history. Every value below reproduced in a fresh environment built from requirements.txt. docs/results_table.md is the generated Table 2 of the paper; this file adds baseline performance, accuracy cost, disparate impact ratio and the two sensitivity checks.")
     w("")
-    w("n/e marks a model not evaluated under the intervention in that domain. Law School, Lending Club and Agricultural carry logistic regression and gradient boosting through Stage 2 and report AUC rather than accuracy (Decisions 13 and 16).")
+    w("n/e marks a model not evaluated under the intervention in that domain. Law School, Lending Club and Agricultural carry logistic regression and gradient boosting through the intervention and report AUC rather than accuracy (Decisions 13 and 16).")
     w("")
     w("---")
     w("")
@@ -177,7 +165,7 @@ def cross_table_text():
         else:
             w(f"| {name} | {e['LR']['baseline_acc']:.3f} | {e['RF']['baseline_acc']:.3f} | {e['GB']['baseline_acc']:.3f} | Accuracy |")
     w("")
-    w("Gradient boosting has the highest accuracy in three of the five accuracy evaluations (Folktables, MEPS, Student) and logistic regression in the other two (COMPAS, FairGround). Gradient boosting has the highest AUC in all three AUC evaluations. Random forest is not evaluated in Stage 2 for the AUC domains; the separate baseline scripts, which use their own preprocessing and samples, give it an AUC of 0.854 for Law School, 0.920 for Agricultural and 0.699 for Lending Club, below gradient boosting in the same scripts. Accuracy and AUC are not compared with each other.")
+    w("Gradient boosting has the highest accuracy in three of the five accuracy evaluations (Folktables, MEPS, Student) and logistic regression in the other two (COMPAS, FairGround). Gradient boosting has the highest AUC in all three AUC evaluations. Random forest is not evaluated under the intervention for the AUC domains; the separate baseline scripts, which use their own preprocessing and samples, give it an AUC of 0.854 for Law School, 0.920 for Agricultural and 0.699 for Lending Club, below gradient boosting in the same scripts. Accuracy and AUC are not compared with each other.")
     w("")
     w("---")
     w("")
@@ -217,7 +205,7 @@ def cross_table_text():
     fg = "FairGround (law_school_lequy)"
     assert sorted(costs, key=costs.get)[-2:] == [(fg, "LR"), (fg, "GB")], sorted(costs, key=costs.get)[-2:]
     w("")
-    w(f"Negative means accuracy rose. Values are computed from the three-decimal numbers in RESULTS, so a script's own printed cost can differ by 0.001. Law School, Lending Club and Agricultural are omitted because their Stage 2 scripts report AUC. FairGround's logistic regression and gradient boosting pay the most ({costs[(fg, 'LR')]:.3f} and {costs[(fg, 'GB')]:.3f}) while its random forest pays {costs[(fg, 'RF')]:.3f} for a similar DPD reduction. These costs also include the change from the default threshold to a balanced-accuracy objective (Decision 23).")
+    w(f"Negative means accuracy rose. Values are computed from the three-decimal numbers in RESULTS, so a script's own printed cost can differ by 0.001. Law School, Lending Club and Agricultural are omitted because their intervention scripts report AUC. FairGround's logistic regression and gradient boosting pay the most ({costs[(fg, 'LR')]:.3f} and {costs[(fg, 'GB')]:.3f}) while its random forest pays {costs[(fg, 'RF')]:.3f} for a similar DPD reduction. These costs also include the change from the default threshold to a balanced-accuracy objective (Decision 23).")
     w("")
     w("---")
     w("")
@@ -249,7 +237,7 @@ def cross_table_text():
     w("")
     w("## Table 7, Threshold-Fitting Check (src/threshold_holdout_check.py)")
     w("")
-    w("DPD under the DP constraint when thresholds are chosen on the training split (the Stage 2 design) and on a held-out quarter of it.")
+    w("DPD under the DP constraint when thresholds are chosen on the training split (the design the intervention scripts use) and on a held-out quarter of it.")
     w("")
     w("| Evaluation | Model | Training-split thresholds | Held-out thresholds |")
     w("|---|---|---|---|")

@@ -1,6 +1,6 @@
 """
-FAPE, Lending Club Stage 2: ThresholdOptimizer
-Phase 4, Stage 2 Fairness Intervention
+FAPE, Lending Club Fairness Intervention: ThresholdOptimizer
+Phase 4, fairness intervention (Stage 3 of the framework)
 Financial Services Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Lending Club baseline models.
@@ -57,7 +57,7 @@ SAMPLE_SIZE = 100000
 
 
 def run_stage2():
-    print("FAPE Phase 4, Lending Club Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4, Lending Club Fairness Intervention: ThresholdOptimizer")
     print("=" * 55)
 
     result = load_lending_club(sample_size=SAMPLE_SIZE)
@@ -90,7 +90,7 @@ def run_stage2():
     print(f"  Note: ThresholdOptimizer.predict seeded with random_state=42")
 
     baseline = {}
-    print(f"\n--- Baseline Results (Stage 1 reference) ---")
+    print(f"\n--- Baseline Results (unconstrained models) ---")
     for name, model in MODELS.items():
         if name == "LogisticRegression":
             model.fit(X_tr_sc, y_train)
@@ -260,7 +260,7 @@ def run_stage2():
     ax2.bar(x, dp_dps, width, label='DP Constraint', color='coral', edgecolor='black', linewidth=0.5)
     ax2.bar(x+width, eo_dps, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax2.set_xticks(x); ax2.set_xticklabels(['LR','GB']); ax2.set_title('DP Difference (lower=fairer)'); ax2.legend(fontsize=8)
-    plt.suptitle('Lending Club - Accuracy-Fairness Tradeoff (Income Band)', fontsize=13)
+    plt.suptitle('Lending Club, Accuracy-Fairness Tradeoff (Income Band)', fontsize=13)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_accuracy_fairness_tradeoff.png'), dpi=150, bbox_inches='tight')
     plt.close()
@@ -273,7 +273,7 @@ def run_stage2():
     ax.bar(x+width/2, eo_improvements, width, label='EO Constraint', color='#5cb85c', edgecolor='black', linewidth=0.5)
     ax.axhline(y=0, color='black', linewidth=1)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Fairness Improvement - Income Band\n(positive = fairness improved)', fontsize=12)
+    ax.set_title('Fairness Improvement, Income Band\n(positive = fairness improved)', fontsize=12)
     ax.set_ylabel('DP/EO Difference Reduction'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_fairness_improvement.png'), dpi=150, bbox_inches='tight')
@@ -295,7 +295,7 @@ def run_stage2():
     ax.axhline(y=0, color='gray', linestyle='--', linewidth=1)
     ax.axvline(x=0, color='gray', linestyle='--', linewidth=1)
     ax.set_xlabel('Accuracy Cost'); ax.set_ylabel('Fairness Gain')
-    ax.set_title('Cost-Gain Scatter - Lending Club\n(top-left = best tradeoff)', fontsize=12)
+    ax.set_title('Cost-Gain Scatter, Lending Club\n(top-left = best tradeoff)', fontsize=12)
     ax.legend(fontsize=8)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_cost_gain_scatter.png'), dpi=150, bbox_inches='tight')
@@ -316,7 +316,7 @@ def run_stage2():
     for bar, val in zip(ax.patches, home_base_rates+home_dp_rates):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.005, f'{val:.3f}', ha='center', fontsize=10)
     ax.set_xticks(xh); ax.set_xticklabels(home_labels)
-    ax.set_title('Home Ownership Fairness - MORTGAGE vs RENT\n(GB: default prediction rates)', fontsize=12)
+    ax.set_title('Home Ownership Fairness, MORTGAGE vs RENT\n(GB: default prediction rates)', fontsize=12)
     ax.set_ylabel('Default Prediction Rate'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_home_ownership_fairness.png'), dpi=150, bbox_inches='tight')
@@ -333,8 +333,9 @@ def run_stage2():
     for bar, val in zip(ax.patches, base_rates+dp_rates):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.003, f'{val:.3f}', ha='center', fontsize=9)
     ax.set_xticks(xi); ax.set_xticklabels(band_labels)
-    ax.set_title('Income Band Prediction Rates - GB Before vs After DP Constraint', fontsize=12)
-    ax.set_ylabel('Default Prediction Rate'); ax.legend()
+    ax.set_title('Income Band Prediction Rates, GB Before vs After DP Constraint', fontsize=12)
+    ax.set_ylabel('Default Prediction Rate')
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.08), ncol=2, frameon=False)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_income_band_rates.png'), dpi=150, bbox_inches='tight')
     plt.close()
@@ -358,7 +359,7 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.01, f'{val:.3f}', ha='center', fontsize=10)
     ax.axhline(y=1.0, color='gray', linestyle=':', linewidth=1.5, label='Parity (DIR=1.0)')
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('Disparate Impact Ratio - Q1 vs Q4 Income, Before vs After DP Constraint\n(outcome is predicted default, so a ratio above 1.0 is adverse to Q1)', fontsize=11)
+    ax.set_title('Disparate Impact Ratio, Q1 vs Q4 Income, Before vs After DP Constraint\n(outcome is predicted default, so a ratio above 1.0 is adverse to Q1)', fontsize=11)
     ax.set_ylabel('DIR (Q1/Q4)'); ax.set_ylim(0, max(dir_befores + dir_afters) * 1.15); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_dir_before_after.png'), dpi=150, bbox_inches='tight')
@@ -373,7 +374,7 @@ def run_stage2():
     for bar, val in zip(ax.patches, base_f1s+dp_f1s):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.005, f'{val:.3f}', ha='center', fontsize=10)
     ax.set_xticks(x); ax.set_xticklabels(['LR','GB'])
-    ax.set_title('F1 Comparison - Baseline vs DP Constraint', fontsize=12)
+    ax.set_title('F1 Comparison, Baseline vs DP Constraint', fontsize=12)
     ax.set_ylabel('F1'); ax.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'lendingclub_f1_comparison.png'), dpi=150, bbox_inches='tight')
@@ -412,14 +413,14 @@ def run_stage2():
         ax.set_xticks(xi); ax.set_xticklabels(band_labels)
         ax.set_title(f'{metric} by Income Band',fontsize=12)
         ax.set_ylabel(metric); ax.legend(fontsize=8)
-    plt.suptitle('FPR/FNR by Income Band - GB Before vs After DP Constraint\n(Baseline underpredicts default across all bands)',fontsize=12)
+    plt.suptitle('FPR/FNR by Income Band, GB Before vs After DP Constraint\n(Baseline underpredicts default across all bands)',fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR,'lendingclub_fpr_fnr_by_income.png'),dpi=150,bbox_inches='tight')
     plt.close()
 
 
 
-    print(f"\n--- Lending Club Stage 2 complete ---")
+    print(f"\n--- Lending Club intervention complete ---")
     print(f"  Income-based fairness intervention applied")
     print(f"  No direct race/gender, proxy-based ECOA audit")
     print(f"  Cross-domain: financial services income gap addressed")

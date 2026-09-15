@@ -38,7 +38,7 @@ def load_usda_nass(data_path=DATA_PATH):
 
     # BUG FIX 2026-08-17: the previous version summed value_clean across every
     # domaincat_desc breakdown (area operated, economic class, farm sales, NAICS,
-    # organization, producers-per-farm, tenure, typology - 8 overlapping dimensions
+    # organization, producers-per-farm, tenure, typology, 8 overlapping dimensions
     # plus the single true total), inflating every figure by roughly 8x on top of
     # cross-contaminating race groups via loose substring matching (e.g. "WHITE"
     # matched "HISPANIC, WHITE" rows too). The correct row for a clean national

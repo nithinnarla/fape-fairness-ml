@@ -1,6 +1,6 @@
 """
-FAPE, COMPAS Stage 2: ThresholdOptimizer
-Phase 4, Stage 2 Fairness Intervention
+FAPE, COMPAS Fairness Intervention: ThresholdOptimizer
+Phase 4, fairness intervention (Stage 3 of the framework)
 Criminal Justice Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to COMPAS baseline models.
@@ -67,7 +67,7 @@ def preprocess(df):
 
 
 def run_stage2():
-    print("FAPE Phase 4, COMPAS Stage 2: ThresholdOptimizer")
+    print("FAPE Phase 4, COMPAS Fairness Intervention: ThresholdOptimizer")
     print("=" * 55)
 
     df = load_compas()
@@ -88,7 +88,7 @@ def run_stage2():
     print(f"\nTrain: {len(X_train):,} | Test: {len(X_test):,}")
     print(f"Recidivism rate, Train: {y_train.mean():.1%} | Test: {y_test.mean():.1%}")
 
-    print(f"\n--- Baseline Results (Stage 1 reference) ---")
+    print(f"\n--- Baseline Results (unconstrained models) ---")
     baseline_results = {}
     for name, model in MODELS.items():
         if name == "LogisticRegression":
@@ -277,7 +277,7 @@ def run_stage2():
     axes[1].set_xticks(x); axes[1].set_xticklabels(short)
     axes[1].set_title('Demographic Parity Difference\n(lower = fairer)', fontsize=11, fontweight='bold')
     axes[1].set_ylabel('DPD'); axes[1].legend()
-    plt.suptitle('COMPAS - Accuracy vs Fairness Tradeoff (ThresholdOptimizer)', fontsize=12, fontweight='bold')
+    plt.suptitle('COMPAS, Accuracy vs Fairness Tradeoff (ThresholdOptimizer)', fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_accuracy_fairness_tradeoff.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 1 saved, compas_accuracy_fairness_tradeoff.png')
@@ -291,7 +291,7 @@ def run_stage2():
         axes[0].annotate(f'{imp:+.0f}%', xy=(i, max(b,a)+0.02), ha='center', fontsize=9,
                         color='green' if imp > 0 else 'red')
     axes[0].set_xticks(x); axes[0].set_xticklabels(short)
-    axes[0].set_title(f'DPD Reduction - DP Constraint\n(GB {(base_dpds[-1]-dp_dpds[-1])/base_dpds[-1]*100:+.1f}%; six race groups)', fontsize=11, fontweight='bold')
+    axes[0].set_title(f'DPD Reduction, DP Constraint\n(GB {(base_dpds[-1]-dp_dpds[-1])/base_dpds[-1]*100:+.1f}%; six race groups)', fontsize=11, fontweight='bold')
     axes[0].set_ylabel('DPD'); axes[0].legend()
 
     axes[1].bar(x-width/2, base_eods, width, label='Baseline', color='#95a5a6', edgecolor='white')
@@ -301,9 +301,9 @@ def run_stage2():
         axes[1].annotate(f'{imp:+.0f}%', xy=(i, max(b,a)+0.02), ha='center', fontsize=9,
                         color='green' if imp > 0 else 'red')
     axes[1].set_xticks(x); axes[1].set_xticklabels(short)
-    axes[1].set_title(f'EOD Reduction - EO Constraint\n(GB {(base_eods[-1]-eo_eods[-1])/base_eods[-1]*100:+.1f}%; six race groups)', fontsize=11, fontweight='bold')
+    axes[1].set_title(f'EOD Reduction, EO Constraint\n(GB {(base_eods[-1]-eo_eods[-1])/base_eods[-1]*100:+.1f}%; six race groups)', fontsize=11, fontweight='bold')
     axes[1].set_ylabel('EOD'); axes[1].legend()
-    plt.suptitle('COMPAS - Fairness Improvement by Constraint Type', fontsize=12, fontweight='bold')
+    plt.suptitle('COMPAS, Fairness Improvement by Constraint Type', fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_fairness_improvement.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 2 saved, compas_fairness_improvement.png')
@@ -336,7 +336,7 @@ def run_stage2():
     ax.legend(handles=legend_elements, fontsize=9)
     ax.set_xlabel('Accuracy Cost (positive = accuracy loss)')
     ax.set_ylabel('Fairness Gain (positive = fairer)')
-    ax.set_title('COMPAS - Accuracy Cost vs Fairness Gain\n(upper-left = best: high fairness gain - low accuracy cost)', fontsize=11, fontweight='bold')
+    ax.set_title('COMPAS, Accuracy Cost vs Fairness Gain\n(upper-left = best: high fairness gain, low accuracy cost)', fontsize=11, fontweight='bold')
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_cost_gain_scatter.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 3 saved, compas_cost_gain_scatter.png')
@@ -352,7 +352,7 @@ def run_stage2():
     for i, val in enumerate(sex_eods):
         ax.text(i+width/2, val+0.003, f'{val:.3f}', ha='center', fontsize=9)
     ax.set_xticks(x); ax.set_xticklabels(short)
-    ax.set_title(f'COMPAS - Sex Fairness After DP Constraint on Sex\n(GB DPD={sex_dpds[-1]:.3f})', fontsize=11, fontweight='bold')
+    ax.set_title(f'COMPAS, Sex Fairness After DP Constraint on Sex\n(GB DPD={sex_dpds[-1]:.3f})', fontsize=11, fontweight='bold')
     ax.set_ylabel('Fairness Metric'); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_sex_fairness.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 4 saved, compas_sex_fairness.png')
@@ -363,7 +363,7 @@ def run_stage2():
     ax.bar(x,       dp_f1s,   width, label='DP Constraint', color='#3498db', edgecolor='white')
     ax.bar(x+width, eo_f1s,   width, label='EO Constraint', color='#e74c3c', edgecolor='white')
     ax.set_xticks(x); ax.set_xticklabels(short)
-    ax.set_title('COMPAS - F1 Score Comparison\n(Baseline vs Constrained Models)', fontsize=11, fontweight='bold')
+    ax.set_title('COMPAS, F1 Score Comparison\n(Baseline vs Constrained Models)', fontsize=11, fontweight='bold')
     all_f1s = [v for v in base_f1s + dp_f1s + eo_f1s if v]
     ax.set_ylabel('F1 Score'); ax.legend(); ax.set_ylim(min(all_f1s) - 0.05, max(all_f1s) + 0.03); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_f1_comparison.png'), dpi=150, bbox_inches='tight')
@@ -385,7 +385,7 @@ def run_stage2():
         ax.text(i,    b+0.008, f'{b:.2f}', ha='center', fontsize=7)
         ax.text(i+w6, c+0.008, f'{c:.2f}', ha='center', fontsize=7)
     ax.set_xticks(x6); ax.set_xticklabels(races, rotation=15, ha='right')
-    ax.set_title('COMPAS - Race-Level Prediction Rates: Baseline vs EO Constraint\n'
+    ax.set_title('COMPAS, Race-Level Prediction Rates: Baseline vs EO Constraint\n'
                  f'AA-Caucasian gap: {aa_base-cau_base:.3f} -> {aa_con-cau_con:.3f}',
                  fontsize=11, fontweight='bold')
     ax.set_ylabel('Predicted Positive Rate'); ax.legend(); plt.tight_layout()
@@ -441,7 +441,7 @@ def run_stage2():
     axes[1].set_xticks(x7); axes[1].set_xticklabels(plot_races, rotation=15, ha='right')
     axes[1].set_title('False Negative Rate by Race\n(GB, EO constraint)', fontsize=11, fontweight='bold')
     axes[1].set_ylabel('FNR'); axes[1].legend()
-    plt.suptitle('COMPAS - FPR/FNR by Race: Baseline vs EO Constraint', fontsize=12, fontweight='bold')
+    plt.suptitle('COMPAS, FPR/FNR by Race: Baseline vs EO Constraint', fontsize=12, fontweight='bold')
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_fpr_fnr_by_race.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 7 saved, compas_fpr_fnr_by_race.png')
@@ -461,7 +461,7 @@ def run_stage2():
         ax.text(x8[i] + w8/2, a + 0.01, f'{a:.3f}', ha='center', fontsize=9)
     ax.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='0.8 four-fifths convention')
     ax.set_xticks(x8); ax.set_xticklabels(names_list)
-    ax.set_title('COMPAS - Selection-Rate Ratio Before vs After DP Constraint\n'
+    ax.set_title('COMPAS, Selection-Rate Ratio Before vs After DP Constraint\n'
                  '(six race groups, lowest predicted recidivism rate over highest; not a fixed pair)', fontsize=11)
     ax.set_ylabel('Disparate Impact Ratio (DIR)')
     ax.set_ylim(0, 1.5); ax.legend(fontsize=9)
@@ -469,7 +469,7 @@ def run_stage2():
     plt.savefig(os.path.join(FIGURES_DIR, 'compas_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 8 saved, compas_dir_before_after.png')
 
-    print(f"\n--- COMPAS Stage 2 complete ---")
+    print(f"\n--- COMPAS intervention complete ---")
     print(f"  8 figures saved to figures/stage2/")
 
 if __name__ == "__main__":

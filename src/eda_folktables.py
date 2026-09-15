@@ -137,15 +137,15 @@ def run_eda():
     female_rate = df[df["SEX"] == 2]["label"].mean()
     print(f"  White income >$50k rate:          {white_rate:.1%}")
     print(f"  Black/African-American rate:       {black_rate:.1%}")
-    print(f"  Race gap (White - Black):          {abs(white_rate - black_rate):.1%}")
+    print(f"  Race gap (White minus Black):          {abs(white_rate - black_rate):.1%}")
     print(f"  Male income >$50k rate:            {male_rate:.1%}")
     print(f"  Female income >$50k rate:          {female_rate:.1%}")
-    print(f"  Sex gap (Male - Female):           {abs(male_rate - female_rate):.1%}")
+    print(f"  Sex gap (Male minus Female):           {abs(male_rate - female_rate):.1%}")
     print(f"  Education-income correlation:      {edu_corr:.3f}")
 
     print(f"\n--- Folktables ACS EDA complete ---")
     print(f"  Total records: {len(df):,} across all 50 states")
-    print(f"  Ready for Stage 1 preprocessing and baseline modeling")
+    print(f"  Ready for preprocessing and baseline modeling")
 
     return df
 

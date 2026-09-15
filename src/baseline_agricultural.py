@@ -204,7 +204,7 @@ def run_baselines():
 
     print(f"\n--- SBA Agricultural Baseline complete ---")
     print(f"  Geographic proxy captures state-level fairness gaps")
-    print(f"  Stage 2 ThresholdOptimizer needed to reduce geographic disparities")
+    print(f"  Stage 3 ThresholdOptimizer needed to reduce geographic disparities")
 
     return all_results, state_test, btype_test, y_test
 

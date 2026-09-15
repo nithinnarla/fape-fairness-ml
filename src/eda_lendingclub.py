@@ -194,7 +194,7 @@ def run_eda():
 
     print(f"\n--- Lending Club EDA complete ---")
     print(f"  Sample records: {len(df):,} (from 1,348,099 total)")
-    print(f"  Ready for Stage 1 preprocessing and baseline modeling")
+    print(f"  Ready for preprocessing and baseline modeling")
 
     return df
 

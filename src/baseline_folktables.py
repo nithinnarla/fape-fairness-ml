@@ -150,7 +150,7 @@ def run_baselines():
     print(f"  Male-Female income gap: Male {df[df['SEX']==1]['label'].mean():.1%} vs Female {df[df['SEX']==2]['label'].mean():.1%}")
     print(f"  Black-White income gap: Black {df[df['RAC1P']==2]['label'].mean():.1%} vs White {df[df['RAC1P']==1]['label'].mean():.1%}")
     print(f"  Asian-White income gap: Asian {df[df['RAC1P']==6]['label'].mean():.1%} vs White {df[df['RAC1P']==1]['label'].mean():.1%}")
-    print(f"  Note: Stage 2 applies the DP and EO constraints by race, plus a separate DP run by sex")
+    print(f"  Note: Stage 3 applies the DP and EO constraints by race, plus a separate DP run by sex")
 
     print(f"\n--- Folktables Baseline complete ---")
     return results

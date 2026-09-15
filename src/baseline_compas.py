@@ -156,7 +156,7 @@ def run_baselines():
     print(f"\n--- Key Findings ---")
     best = max(results.items(), key=lambda x: x[1]["auc"])
     print(f"  Best model: {best[0]} (AUC={best[1]['auc']:.3f})")
-    print(f"  Note: Stage 2 applies ThresholdOptimizer under demographic parity and equalized odds by race")
+    print(f"  Note: Stage 3 applies ThresholdOptimizer under demographic parity and equalized odds by race")
 
     print(f"\n--- COMPAS Baseline complete ---")
     return results

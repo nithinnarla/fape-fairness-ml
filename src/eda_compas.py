@@ -153,7 +153,7 @@ def run_eda():
 
     print(f"\n--- COMPAS EDA complete ---")
     print(f"  Total records: {len(df):,}")
-    print(f"  Ready for Stage 1 preprocessing and baseline modeling")
+    print(f"  Ready for preprocessing and baseline modeling")
 
     return df
 

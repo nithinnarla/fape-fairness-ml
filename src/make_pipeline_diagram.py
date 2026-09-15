@@ -23,7 +23,7 @@ STAGES = [
     ("Stage 1: Data preprocessing",
      "8 evaluations, sensitive attributes, stratified sampling", "#1e9e6a"),
     ("Stage 2: Baseline classification",
-     "LR, RF, GB - default hyperparameters", "#2b7bba"),
+     "LR, RF and GB with default hyperparameters", "#2b7bba"),
     ("Stage 3: Fairness intervention",
      "ThresholdOptimizer, DP and EO constraints", "#7d6ecf"),
     ("Stage 4: Drift monitoring",

@@ -222,14 +222,14 @@ def run_fairness_drift_monitor():
         ax.set_ylabel('DPD')
         if i == 0:
             ax.legend(fontsize=7)
-    fig.suptitle('Simulated DPD Across 3 Model Versions - GB Model\n'
+    fig.suptitle('Simulated DPD Across 3 Model Versions, GB Model\n'
                  'v1=baseline (not deployed), v2=post-DP constraint (deployed), v3=synthetic shift',
                  fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_dpd_timeseries.png'),
                 dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 1 saved - drift_dpd_timeseries.png")
+    print("  Fig 1 saved, drift_dpd_timeseries.png")
 
     # Figure 2, CUSUM scores (GB)
     fig, axes = plt.subplots(2, 4, figsize=(20, 8))
@@ -250,14 +250,14 @@ def run_fairness_drift_monitor():
         ax.set_ylabel('CUSUM Score')
         if i == 0:
             ax.legend(fontsize=7)
-    fig.suptitle('CUSUM Scores After Deployment - GB Model\n'
+    fig.suptitle('CUSUM Scores After Deployment, GB Model\n'
                  'Monitoring starts at t=10; score above threshold = alert',
                  fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_cusum_scores.png'),
                 dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 2 saved - drift_cusum_scores.png")
+    print("  Fig 2 saved, drift_cusum_scores.png")
 
     # Figure 3, Alert count heatmap
     alert_matrix = np.array([
@@ -279,14 +279,14 @@ def run_fairness_drift_monitor():
                 ax.text(j, i, str(count), ha='center', va='center',
                         fontsize=11, color='black' if count < 10 else 'white')
     plt.colorbar(im, ax=ax, label='CUSUM alerts after deployment')
-    ax.set_title('CUSUM Alerts After Deployment - All Models × All Domains\n'
+    ax.set_title('CUSUM Alerts After Deployment, All Models × All Domains\n'
                  '(counts include models already above DPD 0.1 when deployed; n/e = not evaluated)',
                  fontsize=10)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_alert_heatmap.png'),
                 dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 3 saved - drift_alert_heatmap.png")
+    print("  Fig 3 saved, drift_alert_heatmap.png")
 
     # Figure 4, Model versioning DPD v1/v2/v3
     x = np.arange(len(DOMAINS))
@@ -308,7 +308,7 @@ def run_fairness_drift_monitor():
                linewidth=1, label='DPD 0.1 convention')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
-    ax.set_title('Model Versioning - DPD Across v1/v2/v3\n'
+    ax.set_title('Model Versioning, DPD Across v1/v2/v3\n'
                  'v1=baseline, v2=post-constraint, v3=mean under synthetic shift; '
                  'RF absent where not evaluated',
                  fontsize=12)
@@ -318,7 +318,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_model_versioning.png'),
                 dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 4 saved - drift_model_versioning.png")
+    print("  Fig 4 saved, drift_model_versioning.png")
 
     # Figure 5, First alert after deployment (paper Figure 4)
     fig, ax = plt.subplots(figsize=(13, 6.5))
@@ -350,7 +350,7 @@ def run_fairness_drift_monitor():
     ax.set_ylim(DEPLOY_START - 1, N_POINTS)
     ax.set_xlim(-0.6, len(DOMAINS) - 0.4)
     ax.set_ylabel('Time step of first alert')
-    ax.set_title('First CUSUM Alert After Deployment - All Models × All Domains\n'
+    ax.set_title('First CUSUM Alert After Deployment, All Models × All Domains\n'
                  'Markers at the start of the grey band: already above DPD 0.1 when deployed. '
                  'Orange band: regression under synthetic shift.',
                  fontsize=11)
@@ -358,7 +358,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_first_alert_time.png'),
                 dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 5 saved - drift_first_alert_time.png")
+    print("  Fig 5 saved, drift_first_alert_time.png")
 
     # Figure 6, Accuracy-fairness trajectory v1 -> v2 -> v3 (GB)
     fig, ax = plt.subplots(figsize=(14, 8))
@@ -377,7 +377,7 @@ def run_fairness_drift_monitor():
                linewidth=1, label='DPD 0.1 convention')
     ax.set_xlabel('Demographic Parity Difference (DPD)')
     ax.set_ylabel('Accuracy (AUC for Law School, Lending Club, Agricultural)')
-    ax.set_title('Accuracy-Fairness Trajectory - GB Model\n'
+    ax.set_title('Accuracy-Fairness Trajectory, GB Model\n'
                  'v1=baseline, v2=post-constraint, v3=synthetic shift '
                  '(v3 accuracy not simulated, held at v2)',
                  fontsize=12)
@@ -386,7 +386,7 @@ def run_fairness_drift_monitor():
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_acc_fairness_trajectory.png'),
                 dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 6 saved - drift_acc_fairness_trajectory.png")
+    print("  Fig 6 saved, drift_acc_fairness_trajectory.png")
 
     # EOD series share the construction above, seeded separately from DPD
     eod_timeseries = {}
@@ -417,14 +417,14 @@ def run_fairness_drift_monitor():
         ax.set_ylabel('EOD')
         if i == 0:
             ax.legend(fontsize=7)
-    fig.suptitle('Simulated EOD Across 3 Model Versions - GB Model\n'
+    fig.suptitle('Simulated EOD Across 3 Model Versions, GB Model\n'
                  'v1=baseline, v2=post-EO constraint, v3=synthetic shift',
                  fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'drift_eod_timeseries.png'),
                 dpi=300, bbox_inches='tight')
     plt.close()
-    print("  Fig 7 saved - drift_eod_timeseries.png")
+    print("  Fig 7 saved, drift_eod_timeseries.png")
 
     def magnitude_heatmap(series, pairs, metric, filename, fig_number):
         matrix = np.array([
@@ -435,7 +435,7 @@ def run_fairness_drift_monitor():
         fig, ax = plt.subplots(figsize=(8, 7))
         sns.heatmap(matrix, annot=True, fmt='.3f', cmap='YlOrRd', mask=np.isnan(matrix),
                     ax=ax, xticklabels=MODELS, yticklabels=DOMAINS,
-                    linewidths=0.5, cbar_kws={'label': f'{metric} Drift Magnitude (v3 mean - v2)'})
+                    linewidths=0.5, cbar_kws={'label': f'{metric} Drift Magnitude (v3 mean minus v2)'})
         for i in range(len(DOMAINS)):
             for j in range(len(MODELS)):
                 if np.isnan(matrix[i, j]):

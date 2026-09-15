@@ -10,7 +10,7 @@ Models: Logistic Regression, Random Forest, Gradient Boosting
 
 Key notes:
 - Lending Club releases no race or gender fields, so the audit uses socioeconomic attributes
-- Uses a 500K sample for baseline speed; Stage 2 uses a 100K stratified sample
+- Uses a 500K sample for baseline speed; the intervention script uses a 100K stratified sample
 - Income band proxy: low/lower_mid/upper_mid/high quartiles
 - Background on fairness in credit scoring: Kozodoi et al. (2022)
 """
@@ -175,7 +175,7 @@ def run_baselines():
 
     print(f"\n--- Lending Club Baseline complete ---")
     print(f"  Income band proxy captures fairness gap, low income predicted default rate higher")
-    print(f"  Stage 2 ThresholdOptimizer needed to reduce income-based disparities")
+    print(f"  Stage 3 ThresholdOptimizer needed to reduce income-based disparities")
 
     return all_results, inc_test, home_test, y_test
 

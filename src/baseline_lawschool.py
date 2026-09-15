@@ -169,7 +169,7 @@ def run_baselines():
 
     print(f"\n--- Law School Baseline complete ---")
     print(f"  Race gap confirmed, minority FPR and TPR systematically different")
-    print(f"  Stage 2 ThresholdOptimizer needed to reduce racial disparities")
+    print(f"  Stage 3 ThresholdOptimizer needed to reduce racial disparities")
 
     return all_results, race_test, sex_test, y_test
 
