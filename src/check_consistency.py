@@ -332,7 +332,10 @@ def check_figures(paper):
 
 
 def check_limits(paper_lines):
-    body = section(paper_lines, '## 1. Introduction', '## Declarations')
+    # The line that embeds a figure is a file path, not manuscript text. Its caption, the
+    # line below it, is counted like any other sentence.
+    body = [line for line in section(paper_lines, '## 1. Introduction', '## Declarations')
+            if not line.startswith('![')]
     words = len(' '.join(body).split())
     if words > 7000:
         problem('docs/paper_draft.md', f'body is {words} words, over the 7,000 limit')
