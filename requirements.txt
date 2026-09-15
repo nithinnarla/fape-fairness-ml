@@ -1,35 +1,31 @@
-# FAPE — Fairness-Aware Predictive Ensemble
-# Requirements for cross-domain fairness auditing pipeline
-# Python 3.10+
+# FAPE, Fairness Auditing in Production Environments
+# Requirements for the cross-domain fairness auditing pipeline
+# Python 3.11.9
 
 # Core data processing
 pandas==2.2.2
 numpy==1.26.4
 
 # Machine learning
-scikit-learn==1.4.2
-xgboost==2.0.3
+# scikit-learn is pinned at 1.9.1, not 1.4.2. fairml-datasets 0.2.5 requires
+# scikit-learn>=1.5.2, so the two cannot both be satisfied at 1.4.2 and a
+# pip install of the older pin fails outright. Every reported value in the
+# paper was verified under 1.9.1.
+scikit-learn==1.9.1
 
 # Dataset loaders
+# fairml-datasets pulls in aif360 and scipy transitively. Neither is imported
+# by this repository's own code, so neither is pinned here.
 folktables==0.0.12
+fairml-datasets==0.2.5
 
-# Fairness toolkits
+# Fairness intervention
 fairlearn==0.13.0
-aif360==0.6.0
-
-# Statistical significance testing
-scipy==1.13.0
-statsmodels==0.14.2
 
 # Visualization
 matplotlib==3.8.4
 seaborn==0.13.2
 
-# Notebook support
+# Notebook support, for the notebooks under notebooks/
 jupyter==1.0.0
 ipykernel==6.29.4
-
-# Utilities
-tqdm==4.66.4
-python-dotenv==1.0.1
-requests==2.31.0
