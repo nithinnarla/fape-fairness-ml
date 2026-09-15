@@ -1,7 +1,7 @@
 """
 SBA 7(a) Agricultural Loans Loader, FAPE Phase 4
 Source: U.S. Small Business Administration FOIA Dataset
-Period: FY1991-2024 (4 files)
+Period: FY1991-2026 as downloaded (4 files, the last running to the present)
 Agricultural filter: NAICS code prefix 11 (Agriculture, Forestry, Fishing)
 
 Individual-level farm business loan records with binary outcome.
@@ -42,7 +42,7 @@ PAID_STATUSES = {'P I F'}
 
 def load_sba_agricultural(data_dir: str = DATA_DIR) -> dict:
     """
-    Load SBA 7(a) agricultural loans across FY1991-2024.
+    Load SBA 7(a) agricultural loans from FY1991 onward.
 
     Filters to NAICS-11 (Agriculture, Forestry, Fishing, Hunting)
     across all four decade files. Applies binary outcome labeling
@@ -50,10 +50,8 @@ def load_sba_agricultural(data_dir: str = DATA_DIR) -> dict:
     Paid In Full = 0 (repaid).
 
     Note on demographics:
-    SBA FOIA data contains no race/ethnicity/sex fields, redacted
-    per SBA privacy policy. Geographic (state) and loan-size proxies
-    are used as sensitive attributes, consistent with ECOA fair
-    lending audit methodology used by CFPB.
+    SBA FOIA data contains no race/ethnicity/sex fields, so geographic (state) and
+    business-type attributes stand in as sensitive attributes.
 
     Args:
         data_dir: Directory containing SBA CSV files
@@ -62,7 +60,7 @@ def load_sba_agricultural(data_dir: str = DATA_DIR) -> dict:
         Dictionary with X, y, metadata, sensitive attributes
     """
     data_path = Path(data_dir)
-    print("Loading SBA 7(a) agricultural loans FY1991-2024...")
+    print("Loading SBA 7(a) agricultural loans, FY1991 onward...")
 
     dfs = []
     for period, filename in FILES.items():
@@ -128,7 +126,7 @@ def load_sba_agricultural(data_dir: str = DATA_DIR) -> dict:
     metadata = {
         'name': 'sba_7a_agricultural',
         'source': 'SBA FOIA 7(a) dataset, NAICS-11 filter',
-        'citation': 'U.S. Small Business Administration FOIA 7(a) FY1991-2024',
+        'citation': 'U.S. Small Business Administration FOIA 7(a), FY1991-2026 as downloaded',
         'n_samples': len(X),
         'n_features': len(feature_cols),
         'sensitive_attrs': sensitive_attrs,
@@ -136,9 +134,8 @@ def load_sba_agricultural(data_dir: str = DATA_DIR) -> dict:
         'positive_rate': positive_rate,
         'domain': 'Agriculture/Financial',
         'note': (
-            'No direct race/ethnicity demographics available, '
-            'SBA redacts borrower demographics per privacy policy. '
-            'Geographic and loan-size proxies used per ECOA standard. '
+            'The SBA loan file has no borrower race, ethnicity or sex fields; '
+            'geographic and business-type attributes stand in for them. '
             '21,926 total NAICS-11 records; binary outcome subset used.'
         )
     }

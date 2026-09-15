@@ -3,12 +3,12 @@ FAPE, SBA Agricultural Loans EDA
 Phase 4, Exploratory Data Analysis
 Agriculture/Financial Domain
 
-EDA on SBA 7(a) Agricultural Loans, 15,845 records from FY1991-2024.
+EDA on SBA 7(a) Agricultural Loans, 15,845 records from FY1991-2026.
 NAICS-11 filtered subset of SBA FOIA dataset.
-No direct race/ethnicity demographics, SBA redacts per privacy policy.
+The SBA loan file has no race or ethnicity fields.
 Geographic and loan-size proxies used per ECOA fair lending standard.
 
-Source: U.S. Small Business Administration FOIA 7(a) FY1991-2024
+Source: U.S. Small Business Administration FOIA 7(a), FY1991-2026 as downloaded
 Sensitive attributes: borrstate (geographic proxy), businesstype
 Target: loan_default_binary (1=Charged Off, 0=Paid In Full)
 Note: 5.2% default rate, severe class imbalance.
@@ -28,7 +28,7 @@ STATE_MAP = {0: 'AK', 1: 'AL', 2: 'AR', 3: 'AZ', 4: 'CA', 5: 'CO', 6: 'CT', 7: '
 NAICS_MAP = {16: 'Broilers and Other Meat Type Chicken Production', 60: 'Logging', 102: 'Support Activities for Animal Production', 20: 'Chicken Egg Production', 95: 'Soil Preparation, Planting, and Cultivating', 17: 'Broilers (trailing space variant, same as 16)', 93: 'Shellfish Fishing', 11: 'Beef Cattle Ranching and Farming', 6: 'All Other Miscellaneous Crop Farming', 103: 'Support Activities for Forestry', 41: 'Finfish Fishing', 64: 'Nursery and Tree Production', 55: 'Hog and Pig Farming', 79: 'Other Poultry Production', 58: 'Horses and Other Equine Production', 31: 'Dairy Cattle and Milk Production', 2: 'All Other Animal Production'}
 
 # borrstate encoding, alphabetical order of states appearing in SBA data
-# MS dominates due to poultry farming concentration in Mississippi
+# MS has the most loans, consistent with poultry farming in Mississippi
 
 
 def run_eda():
@@ -97,7 +97,7 @@ def run_eda():
     ).reset_index()
     for _, row in decade_stats.iterrows():
         print(f"  {int(row['decade'])}s: n={int(row['count']):,} | default rate: {row['default_rate']:.1%}")
-    print(f"  Note: 2000s decade highest default rate (10.9%), financial crisis effect")
+    print(f"  Note: 2000s decade highest default rate (10.9%), a decade that includes the 2008 financial crisis")
 
 
     print(f"\n--- NAICS Agricultural Subcategory vs Default Rate ---")
@@ -150,9 +150,9 @@ def run_eda():
     print(f"  Individual default rate:   {ind_rate:.1%}")
     print(f"  Partnership default rate:  {part_rate:.1%}")
     print(f"  Geographic spread: {state_default.min():.1%} to {state_default.max():.1%}")
-    print(f"  Note: No race/ethnicity data, SBA privacy policy")
-    print(f"  Note: MS dominates dataset (n=3,670), poultry farming concentration")
-    print(f"  Note: LA 14.4% default rate, highest geographic rate, likely Hurricane Katrina impact on 2000s loans")
+    print(f"  Note: No race or ethnicity fields in the SBA loan file")
+    print(f"  Note: MS has the most loans (n=3,670), consistent with its poultry farming")
+    print(f"  Note: LA 14.4% default rate, highest among states with at least 50 loans, possibly related to Hurricane Katrina")
     print(f"  Note: 5.2% default rate requires careful threshold selection in Stage 2")
 
     print(f"\n--- SBA Agricultural EDA complete ---")

@@ -185,7 +185,7 @@ def run_stage2():
 
     print(f"\n--- Key Findings ---")
     print(f"  Minority/majority DIR is computed below, before and after the DP constraint")
-    print(f"  Minority group: 6.4% of data, about 240 test records")
+    print(f"  Minority group: {(race == 0).mean():.1%} of data, {(race_test == 0).sum()} test records")
     sex_dps = [demographic_parity_difference(y_test, dp_results[n]['y_pred'], sensitive_features=sex_test)
                for n in dp_results if dp_results.get(n)]
     if sex_dps:
@@ -412,8 +412,9 @@ def run_stage2():
 
     print(f"\n--- Law School Stage 2 complete ---")
     print(f"  ThresholdOptimizer applied, racial gap targeted")
-    print(f"  Cross-domain: Law School has largest racial gap in FAPE (DIR=0.643)")
-    print(f"  Stage 3 fairness audit will evaluate drift detection on constrained models")
+    print(f"  GradientBoosting minority/majority DIR before the constraint: "
+          f"{dir_befores[names_list.index('GradientBoosting')]:.3f}")
+    print(f"  Stage 4 drift monitoring for these models: src/fairness_drift_monitor.py")
 
     return baseline, dp_results, eo_results
 

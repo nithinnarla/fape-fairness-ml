@@ -22,7 +22,7 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(__file__))
-from lending_club_loader import load_lending_club
+from lending_club_loader import load_lending_club, DATA_PATH, DEFAULT_STATUSES, PAID_STATUSES
 
 GRADE_LABELS = {0:"A", 1:"B", 2:"C", 3:"D", 4:"E", 5:"F", 6:"G"}
 PURPOSE_LABELS = {0:"car", 1:"credit_card", 2:"debt_consolidation",
@@ -31,13 +31,16 @@ PURPOSE_LABELS = {0:"car", 1:"credit_card", 2:"debt_consolidation",
                   9:"other", 10:"renewable_energy", 11:"small_business",
                   12:"vacation", 13:"wedding"}
 HOME_LABELS = {0:"ANY", 1:"MORTGAGE", 2:"NONE", 3:"OTHER", 4:"OWN", 5:"RENT"}
-STATE_MAP = {0:'AK',1:'AL',2:'AR',3:'AZ',4:'CA',5:'CO',6:'CT',7:'DC',8:'DE',
-9:'FL',10:'GA',11:'HI',12:'ID',13:'IL',14:'IN',15:'KS',16:'KY',17:'LA',
-18:'MA',19:'MD',20:'ME',21:'MI',22:'MN',23:'MO',24:'MS',25:'MT',26:'NC',
-27:'ND',28:'NE',29:'NH',30:'NJ',31:'NM',32:'NV',33:'NY',34:'OH',35:'OK',
-36:'OR',37:'PA',38:'RI',39:'SC',40:'SD',41:'TN',42:'TX',43:'UT',44:'VA',
-45:'VT',46:'WA',47:'WI',48:'WV',49:'WY'}
 INC_LABELS = {-1:"Unknown", 0:"Low", 1:"Lower-Mid", 2:"Upper-Mid", 3:"High"}
+
+
+def state_names(data_path=DATA_PATH):
+    """Code-to-state map matching the loader, which takes category codes over every loan that passes
+    its outcome filter. A fixed alphabetical list shifts every label once a rarely used state (IA has
+    14 loans) is present."""
+    raw = pd.read_csv(data_path, usecols=["loan_status", "addr_state"], low_memory=False)
+    raw = raw[raw["loan_status"].isin(DEFAULT_STATUSES | PAID_STATUSES)]
+    return dict(enumerate(pd.Categorical(raw["addr_state"]).categories))
 
 
 def run_eda():
@@ -88,7 +91,7 @@ def run_eda():
     for _, row in emp_stats.iterrows():
         print(f"  {int(row['emp_length']):>2} years: n={int(row['count']):,} | default rate: {row['default_rate']:.1%}")
 
-    print(f"  Note: < 1 year emp_length dropped as NaN during numeric extraction, see loader")
+    print(f"  Note: the loader keeps the first number, so < 1 year counts as 1; blanks are filled with the median")
     print(f"\n--- Income Band vs Default Rate ---")
     inc_stats = df.groupby("annual_inc_band").agg(
         count=("label","count"),
@@ -144,6 +147,7 @@ def run_eda():
         default_rate=("label","mean")
     ).reset_index()
     state_stats = state_stats[state_stats["count"] >= 100]
+    STATE_MAP = state_names()
     top5_high = state_stats.nlargest(5, "default_rate")
     top5_low = state_stats.nsmallest(5, "default_rate")
     print(f"  Total states with n>=100: {len(state_stats)}")

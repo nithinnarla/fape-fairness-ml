@@ -4,7 +4,7 @@ Phase 4, Exploratory Data Analysis
 Multi-Domain Benchmark
 
 EDA on FairGround corpus, 37 fairness-annotated datasets
-totaling 1,964,010 records across criminal justice, financial,
+totaling 1,955,063 records (1,964,010 with a cached copy of stop_question_and_frisk_data, which fairml-datasets 0.2.5 cannot load under numpy 1.26) across criminal justice, financial,
 healthcare, education, and socioeconomic domains.
 
 FairGround addresses the benchmark monoculture problem identified
@@ -55,7 +55,7 @@ def run_eda():
     print(f"  Datasets loaded: {len(corpus)}")
     total_records = sum(corpus[k]["metadata"]["n_samples"] for k in corpus)
     print(f"  Total records:   {total_records:,}")
-    print(f"  Failed:          1 (law_school_tensorflow HTTP 403)")
+    print(f"  Failed:          listed in the loader output above")
 
     print(f"\n--- Dataset Summary ---")
     print(f"  {'Dataset':<40} {'Records':>10} {'Features':>10} Sensitive Attrs")
@@ -155,7 +155,7 @@ def run_eda():
         print(f"  {name:<45} {n:,}")
 
     print(f"\n--- FairGround EDA complete ---")
-    print(f"  Total datasets: {len(corpus)} loaded (1 failed, law_school_tensorflow HTTP 403)")
+    print(f"  Total datasets: {len(corpus)} loaded")
     print(f"  Total records:  {total_records:,}")
     print(f"  Ready for cross-domain fairness baseline modeling")
 

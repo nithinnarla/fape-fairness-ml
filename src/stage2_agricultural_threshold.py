@@ -8,7 +8,7 @@ Tests demographic_parity and equalized_odds constraints.
 Primary sensitive attribute: businesstype (0=Corporation, 1=Individual, 2=Partnership)
 Secondary: borrstate (geographic proxy, state-level fairness)
 
-Dataset: SBA 7(a) Agricultural Loans FY1991-2024
+Dataset: SBA 7(a) Agricultural Loans FY1991-2026
 Records: 15,845 | default rate: 5.2%, severe class imbalance
 Note: No race or gender field; the audit uses business type (ECOA business-credit context)
 Note: businesstype -1 (Unknown, n=34) excluded from fairness metrics

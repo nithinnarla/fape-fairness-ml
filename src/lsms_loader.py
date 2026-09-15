@@ -12,7 +12,7 @@ Why LSMS-ISA for agricultural fairness:
 No publicly available US individual-level agricultural dataset
 with demographic attributes exists, USDA NASS and ARMS are
 aggregate only due to CIPSEA confidentiality protections.
-LSMS-ISA provides the only large-scale publicly downloadable
+LSMS-ISA provides a large, publicly downloadable
 individual-level agricultural dataset with sex, age, and
 education demographics suitable for ML fairness evaluation.
 
@@ -141,7 +141,7 @@ def load_lsms_nigeria(data_dir: str = DATA_DIR) -> dict:
             'Individual-level agricultural household survey. '
             'No publicly available US individual-level agricultural '
             'fairness dataset exists due to CIPSEA confidentiality, '
-            'LSMS-ISA provides the only large-scale alternative. '
+            'LSMS-ISA is a large-scale alternative. '
             'Target: household food security proxy via per-capita consumption.'
         )
     }

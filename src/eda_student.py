@@ -99,7 +99,7 @@ def run_eda():
             rate_1 = df[df[col] == 1]["label"].mean()
             print(f"  {col:<12} no={rate_0:.1%} yes={rate_1:.1%} | diff={abs(rate_1-rate_0):.1%}")
         print(f"  Note: schoolsup paradox, students WITH support perform worse.")
-        print(f"  This is a selection effect: struggling students receive more support,")
+        print(f"  This looks like a selection effect: struggling students are the ones given support,")
         print(f"  not evidence that support causes poor performance.")
 
         print(f"\n--- Intersectional (Sex x Failures) ---")

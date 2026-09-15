@@ -2,19 +2,19 @@
 FAPE, SBA Agricultural Loans Baseline Models
 Phase 4, Baseline Fairness Evaluation
 
-Dataset: SBA 7(a) Agricultural Loans FY1991-2024
+Dataset: SBA 7(a) Agricultural Loans FY1991-2026
 15,845 records | geographic and business-type proxy sensitive attributes
 Sensitive attributes: borrstate (geographic proxy), businesstype
 Target: loan_default_binary (1=Charged Off, 0=Paid In Full)
 Models: Logistic Regression, Random Forest, Gradient Boosting
 
 Key notes:
-- No direct race/ethnicity/sex data, SBA FOIA redacts demographics
+- No race, ethnicity or sex fields in the SBA loan file
 - Geographic proxy: borrstate captures regional economic disparities
 - Business type proxy: Individual vs Corporation vs Partnership
 - 5.2% default rate, severe class imbalance; class_weight='balanced'
 - Follows ECOA fair lending audit standard per CFPB methodology
-- MS dominates (23%) due to poultry farming concentration
+- MS has the most loans (23%), consistent with its poultry farming
 """
 
 import numpy as np
@@ -93,7 +93,7 @@ def run_baselines():
 
     print(f"\n  n={len(y):,} | features={X.shape[1]} | default_rate={y.mean():.1%}")
     print(f"  sensitive=borrstate (geographic proxy), businesstype")
-    print(f"  Note: No direct race/ethnicity/sex, SBA FOIA redacts demographics")
+    print(f"  Note: No race, ethnicity or sex fields in the SBA loan file")
     print(f"  Note: class_weight=balanced due to 5.2% default rate")
 
     all_results = {}

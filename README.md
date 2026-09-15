@@ -78,27 +78,27 @@ The field is actively contested on two questions FAPE addresses. First: whether 
 |---------|------|---------|--------|--------|
 | COMPAS Recidivism | 2013-2014 | 6,172 | Criminal Justice | Public |
 | Folktables ACS | 2021 | 1,589,032 | Socioeconomic | Public |
-| FairGround Corpus | 2025 | 1,964,010 | Multi-domain | Public |
+| FairGround Corpus | 2025 | 1,955,063 | Multi-domain | Public |
 | Student Performance | 2008 | 1,044 | Education | UCI ML |
 | Law School Admissions | 1991-2000 | 18,692 | Education/Legal | Public (via FairGround) |
 | Lending Club | 2007-2018 | 1,348,099 | Financial | Kaggle |
 | USDA NASS Census | 2022 | 7,334 | Agriculture (baseline) | Public |
-| SBA 7(a) NAICS-11 | FY1991-2024 | 15,845 | Agriculture | Public |
+| SBA 7(a) NAICS-11 | FY1991-2026 | 15,845 | Agriculture | Public |
 | LSMS-ISA Nigeria | 2018-2019 | 30,312 | Agriculture | World Bank |
 | MEPS Panel 19 FY2015 | 2015 | 15,830 | Healthcare | Public (via FairGround) |
 | MIMIC-III Clinical | 2001-2012 | not obtained | Healthcare (dropped) | PhysioNet |
 
-**Verified: 4,961,848 distinct records.** Law School Admissions (law_school_lequy) and MEPS Panel 19 are both sub-datasets of the FairGround corpus, so their 18,692 and 15,830 records are already inside FairGround's 1,964,010 and are counted once. MIMIC-III was never obtained and is not part of the study. USDA NASS is used descriptively in EDA only and LSMS-ISA Nigeria was excluded from modeling (Decision 11); both are counted here as collected.
+**Verified: 4,952,901 distinct records.** Law School Admissions (law_school_lequy) and MEPS Panel 19 are both sub-datasets of the FairGround corpus, so their 18,692 and 15,830 records are already inside FairGround's 1,955,063 and are counted once. Two FairGround datasets, law_school_tensorflow and stop_question_and_frisk_data, fail to load in the pinned environment because fairml-datasets 0.2.5 calls np.bool, which numpy 1.26 does not have; stop_question_and_frisk_data adds 8,947 records (4,961,848 in total) when a cached copy from an earlier download is present. MIMIC-III was never obtained and is not part of the study. USDA NASS is used descriptively in EDA only and LSMS-ISA Nigeria was excluded from modeling (Decision 11); both are counted here as collected.
 
 Dataset notes:
 - COMPAS: 6,172 records verified, ProPublica Broward County Florida 2013-2014
 - Folktables ACS: 1,589,032 records verified, replaces Adult Income per Ding et al. (2021)
-- FairGround Corpus: 1,964,010 records verified, 44 fairness-annotated datasets (Simson et al. 2025)
+- FairGround Corpus: 1,955,063 records in the 36 datasets that load with fairml-datasets 0.2.5, out of the 38 it lists without the large-dataset option (Simson et al. 2025)
 - Student Performance: 1,044 records verified, math and Portuguese variants combined
 - Law School Admissions: 18,692 records verified, race and sex, bar passage outcome
 - Lending Club: 1,348,099 records verified, socioeconomic proxy fairness at production scale
 - USDA NASS Census 2022: 7,334 aggregate rows, racial disparity baseline, not individual-level training data. CIPSEA (7 U.S.C. §2204) prohibits public release of individual farm records.
-- SBA 7(a) NAICS-11: 15,845 individual agricultural business loans FY1991-2024, binary default outcome, geographic proxy attributes
+- SBA 7(a) NAICS-11: 15,845 individual agricultural business loans FY1991-2026, binary default outcome, geographic proxy attributes
 - LSMS-ISA Nigeria Wave 4: 30,312 individual farm households, sex and education as sensitive attributes, food security outcome. Only large-scale publicly downloadable individual-level agricultural dataset with demographic attributes. Evaluated during design and excluded from the ML pipeline (Decision 11).
 - MEPS Panel 19 FY2015: 15,830 records, race as the sensitive attribute, drawn from the FairGround corpus. This is the healthcare evaluation the study ran.
 - MIMIC-III required PhysioNet credentialed registration, which did not come through. Healthcare is covered by MEPS instead, so no result in this repository depends on MIMIC-III.
