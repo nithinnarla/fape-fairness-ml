@@ -1,4 +1,4 @@
-# FAPE, Fairness Auditing in Production Environments
+# FAPE, Fairness Auditing for Production Environments
 
 ## The Problem I Kept Running Into
 

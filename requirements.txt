@@ -1,4 +1,4 @@
-# FAPE, Fairness Auditing in Production Environments
+# FAPE, Fairness Auditing for Production Environments
 # Requirements for the cross-domain fairness auditing pipeline
 # Python 3.11.9
 
