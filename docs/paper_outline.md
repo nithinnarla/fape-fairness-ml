@@ -160,7 +160,7 @@ Title: When Post-Processing Fairness Constraints Help and When They Harm: Eviden
 - A strong but imperfect guide; audit baseline DPD before applying a constraint
 - Folktables' domain-level exception falls to 0.078 on groups of at least 30 records; Lending Club's near-fair exception remains
 
-### 6.2 Multi-Metric Tradeoffs
+### 6.2 Multi-Metric Tradeoffs (Figure 5)
 - Student gradient boosting: EOD down 64%, DPD down 9%; MEPS logistic regression the reverse
 - Lending Club and Agricultural DIRs look like successes but come from predicting default for everyone more often
 - Small groups: group-size check results (Table 6 of cross_domain_results_table.md)
