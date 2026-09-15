@@ -22,11 +22,11 @@ The other reason: I need to be able to defend every decision in a review or acro
 
 I spent more time on the research question framing than on any other single design decision. It determines what counts as evidence, what the paper can legitimately claim, and what a reviewer can legitimately push back on.
 
-The easy version of this question is Descriptive: document what fairness looks like across multiple domains. That's a contribution but a limited one, it tells practitioners what the problem looks like, not what to do about it. The Comparative version, compare FAPE against existing frameworks, is defensible but it puts the paper in a direct competition with AIF360 and Fairlearn that I'd rather avoid framing it as.
+The easy version of this question is Descriptive: document what fairness looks like across multiple domains. That would be a contribution, but a limited one: it tells practitioners what the problem looks like without saying what to do about it. The Comparative version, compare FAPE against existing frameworks, is defensible but it puts the paper in a direct competition with AIF360 and Fairlearn that I'd rather avoid framing it as.
 
 The Causal framing is harder to defend and more valuable if it holds: does applying post-processing fairness constraints cause measurable bias reduction across heterogeneous high-stakes deployment domains simultaneously, at acceptable accuracy cost? This is the question practitioners need answered. They're not asking whether bias exists, Angwin et al. (2016) answered that. They're asking whether an intervention works, and whether it works consistently across the contexts they actually deploy in.
 
-The causal framing has a real constraint: the baseline model has to be identical across all domains. Same LR/RF/GB architecture (sklearn), same hyperparameters, same training procedure. If I let domain-specific tuning creep in, I can't attribute fairness differences to the intervention, they could be model configuration artifacts. That's a constraint I'm accepting because it's the only way to make the cross-domain comparison clean.
+The causal framing has a real constraint: the baseline model has to be identical across all domains. Same LR/RF/GB architecture (sklearn), same hyperparameters, same training procedure. If I let domain-specific tuning creep in, I can't attribute fairness differences to the intervention, because they could be model configuration artifacts. I accept that constraint because it's the only way to keep the cross-domain comparison clean.
 
 ---
 
@@ -66,7 +66,7 @@ The honest limitation: I don't have access to a live production system. Stage 4 
 
 **COMPAS (6,172 records verified), Criminal justice**
 
-Non-negotiable. The field's primary validation benchmark. Any fairness paper that doesn't engage with COMPAS will be questioned in review, ProPublica's documented racial disparities provide known ground truth I can validate against before running a single experiment. I know what the bias looks like. If FAPE doesn't find it, something is wrong with the framework.
+COMPAS is required as the field's primary validation benchmark. Any fairness paper that doesn't engage with it will be questioned in review, and ProPublica's documented racial disparities provide known ground truth I can validate against before running a single experiment. I know what the bias looks like. If FAPE doesn't find it, something is wrong with the framework.
 
 The limitation I'll state explicitly: one algorithm, one county in Florida, 2013-2014. This is not a representative sample of criminal justice AI. Using it for field comparability, not for generalization.
 
@@ -76,7 +76,7 @@ Ding et al. (2021) showed Adult Income is methodologically flawed. Using Adult I
 
 **FairGround Corpus (1,964,010 records verified), Multi-domain**
 
-44 fairness-annotated datasets. What Simson et al. (2025) built is essentially a pre-processed collection of datasets with sensitive attributes and fairness metadata already identified, work that would have taken months to do from scratch across this many domains. I haven't found another paper that uses FairGround as part of a multi-domain evaluation framework.
+44 fairness-annotated datasets, of which 38 load without the large-dataset option and 37 of those prepare under the pinned numpy, the 1,964,010 records above. What Simson et al. (2025) built is a pre-processed collection of datasets with sensitive attributes and fairness metadata already identified, work that would have taken months to do from scratch across this many domains. I haven't found another paper that uses FairGround as part of a multi-domain evaluation framework.
 
 **Student Performance (1,044 records verified), Education**
 
@@ -96,7 +96,7 @@ Agricultural domain confirmed, USDA NASS Census 2022 (7,334 aggregate rows), SBA
 
 Searched for fairness papers on agricultural lending and farm household outcomes before committing to this domain and found none. Small farmers, agricultural loan applicants, farm households in developing economies, populations making consequential decisions increasingly mediated by algorithmic systems, and I found no evaluation of the fairness implications.
 
-Three datasets covering different terrain. USDA NASS provides aggregate racial baseline on US farm ownership, not individual training data, but ground truth for what racial disparity in agricultural access looks like. SBA 7(a) provides individual-level agricultural loan records with binary default outcomes. LSMS-ISA Nigeria Wave 4 provides 30,312 farm household records from a context where the fairness literature has essentially no presence, sex and education as sensitive attributes, food security as outcome. The only large-scale publicly downloadable individual-level agricultural dataset with demographic attributes I could find.
+Three datasets covering different terrain. USDA NASS provides aggregate racial baseline on US farm ownership, not individual training data, but ground truth for what racial disparity in agricultural access looks like. SBA 7(a) provides individual-level agricultural loan records with binary default outcomes. LSMS-ISA Nigeria Wave 4 provides 30,312 farm household records from a context where the fairness literature has almost no presence, sex and education as sensitive attributes, food security as outcome. The only large-scale publicly downloadable individual-level agricultural dataset with demographic attributes I could find.
 
 ---
 
@@ -104,7 +104,7 @@ Three datasets covering different terrain. USDA NASS provides aggregate racial b
 
 **Demographic parity difference**, positive outcome rates equal across groups. Simplest metric, the difference form of the comparison the four-fifths rule makes as a ratio. Limitation: can be gamed by lowering outcomes for the advantaged group. Report it because practitioners expect it, not because it's the most informative.
 
-**Equalized odds difference**, true positive and false positive rates equal across groups. What Hardt et al. (2016) formalized. More demanding than demographic parity. The impossibility result applies here: calibration and equal error rates cannot all hold when base rates differ. FAPE does not measure calibration, so it names this tradeoff rather than quantifying it.
+**Equalized odds difference**, true positive and false positive rates equal across groups. What Hardt et al. (2016) formalized. More demanding than demographic parity. The impossibility result applies here: calibration and equal error rates cannot generally hold together when base rates differ, except under narrow conditions. FAPE does not measure calibration, so it names this tradeoff rather than quantifying it.
 
 **Disparate impact ratio**, positive outcome rate for disadvantaged group divided by advantaged group. The 0.8 line comes from the EEOC's four-fifths rule for employment. ECOA does not adopt it, so FAPE treats 0.8 as a research convention everywhere, including Lending Club and SBA 7(a), where the outcome is default and a ratio above 1.0 is the adverse direction.
 
@@ -116,7 +116,7 @@ Three datasets covering different terrain. USDA NASS provides aggregate racial b
 
 Three things FAPE cannot claim that I want to be explicit about before writing starts.
 
-Cannot solve the fairness problem. Chouldechova's impossibility theorem is mathematics, not a limitation of the current implementation. Calibration and equal error rates cannot all hold when base rates differ. FAPE makes the tradeoff visible, it doesn't eliminate it.
+Cannot solve the fairness problem. Chouldechova's impossibility theorem is mathematics, not a limitation of the current implementation. Calibration and equal error rates cannot generally hold together when base rates differ. FAPE makes the tradeoff visible, it doesn't eliminate it.
 
 Cannot generalize from these domains to all high-stakes ML contexts. Seven domains is a meaningful sample, not an exhaustive one. [Now eight evaluations from seven data sources, with healthcare covered by one survey dataset, MEPS.] The paper will be explicit about coverage and resist overclaiming generalizability.
 

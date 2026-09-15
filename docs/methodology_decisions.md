@@ -12,9 +12,9 @@
 
 ## Why Document Decisions Before Running Experiments
 
-The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked. That's how you get papers that report results without acknowledging the choices that produced them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
+The temptation in empirical ML research is to run experiments first and then decide what the methodology was based on what worked, which produces papers that report results without acknowledging the choices behind them. I'm documenting these decisions now, before Phase 4, so the paper can't retroactively reframe methodology around favorable results.
 
-The first ten decisions below were fixed before Phase 4. Decisions 11 onward record what implementation and verification turned up, including errors in earlier entries. Some were obvious. Some took real thought. A few I'm still not fully comfortable with, and I've noted those explicitly.
+The first ten decisions below were fixed before Phase 4. Decisions 11 onward record what implementation and verification turned up, including errors in earlier entries. Some were obvious and some took real thought; a few I'm still not fully comfortable with, and I've noted those explicitly.
 
 ---
 
@@ -22,7 +22,7 @@ The first ten decisions below were fixed before Phase 4. Decisions 11 onward rec
 
 **Decision:** Use Fairlearn ThresholdOptimizer (post-processing) as the fairness intervention.
 
-**Why:** In-processing requires modifying the training pipeline, which assumes you own the training pipeline. In eight years of production ML I have never inherited a system where I could modify training. Post-processing works on any model regardless of how it was built. That's the only approach deployable in the environments FAPE is designed for.
+**Why:** In-processing requires modifying the training pipeline, which assumes you own the training pipeline. In eight years of production ML I have never inherited a system where I could modify training. Post-processing works on any model regardless of how it was built, which makes it the only approach deployable in the environments FAPE is designed for.
 
 **What I gave up:** In-processing can achieve better accuracy-fairness tradeoffs because the fairness constraint is built into training. Post-processing applies the constraint after the fact and can only adjust decision thresholds, it can't change what the model learned. The paper will acknowledge this tradeoff explicitly.
 
@@ -58,7 +58,7 @@ The first ten decisions below were fixed before Phase 4. Decisions 11 onward rec
 
 **Why:** Sariola et al. (2026) found that equalizing base rates in hiring data looked like parity on traditional measures but left about 10% disparity when measured with audit-study data, so a single number measured one way can mislead. Designating a primary metric would invite the paper to be read as optimizing for that metric specifically, which would make the results misleading. All four reported, practitioners decide which matters in their regulatory context.
 
-**What I gave up:** Clean headline results. "FAPE improves demographic parity by X%" is a cleaner claim than four tradeoff curves. The paper will be harder to summarize in an abstract. That's the right tradeoff.
+**What I gave up:** Clean headline results. "FAPE improves demographic parity by X%" is a cleaner claim than four tradeoff curves. The paper will be harder to summarize in an abstract, and I think that is the right tradeoff.
 
 **Update (September 15 2026):** DPD and EOD are reported for all eight evaluations. DIR and accuracy cost are reported only where a domain's pipeline computes them, and paper Section 3.5 says so.
 
@@ -134,9 +134,7 @@ The first ten decisions below were fixed before Phase 4. Decisions 11 onward rec
 
 ## What Changes After These Decisions Are Locked
 
-Phase 4 begins with these ten decisions fixed. The experiments cannot change the methodology, they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them honestly rather than retroactively adjusting the methodology to produce better numbers.
-
-That's the standard I'm holding FAPE to.
+Phase 4 begins with these ten decisions fixed. The experiments cannot change the methodology; they can only produce results within it. If the results are unfavorable under these constraints, the paper reports them as they are, and the methodology is not adjusted afterward to produce better numbers. That is the standard I'm holding FAPE to.
 
 ## Decision 11, Agricultural Dataset Scope: USDA NASS and LSMS-ISA Nigeria Evaluated and Excluded from ML Pipeline
 
@@ -258,7 +256,7 @@ Several scripts already contain a comment acknowledging this ("Note: ThresholdOp
 
 **Scope expansion confirmed (Aug 2 2026, later same session):** Checking threshold_aggregation.py's full dictionary structure (not just baseline_acc) confirms the entire dict (dp_acc, dp_dpd, eo_acc, eo_eod for every domain) predates the Decision 15 ThresholdOptimizer determinism fix. Spot-check against tonight's live COMPAS run: dict says dp_acc=0.673, eo_acc=0.675; live post-fix run shows dp_acc=0.675, eo_acc=0.677. Small but real gaps, confirming the entire dictionary needs regeneration from live, deterministic output, not just the baseline_acc column originally flagged. This is a larger task than initially scoped: rerun all 7 stage2_*_threshold.py scripts fresh, capture complete LR/RF/GB output for baseline + both constraints, rebuild threshold_aggregation.py's dictionary entirely from that output. Correctly deferred to a dedicated pre-Aug-19 session rather than attempted at the end of tonight's already-extensive audit; doing this rushed risks exactly the pattern seen earlier tonight where quick fixes required deeper correction (Decisions 13, 14->17).
 
-**Scope correction (Aug 3 2026, rebuild session):** While capturing complete output for the Table 1 rebuild, confirmed that RandomForest is missing not just from Law School's Stage 2 script (as originally documented above) but from Lending Club and Agricultural as well, all three of the same domains already flagged in Decision 13 for reporting AUC instead of accuracy. MODELS dict check confirms: Law School {LR, GB}, Lending Club {LR, GB}, Agricultural {LR, GB}, all missing RandomForest. COMPAS, Folktables, FairGround, and Student all have the full {LR, RF, GB} set. This is not a coincidence: the same 3 scripts that skip accuracy computation also skip RandomForest entirely, suggesting these three were built to a simpler 2-model template than the other 4. The rebuilt Table 1 will mark RandomForest as N/A for Law School, Lending Club, and Agricultural, not just Law School as previously scoped.
+**Scope correction (Aug 3 2026, rebuild session):** While capturing complete output for the Table 1 rebuild, confirmed that RandomForest is missing from the Lending Club and Agricultural Stage 2 scripts as well as Law School's (as originally documented above), all three of the same domains already flagged in Decision 13 for reporting AUC instead of accuracy. MODELS dict check confirms: Law School {LR, GB}, Lending Club {LR, GB}, Agricultural {LR, GB}, all missing RandomForest. COMPAS, Folktables, FairGround, and Student all have the full {LR, RF, GB} set. The same 3 scripts that skip accuracy computation also skip RandomForest entirely, which suggests these three were built to a simpler 2-model template than the other 4. The rebuilt Table 1 will mark RandomForest as N/A for Law School, Lending Club, and Agricultural; the earlier scope covered only Law School.
 
 **Rebuild attempt and final scope finding (Aug 3 2026):** Captured complete, verified, deterministic LR/RF/GB baseline+DP+EO output for all 7 domains directly from the now-fixed Stage 2 scripts (post Decision 15 fix). This data is confirmed correct and ready to use; see git history for the full captured dataset. Attempted to write it into threshold_aggregation.py's RESULTS dict, marking RandomForest as None for Law School/Lending Club/Agricultural and renaming FairGround and Student to their specific sub-dataset/sub-subject. Two structural problems surfaced during this attempt, beyond just updating the dict: (1) every downstream loop in threshold_aggregation.py assumes all 3 models exist for every domain, fixed via a safe_get()/fmt() helper pair for the print-statement logic. (2) Figure 1 (baseline accuracy bar chart) cannot be patched the same way: it plots 'accuracy' as a single unified y-axis metric across all 7 domains, but 3 of those domains store AUC, not accuracy (Decision 13), so plotting them on the same axis would be scientifically misleading even after fixing the None-handling crash. This requires an actual figure redesign (e.g. splitting into two panels, one for the 4 true-accuracy domains and one for the 3 AUC domains), not a data fix.
 

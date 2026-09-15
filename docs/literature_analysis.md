@@ -6,13 +6,13 @@
 
 **Period:** November 2025, April 2026
 **Researcher:** Nithin Narla
-**Status:** Protocols 1-6 complete after COMPAS and Folktables verified. Protocols 7-9 rough notes, still working through implications.
+**Status:** All nine protocols complete and written out below. Protocols 1-6 were finished after COMPAS and Folktables were verified, 7-9 with the full set of evaluations.
 
 ---
 
 ## Why These Protocols Now
 
-Loaded COMPAS last week. First thing I did after verification was look at the recidivism rate split by race. The base rate difference is real and it's in the numbers, not a theoretical construct anymore, a constraint I have to work around in every Stage 3 experiment I'll run. Chouldechova's impossibility theorem became a design problem the moment I saw that number. That's why I'm running these protocols now rather than waiting until the full pipeline is built. Real data changes how you read the papers.
+Loaded COMPAS last week. First thing I did after verification was look at the recidivism rate split by race. The base rate difference is real and sits in the numbers, so it is a constraint I have to work around in every Stage 3 experiment I'll run. Chouldechova's impossibility theorem became a design problem the moment I saw that number, which is why I'm running these protocols now instead of waiting until the full pipeline is built; real data changes how you read the papers.
 
 ---
 
@@ -38,7 +38,7 @@ Loaded COMPAS last week. First thing I did after verification was look at the re
 | Ajarra and Basu, Auditing Under Model Updates | 2026 | arXiv | Theory of auditing group fairness when model owners update their models: sample complexity and which updates preserve the audited property | Production fairness | A release-time model card or a one-time post-processing result says nothing about updates the audit did not anticipate |
 | Sariola et al., Illusion of Fairness | 2026 | AAAI | Equalizing base rates in hiring data looks like parity on traditional measures but leaves ~10% disparity measured with audit-study data | Measurement | How disparity is measured can change the conclusion, a reason not to rely on one number |
 | Weerts et al., Fairlearn | 2023 | JMLR | Practical post-processing fairness constraints | Tools | Stops at validation, no post-deployment monitoring |
-| Simson et al., FairGround Corpus | 2025 | arXiv | 44 fairness-annotated datasets for reproducible cross-domain evaluation | Benchmark | First serious attempt to fix the benchmark monoculture, 1,964,010 records verified |
+| Simson et al., FairGround Corpus | 2025 | arXiv | 44 fairness-annotated datasets for reproducible cross-domain evaluation | Benchmark | An attempt to fix the benchmark monoculture; 1,964,010 records verified across the 37 that load without the large-dataset option |
 
 ### Clusters
 
@@ -48,15 +48,15 @@ Five distinct conversations in this literature. They barely cite each other, whi
 
 **The production deployment conversation:** Sculley, Breck, Mitchell, Ajarra. None of these papers are primarily about fairness definitions. They're asking what happens to ML systems after they ship. The finding across all four, systems degrade and documentation goes stale, maps directly onto fairness even though most of these papers don't use the word. The most telling data point is Breck's 28-test rubric: fairness appears once, as a pre-release inclusion test, and never among the monitoring tests.
 
-**The cross-domain evidence conversation:** Angwin (criminal justice), Obermeyer (healthcare), Lambrecht & Tucker (advertising). Each paper studies one domain, finds a specific bias mechanism, and stops. They don't cite each other. The criminal justice bias comes from historical disparities in the outcome variable. The healthcare bias comes from using cost as a proxy for health need. The advertising bias comes from economic optimization. Three different mechanisms, three different domains, zero cross-domain synthesis. That's the gap FAPE is designed to fill.
+**The cross-domain evidence conversation:** Angwin (criminal justice), Obermeyer (healthcare), Lambrecht & Tucker (advertising). Each paper studies one domain, finds a specific bias mechanism, and stops. They don't cite each other. The criminal justice bias comes from historical disparities in the outcome variable. The healthcare bias comes from using cost as a proxy for health need. The advertising bias comes from economic optimization. Three mechanisms in three domains, with no synthesis across them, is the gap FAPE is designed to fill.
 
-**The human vs algorithm conversation:** Dressel & Farid vs Kleinberg. The two reach different conclusions on different data, COMPAS in Broward County and bail decisions in New York City. I spent time on this because it matters for how FAPE frames the problem. If Dressel is right, humans are as biased as algorithms and the problem isn't the algorithm, it's the decision-making context. FAPE can't fix that. But it can make the bias visible and measurable regardless of source.
+**The human vs algorithm conversation:** Dressel & Farid vs Kleinberg. The two reach different conclusions on different data, COMPAS in Broward County and bail decisions in New York City. I spent time on this because it matters for how FAPE frames the problem. If Dressel is right, humans are as biased as algorithms and the bias sits in the decision-making context. FAPE can't fix that context, but it can make the bias visible and measurable whatever its source.
 
-**The dataset quality conversation:** Ding et al. Adult Income is load-bearing for a decade of fairness research and it's methodologically flawed. Ding et al. said so in 2021. The field nodded and kept using it. That's why FAPE uses Folktables ACS instead, not because it's newer but because the benchmark problem is documented and I'm not going to validate methods on data I know is flawed.
+**The dataset quality conversation:** Ding et al. Adult Income is load-bearing for a decade of fairness research and it's methodologically flawed, as Ding et al. said in 2021, yet the field kept using it. FAPE uses Folktables ACS instead because the benchmark problem is documented and I'm not going to validate methods on data I know is flawed.
 
 ### Conflicts I Can't Resolve
 
-The Dressel-Kleinberg tension is real and I'm not papering over it. Both studies are rigorous. Both overclaim. FAPE uses COMPAS because it's the field standard, not because Broward County 2013-2014 represents all criminal justice contexts. The paper needs to say this.
+The Dressel-Kleinberg tension is real and I'm not papering over it. Both studies are rigorous, and both overclaim. FAPE uses COMPAS because it's the field standard, not because Broward County 2013-2014 represents all criminal justice contexts. The paper needs to say this.
 
 The impossibility-post-processing conflict is more fundamental. Hardt proposes equalized odds. Chouldechova proves it trades off against calibration when base rates differ. The COMPAS data has that base rate difference, I can see it now. When FAPE applies ThresholdOptimizer in Stage 3, equalizing error rates means giving up calibration, which FAPE does not measure. The paper has to name that tradeoff and report several metrics rather than one metric called fairness.
 
@@ -66,9 +66,9 @@ The impossibility-post-processing conflict is more fundamental. Hardt proposes e
 
 Three real tensions, where the claims pull in different directions:
 
-**Humans vs algorithms in criminal justice:** Dressel & Farid (2018), MTurk workers with minimal case information match COMPAS accuracy. Kleinberg et al. (2018), judges in New York City make systematically worse bail decisions than an algorithm on accuracy. Both empirically correct in their own setups. Both present findings as general claims. Both overclaim. The contradiction matters for FAPE because framing algorithmic bias as the problem implies humans would do better, which Kleinberg challenges directly.
+**Humans vs algorithms in criminal justice:** Dressel & Farid (2018), MTurk workers with minimal case information match COMPAS accuracy. Kleinberg et al. (2018), judges in New York City make systematically worse bail decisions than an algorithm on accuracy. Both are empirically correct in their own setups, and both overclaim by presenting their findings as general claims. The contradiction matters for FAPE because framing algorithmic bias as the problem implies humans would do better, which Kleinberg challenges directly.
 
-**Post-processing as solution vs impossibility theorem:** Hardt et al. (2016), ThresholdOptimizer is the practical solution to demographic bias. Chouldechova (2017), calibration and equal error rates cannot all hold when base rates differ. Both correct, both cited widely, and papers often cite both without reconciling them. Every FAPE Stage 3 experiment lives inside this tension.
+**Post-processing as solution vs impossibility theorem:** Hardt et al. (2016), post-processing for equalized odds, the method Fairlearn implements as ThresholdOptimizer. Chouldechova (2017), calibration and equal error rates cannot all hold when base rates differ. Both correct, both cited widely, and papers often cite both without reconciling them. Every FAPE Stage 3 experiment lives inside this tension.
 
 **Static documentation vs dynamic systems:** Mitchell et al. (2019), model cards as the accountability mechanism. Ajarra and Basu (2026), a theory of auditing fairness when the model keeps being updated, which release-time documentation cannot cover. Commercial platforms now monitor bias on live data (Amazon SageMaker Clarify), but the open-source toolkits researchers use have no equivalent. FAPE Stage 4 is an open attempt.
 
@@ -77,7 +77,7 @@ Three real tensions, where the claims pull in different directions:
 ## Protocol 3, Citation Chain: Three Concepts Tracked
 
 **Equalized odds:**
-Hardt et al. (2016) define and propose it → Chouldechova (2017) proves incompatibility with calibration → Dressel & Farid (2018) apply to COMPAS → Barocas & Hardt (2017) taxonomize relative to other definitions → Sariola et al. (2026) show that parity measured the usual way can hide about 10% disparity that audit-study data reveals. The chain ends at a warning: how disparity is measured can decide whether an intervention looks like it worked.
+Hardt et al. (2016) define and propose it → Chouldechova (2017) proves incompatibility with calibration → Dressel & Farid (2018) measure COMPAS against untrained human judgment → Barocas & Hardt (2017) taxonomize relative to other definitions → Sariola et al. (2026) show that parity measured the usual way can hide about 10% disparity that audit-study data reveals. The chain ends at a warning: how disparity is measured can decide whether an intervention looks like it worked.
 
 **Production ML degradation:**
 Sculley et al. (2015) identify silent degradation as fundamental to production ML → Breck et al. (2017) operationalize readiness with 28 tests, one of them a pre-release inclusion test and none a fairness monitoring test → Mitchell et al. (2019) propose static documentation → Ajarra and Basu (2026) work out how to audit fairness under model updates. Commercial monitors exist, but the open-source research toolkits still stop at a single audit. FAPE Stage 4 is an open attempt at the missing piece.
@@ -98,7 +98,7 @@ Sculley (2015) identified the degradation problem, and Ajarra and Basu (2026) fo
 **Gap 3, Multi-metric reporting is treated as optional.**
 Sariola et al. (2026) showed that a parity number measured one way can hide real disparity. FAPE reports demographic parity and equalized odds everywhere, and disparate impact ratio and accuracy cost where computable, so tradeoffs between criteria stay visible. Individual fairness score excluded, see methodology_decisions.md Decision 9.
 
-**Gap 4, Agricultural domain has never appeared in fairness research.**
+**Gap 4, Agricultural domain does not appear in the fairness papers I found.**
 I went looking for fairness papers on agricultural lending or farm household outcomes and found none. Criminal justice, healthcare, education, financial services, all represented. The populations most affected by algorithmic decisions in agricultural contexts are invisible in the fairness literature. FAPE adds this domain with three datasets verified: USDA NASS Census 2022, SBA 7(a) NAICS-11 loans, LSMS-ISA Nigeria Wave 4. [Decision 11 later kept only SBA 7(a) for modeling; USDA NASS stays in EDA and LSMS-ISA was excluded.]
 
 **Gap 5, Intersectional fairness is theoretically acknowledged and empirically ignored.**
@@ -111,11 +111,11 @@ Ding et al. (2021) documented Adult Income's problems. The field kept using it. 
 
 ## Protocol 5, Methodology Audit
 
-**Angwin et al. (2016):** They got the actual COMPAS scores from Broward County, matched to outcomes, calculated false positive rates by race. What I respect about this is the methodology, they didn't take Northpointe's word for it, they ran the analysis themselves. That's the spirit FAPE is trying to bring to enterprise fairness auditing. Limitation: one county, one algorithm, one two-year window. The finding is solid. The generalization claim is not.
+**Angwin et al. (2016):** They got the actual COMPAS scores from Broward County, matched to outcomes, calculated false positive rates by race. What I respect about this is the methodology: they ran the analysis themselves instead of taking Northpointe's word for it, the habit FAPE tries to bring to enterprise fairness auditing. Limitation: one county, one algorithm, one two-year window. The finding is solid; the generalization claim is not.
 
-**Chouldechova (2017):** Mathematical proof. I've worked through it. Its key condition, different base rates between groups, holds in the COMPAS data I've now loaded. The result is correct and it's not going away. What the proof doesn't tell you is which metric to deprioritize when you can't satisfy both. That's a values question not a math question, and FAPE doesn't answer it, it surfaces the tradeoff and lets practitioners decide.
+**Chouldechova (2017):** Mathematical proof. I've worked through it. Its key condition, different base rates between groups, holds in the COMPAS data I've now loaded. The result is correct. What the proof doesn't tell you is which metric to deprioritize when you can't satisfy both. That choice rests on values, and FAPE leaves it to practitioners: it surfaces the tradeoff and lets them decide.
 
-**Hardt et al. (2016):** The cleanest formalization of equalized odds I found. ThresholdOptimizer is sound for static data, you can take any trained model and apply a fairness constraint without retraining. This is exactly what FAPE Stage 3 does. What the paper doesn't address, and what Ajarra and Basu take up ten years later, is what happens when the model gets updated. Stage 3 results have a shelf life.
+**Hardt et al. (2016):** The cleanest formalization of equalized odds I found. ThresholdOptimizer is sound for static data: you can take any trained model and apply a fairness constraint without retraining, which is what FAPE Stage 3 does. What the paper doesn't address, and what Ajarra and Basu take up ten years later, is what happens when the model gets updated, so Stage 3 results have a shelf life.
 
 **Sculley et al. (2015):** Not a fairness paper, but possibly the most consequential for FAPE Stage 4 design. The hidden technical debt framework is informed practitioner opinion from Google, not an empirical result. But the finding that systems degrade silently through feature drift and data shifts maps directly onto fairness drift. FAPE Stage 4 tests, on a simulated shift, whether a monitor can catch that kind of degradation in a fairness metric; it does not measure real degradation.
 
@@ -125,11 +125,11 @@ Ding et al. (2021) documented Adult Income's problems. The field kept using it. 
 
 ## Protocol 6, Master Synthesis
 
-I've read a lot of fairness papers now. Here's what I think after working through them with real data loaded.
+I've read a lot of fairness papers now and worked through them with real data loaded.
 
-The theoretical work is done. Chouldechova proved the impossibility in 2017. Barocas and Hardt catalogued the definitions. The field knows what fairness is and what it provably cannot be. That's settled.
+The theoretical work is settled: Chouldechova proved the impossibility in 2017, Barocas and Hardt catalogued the definitions, and the field knows what fairness is and what it provably cannot be.
 
-What isn't settled, and what I didn't fully appreciate until I started loading actual data, is that the empirical literature has been validating increasingly sophisticated methods on increasingly narrow data for eight years. COMPAS and Adult Income are load-bearing for an entire research program. Ding et al. showed Adult Income is flawed in 2021. The field kept going because changing benchmarks disrupts comparability. That's a collective action problem and it means the empirical literature is more fragile than it looks.
+What isn't settled, and what I didn't fully appreciate until I started loading actual data, is that the empirical literature has been validating increasingly sophisticated methods on increasingly narrow data for eight years. COMPAS and Adult Income are load-bearing for an entire research program. Ding et al. showed Adult Income is flawed in 2021. The field kept going because changing benchmarks disrupts comparability. It is a collective action problem, and it leaves the empirical literature more fragile than it looks.
 
 The production deployment gap is where I keep landing. Sculley identified silent degradation in 2015. Breck's 2017 readiness rubric has 28 tests, and fairness shows up once, as a pre-release inclusion test, never as something to monitor. Mitchell proposed model cards in 2019. Ajarra and Basu worked out in 2026 how to audit fairness when models are updated. Commercial monitoring has arrived in cloud platforms, but the open research tooling still audits once. That gap is what FAPE Stage 4 is about.
 
@@ -137,7 +137,7 @@ Having COMPAS (6,172 records) and Folktables ACS (1,589,032 records) loaded chan
 
 The full dataset pipeline is now complete. Student Performance (1,044 records), Law School Admissions (18,692), Lending Club (1,348,099), USDA NASS Census (7,334 aggregate rows), SBA 7(a) agricultural loans (15,845), and LSMS-ISA Nigeria Wave 4 (30,312 farm households) all verified and loaded. The agricultural domain is the one I'm most interested in; I found no fairness paper on this population. Small farmers, agricultural loan applicants, farm household outcomes, invisible in the fairness literature. I haven't found another cross-domain fairness evaluation that includes it.
 
-FairGround (Simson et al. 2025) is now verified, 1,964,010 records across 44 fairness-annotated datasets. This changes the benchmark picture meaningfully. I haven't found another paper that uses FairGround inside a multi-domain evaluation framework rather than as a standalone benchmark.
+FairGround (Simson et al. 2025) is now verified, 1,964,010 records across the 37 datasets that load of the 38 the package lists without the large-dataset option, out of 44 in the corpus. This changes the benchmark picture meaningfully. I haven't found another paper that uses FairGround inside a multi-domain evaluation framework rather than as a standalone benchmark.
 
 What FAPE can legitimately claim: one intervention evaluated across a wider range of domains than the comparative studies I found, an open sequential fairness monitor that the open-source toolkits lack, and multi-metric reporting that keeps tradeoffs between criteria visible. What it cannot claim: solving the impossibility, generalizing from eight evaluations to all contexts, or removing the need for human judgment about which metric matters in which regulatory setting.
 
@@ -194,7 +194,7 @@ BENCHMARK CLUSTER
 ├── Ding et al. 2021, Folktables ACS
 │   └── 1,589,032 records verified, benchmark monoculture problem
 ├── Simson et al. 2025, FairGround
-│   └── 1,964,010 records verified, 44 datasets across domains
+│   └── 1,964,010 records verified across 37 of the corpus's 44 datasets
 └── Angwin et al. 2016, COMPAS
     └── 6,172 records verified, criminal justice baseline
 
@@ -227,11 +227,11 @@ FAPE CORE CONTRIBUTION
 
 **What I think is true but haven't confirmed yet:**
 - Cross-domain constraints will show different accuracy-fairness tradeoff profiles by domain, now testable across criminal justice, socioeconomic, education, financial, and agricultural domains simultaneously.
-- FairGround corpus (1,964,010 records verified across 44 datasets) extends multi-domain evaluation meaningfully, the benchmark monoculture problem Ding et al. identified has a practical response now.
+- FairGround corpus (1,964,010 records verified across the 37 datasets that load, of 44 in the corpus) extends multi-domain evaluation meaningfully, the benchmark monoculture problem Ding et al. identified has a practical response now.
 - Stage 4 CUSUM detection will catch drift a one-time audit misses, but Stage 4 hasn't run yet. [Since run on a simulated shift; see paper Section 5.7.]
 
 **What I'm genuinely uncertain about:**
-- Whether seven domains is enough for cross-domain generalization claims [now eight evaluations from seven data sources], the agricultural domain addition (SBA 7(a)) adds a population that has never appeared in fairness literature. USDA NASS and LSMS-ISA Nigeria excluded from ML pipeline, see Decision 11.
+- Whether seven domains is enough for cross-domain generalization claims [now eight evaluations from seven data sources], the agricultural domain addition (SBA 7(a)) adds a population I did not find in the fairness literature. USDA NASS and LSMS-ISA Nigeria excluded from ML pipeline, see Decision 11.
 - Individual fairness score excluded from evaluation, replaced with accuracy cost. See Decision 9. This uncertainty is resolved.
 - How to handle MIMIC-III if PhysioNet access takes longer than expected. [Access never came through; healthcare uses MEPS Panel 19.]
 
@@ -241,7 +241,7 @@ FAPE CORE CONTRIBUTION
 
 Three things I'd say to someone who doesn't work in ML:
 
-Most fairness studies look at one type of consequential decision, criminal courts, or hospitals, or school admissions, and the comparisons that do span several stick to a few standard datasets. Whether a fix that works in one area holds across many at once is still mostly unchecked. That's what FAPE does. A bank or hospital uses ML across many contexts at once, and few studies tell them whether a fairness fix in lending will hold in hiring or healthcare at the same time.
+Most fairness studies look at one type of consequential decision, criminal courts, or hospitals, or school admissions, and the comparisons that do span several stick to a few standard datasets. Whether a fix that works in one area holds across many at once is still mostly unchecked, and that is what FAPE tests. A bank or hospital uses ML across many contexts at once, and few studies tell them whether a fairness fix in lending will hold in hiring or healthcare at the same time.
 
 When organizations check ML systems for fairness before launch, they usually check once and consider it done. But these systems change, retrained on new data, updated by vendors, used by populations that shift. FAPE builds the infrastructure to keep checking after launch. The alternative is finding a problem six months in, after real decisions have already been made about real people.
 

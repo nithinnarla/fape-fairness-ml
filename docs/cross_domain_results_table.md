@@ -2,7 +2,7 @@
 
 > **Record note, September 15 2026.** Rebuilt from `threshold_aggregation.RESULTS` and `MEPS_RESULTS` after the MEPS and Folktables feature fixes (Decisions 24 and 25 in methodology_decisions.md). The July to August version, which predated those fixes and had several key findings that no longer matched its own tables, is in the git history. Every value below reproduced in a fresh environment built from requirements.txt. docs/results_table.md is the generated Table 2 of the paper; this file adds baseline performance, accuracy cost, disparate impact ratio and the two sensitivity checks.
 
-n/e marks a model not evaluated under the intervention in that domain. Law School, Lending Club and Agricultural carry logistic regression and gradient boosting through Stage 2 and report AUC rather than accuracy (Decisions 13 and 16).
+n/e marks a model not evaluated under the intervention in that domain. Law School, Lending Club and Agricultural carry logistic regression and gradient boosting through the intervention and report AUC rather than accuracy (Decisions 13 and 16).
 
 ---
 
@@ -19,7 +19,7 @@ n/e marks a model not evaluated under the intervention in that domain. Law Schoo
 | MEPS | 0.855 | 0.857 | 0.859 | Accuracy |
 | Student (Math) | 0.646 | 0.633 | 0.658 | Accuracy |
 
-Gradient boosting has the highest accuracy in three of the five accuracy evaluations (Folktables, MEPS, Student) and logistic regression in the other two (COMPAS, FairGround). Gradient boosting has the highest AUC in all three AUC evaluations. Random forest is not evaluated in Stage 2 for the AUC domains; the separate baseline scripts, which use their own preprocessing and samples, give it an AUC of 0.854 for Law School, 0.920 for Agricultural and 0.699 for Lending Club, below gradient boosting in the same scripts. Accuracy and AUC are not compared with each other.
+Gradient boosting has the highest accuracy in three of the five accuracy evaluations (Folktables, MEPS, Student) and logistic regression in the other two (COMPAS, FairGround). Gradient boosting has the highest AUC in all three AUC evaluations. Random forest is not evaluated under the intervention for the AUC domains; the separate baseline scripts, which use their own preprocessing and samples, give it an AUC of 0.854 for Law School, 0.920 for Agricultural and 0.699 for Lending Club, below gradient boosting in the same scripts. Accuracy and AUC are not compared with each other.
 
 ---
 
@@ -69,7 +69,7 @@ Gradient boosting has the highest accuracy in three of the five accuracy evaluat
 | MEPS | +0.071 | +0.133 | +0.075 |
 | Student (Math) | +0.026 | +0.076 | +0.076 |
 
-Negative means accuracy rose. Values are computed from the three-decimal numbers in RESULTS, so a script's own printed cost can differ by 0.001. Law School, Lending Club and Agricultural are omitted because their Stage 2 scripts report AUC. FairGround's logistic regression and gradient boosting pay the most (0.148 and 0.159) while its random forest pays 0.010 for a similar DPD reduction. These costs also include the change from the default threshold to a balanced-accuracy objective (Decision 23).
+Negative means accuracy rose. Values are computed from the three-decimal numbers in RESULTS, so a script's own printed cost can differ by 0.001. Law School, Lending Club and Agricultural are omitted because their intervention scripts report AUC. FairGround's logistic regression and gradient boosting pay the most (0.148 and 0.159) while its random forest pays 0.010 for a similar DPD reduction. These costs also include the change from the default threshold to a balanced-accuracy objective (Decision 23).
 
 ---
 
@@ -103,7 +103,7 @@ COMPAS's test split has 7 Asian defendants and 1 Native American defendant; Folk
 
 ## Table 7, Threshold-Fitting Check (src/threshold_holdout_check.py)
 
-DPD under the DP constraint when thresholds are chosen on the training split (the Stage 2 design) and on a held-out quarter of it.
+DPD under the DP constraint when thresholds are chosen on the training split (the design the intervention scripts use) and on a held-out quarter of it.
 
 | Evaluation | Model | Training-split thresholds | Held-out thresholds |
 |---|---|---|---|

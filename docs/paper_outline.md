@@ -111,7 +111,7 @@ Title: When Post-Processing Fairness Constraints Help and When They Harm: Eviden
 - Law School and FairGround both load law_school_lequy (Section 6.4)
 
 ### 4.2 Reproducibility
-- All code, figures and loaders public; 83 EDA, 68 baseline and 77 Stage 2 and 4 figures
+- All code, figures and loaders public; 83 EDA, 68 baseline and 79 intervention and monitoring figures
 - All seven domain scripts and both checks reproduced exactly in a fresh environment built from requirements.txt
 
 ---
