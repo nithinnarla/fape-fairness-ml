@@ -152,21 +152,21 @@ def run_baselines():
                 dir_ratio = min(female_rate, male_rate) / max(female_rate, male_rate) if max(female_rate, male_rate) > 0 else 1
                 print(f"    {model_name:<25} Female={female_rate:.3f} Male={male_rate:.3f} DIR={dir_ratio:.3f}")
 
-    print(f"\n--- Cross-Validation (5-fold) ---")
+    # Folds come from the training split, the same one the models above were fit on, so the
+    # test records stay out of the stability figure. The notebook reports these same numbers.
+    print(f"\n--- Cross-Validation (5-fold, training split) ---")
     for subject, ds in datasets.items():
         X = ds['X'].values; y = ds['y'].values
-        scaler = StandardScaler()
-        X_sc = scaler.fit_transform(X)
+        X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+        X_train_sc = StandardScaler().fit_transform(X_train)
         for name, model in MODELS.items():
-            if name == 'LogisticRegression':
-                scores = cross_val_score(model, X_sc, y, cv=5, scoring='roc_auc')
-            else:
-                scores = cross_val_score(model, X, y, cv=5, scoring='roc_auc')
+            fold_X = X_train_sc if name == 'LogisticRegression' else X_train
+            scores = cross_val_score(model, fold_X, y_train, cv=5, scoring='roc_auc')
             print(f"  {subject:<15} {name:<25} CV-AUC={scores.mean():.3f}±{scores.std():.3f}")
 
     print(f"\n--- Student Performance Baseline complete ---")
     print(f"  Sex fairness gap identified across both subjects")
-    print(f"  Stage 2 ThresholdOptimizer needed to reduce disparities")
+    print(f"  Stage 3 ThresholdOptimizer needed to reduce disparities")
 
     return all_results
 
