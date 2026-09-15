@@ -8,11 +8,34 @@ Loads fairness-annotated tabular datasets with standardized
 preprocessing for FAPE's cross-domain generalization evaluation.
 """
 
+import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 from typing import Optional
 import warnings
 warnings.filterwarnings('ignore')
+
+# fairml-datasets caches under Path("cache") relative to the working directory, so a notebook
+# run from notebooks/ and a script run from the repository root would read different caches and
+# could load a different number of datasets. Point every module that holds one of these paths at
+# the repository's own cache/ instead.
+_CACHE_DIR = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) / 'cache'
+
+
+def _pin_fairml_cache():
+    import fairml_datasets.dataset as dataset_module
+    import fairml_datasets.file_handling as file_module
+    for module in (file_module, dataset_module):
+        if hasattr(module, 'ROOT_CACHE_DIR'):
+            module.ROOT_CACHE_DIR = _CACHE_DIR
+        if hasattr(module, 'DATASET_CACHE_DIR'):
+            module.DATASET_CACHE_DIR = _CACHE_DIR / 'datasets'
+        if hasattr(module, 'DOWNLOAD_CACHE_DIR'):
+            module.DOWNLOAD_CACHE_DIR = _CACHE_DIR / 'downloads'
+
+
+_pin_fairml_cache()
 
 
 def load_fairground_corpus(
