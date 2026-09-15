@@ -34,8 +34,9 @@ of what each script printed, so the numbers are checked against their saved outp
 13. no prose anywhere in the repository uses a typographic dash or quote, or a hyphen
     standing in for a dash. Code and inline code are left alone; only markdown,
     comments, docstrings and string literals are read
-14. every figure drawn by a script you have edited has been written since that edit,
-    so a label corrected in a script is redrawn before it is committed
+14. every figure drawn by a script or notebook you have edited has been written since
+    that edit, so a label corrected in the code is redrawn before it is committed. Each
+    of the 231 figures resolves to the one source that saves it
 
 Prints one line per problem and exits with status 1 if there is any.
 """
@@ -383,10 +384,35 @@ def check_notebooks():
             problem(rel, f'is older than the last change to {newest}; rerun it')
 
 
-def check_figures_current():
-    """Every figure a script draws has been written since the script was last edited.
+FOLDER_VARIABLE = re.compile(r"\w*(?:FIGURES?|OUT)_?DIR\s*=\s*os\.path\.join\([^)]*?'figures',\s*'(\w+)'\s*\)")
+FIGURE_NAME = re.compile(r"['\"]((?:[\w./-]*/)?[\w-]+\.png)['\"]")
 
-    Only scripts with uncommitted edits are checked, which is the case that matters: a label
+
+def figures_drawn(rel):
+    """The figures a script or notebook saves, as repo-relative paths.
+
+    Scripts join a bare file name onto a folder held in a FIGURES_DIR or OUT_DIR variable;
+    notebooks write the path out, relative to notebooks/. Both are read here, so two figures
+    that share a file name in different folders stay apart."""
+    if rel.endswith('.ipynb'):
+        source = '\n'.join(''.join(cell['source']) for cell in json.loads(read(rel))['cells']
+                           if cell['cell_type'] == 'code')
+    else:
+        source = read(rel)
+    folders = set(FOLDER_VARIABLE.findall(source))
+    drawn = set()
+    for name in FIGURE_NAME.findall(source):
+        if '/' in name:
+            drawn.add(os.path.normpath(os.path.join('figures', name.split('figures/')[-1])))
+        elif len(folders) == 1:
+            drawn.add(f'figures/{next(iter(folders))}/{name}')
+    return {path for path in drawn if os.path.exists(os.path.join(REPO_ROOT, path))}
+
+
+def check_figures_current():
+    """Every figure has been drawn since the script or notebook that draws it was last edited.
+
+    Only sources with uncommitted edits are checked, which is the case that matters: a label
     corrected in the working tree and committed without drawing the figure again. Modification
     times decide it rather than the file's contents, since redrawing a figure whose appearance
     did not change leaves the same bytes and git would see no edit at all."""
@@ -397,22 +423,20 @@ def check_figures_current():
     def written(rel):
         return os.path.getmtime(os.path.join(REPO_ROOT, rel))
 
-    for script in sorted(glob.glob('src/*.py', root_dir=REPO_ROOT)):
-        source = read(script)
-        names = set(re.findall(r"['\"]([\w./-]+\.png)['\"]", source))
-        if not names:
+    for rel in sorted(glob.glob('src/*.py', root_dir=REPO_ROOT)) + sorted(glob.glob('notebooks/*.ipynb', root_dir=REPO_ROOT)):
+        drawn = figures_drawn(rel)
+        if not drawn:
             continue
+        source = read(rel)
         local = [f'src/{m}.py' for m in re.findall(r'^\s*(?:from|import)\s+(\w+)', source, re.M)
                  if os.path.exists(os.path.join(REPO_ROOT, 'src', f'{m}.py'))]
-        sources = [script] + local
-        if not any(rel in dirty for rel in sources):
+        sources = [rel] + local
+        if not any(path in dirty for path in sources):
             continue
         newest = max(sources, key=written)
-        for name in sorted(names):
-            matches = glob.glob(os.path.join(REPO_ROOT, 'figures', '*', os.path.basename(name)))
-            if len(matches) == 1 and written(newest) > os.path.getmtime(matches[0]):
-                problem(os.path.relpath(matches[0], REPO_ROOT),
-                        f'has not been drawn since {newest} was edited; run {script} again')
+        for figure in sorted(drawn):
+            if written(newest) > written(figure):
+                problem(figure, f'has not been drawn since {newest} was edited; run {rel} again')
 
 
 def check_feature_fixes():
