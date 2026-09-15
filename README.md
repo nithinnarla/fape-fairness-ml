@@ -119,7 +119,7 @@ Dataset notes:
 
 Python 3.11.9, scikit-learn 1.9.1, Fairlearn 0.13.0, fairml-datasets 0.2.5, folktables 0.0.12, pandas 2.2.2, numpy 1.26.4, matplotlib, seaborn, jupyter.
 
-A note on the scikit-learn pin. `requirements.txt` previously pinned 1.4.2, which could not be installed at all: fairml-datasets 0.2.5 requires scikit-learn>=1.5.2, so `pip install -r requirements.txt` failed on a dependency conflict. Every reported value was in fact produced and verified under 1.9.1, which is what the file now pins. aif360 and scipy arrive transitively through fairml-datasets and are not pinned here, since no code in this repository imports either one.
+scikit-learn is pinned at 1.9.1 because fairml-datasets 0.2.5 requires 1.5.2 or newer, and every reported value was produced and verified under 1.9.1. aif360 and scipy arrive transitively through fairml-datasets, so neither is pinned here; no code in this repository imports either one.
 
 Full dependency list: `requirements.txt`
 
@@ -139,7 +139,7 @@ Full dependency list: `requirements.txt`
 - July 2026: Stage 3 complete, DIR metric added where each domain's pipeline supports it (before-and-after for Law School, Lending Club, Agricultural; baseline only for Folktables); paper outline committed
 - July 2026: Stage 4 complete, CUSUM-based fairness drift detection; 9 drift figures; Law School + FairGround + Student earliest alerts
 - August 2026: Paper writing begins
-- September 2026: Full draft complete; healthcare evaluation (MEPS Panel 19) added, bringing the study to eight evaluations; all metric values re-verified against a clean install of the pinned environment; targeting Sep 29 submission to JASIST
+- September 2026: Full draft complete; healthcare evaluation (MEPS Panel 19) added, bringing the study to eight evaluations; all metric values re-verified against a clean install of the pinned environment; scikit-learn pin corrected from 1.4.2, which conflicted with fairml-datasets and could not be installed; targeting Sep 29 submission to JASIST
 
 ---
 
