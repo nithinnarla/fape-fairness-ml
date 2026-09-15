@@ -1,6 +1,6 @@
 """
 FairGround Corpus Loader, FAPE Phase 4
-Fabris et al. (2025), Bias Begins with Data: The FairGround Corpus
+Simson et al. (2025), Bias Begins with Data: The FairGround Corpus
 arXiv: 2510.22363
 Package: fairml-datasets (github.com/reliable-ai/fairground)
 
@@ -25,7 +25,7 @@ def load_fairground_corpus(
     Uses dataset.load() and dataset.to_pandas() to retrieve each
     of the 38 fairness-annotated tabular datasets. Sensitive
     attribute metadata is pre-validated by FairGround, eliminates
-    the arbitrary preprocessing choices Fabris et al. (2025)
+    the arbitrary preprocessing choices Simson et al. (2025)
     identified as the core reproducibility problem in fair ML.
 
     Args:
@@ -115,6 +115,27 @@ def load_fairground_corpus(
             print(f"  {name}: {err[:80]}")
 
     return corpus
+
+
+# Sampling weights FairGround lists among a dataset's feature columns
+SURVEY_WEIGHTS = {'PERWT15F'}
+
+
+def documented_feature_columns(dataset_id: str, df: pd.DataFrame, target_col: str) -> list:
+    """
+    Feature columns FairGround documents for a dataset, in the file's column order.
+
+    Several raw files carry more than the documented features. MEPS panel 19
+    includes the visit and day counts its UTILIZATION label is computed from,
+    and compas_2_years includes recidivism outcome and COMPAS score columns,
+    so training on every column lets a model read the label off its inputs.
+    The target and survey weights are removed; the sensitive attribute is
+    left for the caller to keep or drop.
+    """
+    from fairml_datasets import Dataset
+    documented = set(Dataset.from_id(dataset_id).get_feature_columns(df))
+    return [c for c in df.columns
+            if c in documented and c != target_col and c not in SURVEY_WEIGHTS]
 
 
 def get_fairground_summary(corpus: dict) -> pd.DataFrame:

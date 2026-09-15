@@ -54,11 +54,13 @@ def load_folktables_acs() -> pd.DataFrame:
     Load the Folktables ACS dataset for income fairness analysis.
 
     Source: US Census American Community Survey (2021)
-    Records: 3,000,000+ socioeconomic records across all 50 states
+    Records: 1,589,032 after filtering to ages 16-90 with income and every
+    column below present, across all 50 states
     Target: Annual income > $50,000
     Replaces legacy Adult Income dataset (Ding et al., 2021)
 
-    Features selected for fairness analysis:
+    Columns loaded (the Stage 2 and baseline scripts choose their features
+    from these):
         AGEP     - Age
         SEX      - Sex
         RAC1P    - Race
@@ -67,7 +69,9 @@ def load_folktables_acs() -> pd.DataFrame:
         WKHP     - Hours worked per week
         COW      - Class of worker
         DIS      - Disability status
-        POVPIP   - Income to poverty ratio
+        POVPIP   - Income to poverty ratio (EDA only; built from family
+                   income, which includes the income the label is defined on,
+                   so it is not a model feature)
         NATIVITY - Native or foreign born
     """
     from folktables import ACSDataSource

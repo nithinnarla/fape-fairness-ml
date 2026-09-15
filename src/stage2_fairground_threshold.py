@@ -8,13 +8,24 @@ Tests demographic_parity and equalized_odds constraints per dataset.
 
 Domains:
 - adult (Income) - race sensitive
-- compas_2_years (Criminal Justice) - age sensitive
+- compas_2_years (Criminal Justice) - age sensitive, one group per year of age
 - creditcard (Credit) - sex sensitive
-- law_school_lequy (Education) - race + sex sensitive
+- law_school_lequy (Education) - race sensitive (White / non-White); sex stays a feature
 - meps_panel_19_fy2015 (Healthcare) - race sensitive
 
-Note: ThresholdOptimizer in fairlearn 0.13.0 is non-deterministic.
-Direction is consistent across runs.
+Features are the columns FairGround documents for each dataset
+(Dataset.get_feature_columns), minus the target, the sensitive attribute and
+the MEPS survey weight PERWT15F. For law_school_lequy, creditcard and adult that
+is every column. For MEPS it is the standard 41-feature set: the raw panel file
+also carries the office, outpatient, ER, inpatient and home-health counts that
+UTILIZATION is defined from (label = their sum >= 10), so using every column
+lets a model read the label off its inputs. compas_2_years likewise carries
+recidivism outcome columns outside its documented features.
+
+The DIR in Fig 8 is Fairlearn's demographic_parity_ratio (lowest group
+selection rate over highest), not a fixed-pair ratio.
+
+ThresholdOptimizer.predict is seeded (random_state=42), so runs are repeatable.
 """
 
 import pandas as pd
@@ -30,7 +41,7 @@ import warnings
 warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(__file__))
 
-from fairground_loader import load_fairground_corpus
+from fairground_loader import load_fairground_corpus, documented_feature_columns
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -58,10 +69,11 @@ MODELS = {
     "GradientBoosting":   GradientBoostingClassifier(n_estimators=100, random_state=42),
 }
 
-
 def prepare_dataset(corpus, ds_id, config):
     content = corpus[ds_id]
-    X = content["X"].copy()
+    feature_cols = documented_feature_columns(ds_id, content["df"], content["metadata"]["target_column"])
+    print(f"  {len(feature_cols)} documented feature columns of {content['df'].shape[1] - 1} in the file")
+    X = content["df"][feature_cols].copy()
     y = content["y"].copy()
     if config["target_encode"]:
         y = y.str.strip() if hasattr(y, "str") else y
@@ -192,17 +204,17 @@ def run_stage2():
         eo_eod = eo_r["eod"] if eo_r else float("nan")
         print(f"  {ds_id:<25} {res['domain']:<20} {b['dpd']:>8.3f} {dp_dpd:>8.3f} {b['eod']:>8.3f} {eo_eod:>8.3f}")
 
-    print(f"\n--- Key Findings ---")
-    print(f"  ThresholdOptimizer applied across 5 domains: Income, Criminal Justice, Credit, Education, Healthcare")
-    print(f"  Non-deterministic in fairlearn 0.13.0 - direction consistent across runs")
-    print(f"  Education (law_school): highest baseline DPD - race gap largest in FAPE")
-    print(f"  Credit (creditcard): lowest baseline DPD - sex gap minimal")
-    print(f"  Criminal Justice (compas_2_years): ThresholdOptimizer failed - age=71 degenerate labels (single class)")
-    edu_dp_r = all_results["law_school_lequy"]["dp"].get("GradientBoosting")
-    edu_base_dpd = all_results["law_school_lequy"]["baseline"]["GradientBoosting"]["dpd"]
-    edu_dp_dpd = edu_dp_r["dpd"] if edu_dp_r else float("nan")
-    print(f"  Education: DP constraint reduces DPD {edu_base_dpd:.3f}->{edu_dp_dpd:.3f} - strongest cross-domain improvement")
-    print(f"  Cross-domain comparison enables FAPE paper Section 4 results table")
+    print(f"\n--- Key Findings (GB, DPD under the DP constraint) ---")
+    by_base = sorted(all_results, key=lambda d: all_results[d]["baseline"]["GradientBoosting"]["dpd"])
+    print(f"  Lowest baseline DPD: {by_base[0]} | highest: {by_base[-1]}")
+    for ds_id, res in all_results.items():
+        b = res["baseline"]["GradientBoosting"]["dpd"]
+        dp_r = res["dp"].get("GradientBoosting")
+        if dp_r is None:
+            print(f"  {ds_id:<22} DP constraint failed to fit")
+            continue
+        change = (b - dp_r["dpd"]) / b * 100 if b else float("nan")
+        print(f"  {ds_id:<22} {b:.3f} -> {dp_r['dpd']:.3f} ({change:+.1f}% improvement)")
 
     # FIGURES
     print(f"\n--- Generating Figures ---")
@@ -219,7 +231,7 @@ def run_stage2():
         ax.bar(x + (i-1)*width, base_dpds[name], width, label=name, color=color, edgecolor="white")
     ax.set_xticks(x); ax.set_xticklabels([f"{d}\n({dom})" for d,dom in zip(datasets,domains)],
                                           rotation=15, ha="right", fontsize=8)
-    ax.set_title("FairGround - Cross-Domain Baseline DPD\n(Education race gap largest; Credit sex gap minimal)",
+    ax.set_title("FairGround - Cross-Domain Baseline DPD\n(each dataset's own sensitive attribute)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("Demographic Parity Difference"); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "fairground_baseline_dpd.png"), dpi=150, bbox_inches="tight")
@@ -228,14 +240,15 @@ def run_stage2():
     # Fig 2 - DPD Before vs After DP Constraint
     fig, ax = plt.subplots(figsize=(14, 6))
     base_gb_dpds = [all_results[d]["baseline"]["GradientBoosting"]["dpd"] for d in datasets]
-    dp_gb_dpds = [all_results[d]["dp"]["GradientBoosting"]["dpd"] if all_results[d]["dp"].get("GradientBoosting") else 0 for d in datasets]
+    dp_gb_dpds = [all_results[d]["dp"]["GradientBoosting"]["dpd"] if all_results[d]["dp"].get("GradientBoosting") else np.nan for d in datasets]
     x2 = np.arange(len(datasets)); w2 = 0.35
     bars_b = ax.bar(x2-w2/2, base_gb_dpds, w2, label="Baseline DPD", color="#e74c3c", edgecolor="white")
     bars_c = ax.bar(x2+w2/2, dp_gb_dpds,   w2, label="After DP Constraint", color="#3498db", edgecolor="white")
     for bar, val in zip(bars_b, base_gb_dpds):
         ax.text(bar.get_x()+bar.get_width()/2, val+0.005, f"{val:.3f}", ha="center", fontsize=8)
     for bar, val in zip(bars_c, dp_gb_dpds):
-        ax.text(bar.get_x()+bar.get_width()/2, val+0.005, f"{val:.3f}", ha="center", fontsize=8)
+        ax.text(bar.get_x()+bar.get_width()/2, 0.005 if np.isnan(val) else val+0.005,
+                "fit failed" if np.isnan(val) else f"{val:.3f}", ha="center", fontsize=8)
     ax.set_xticks(x2); ax.set_xticklabels([f"{d}\n({dom})" for d,dom in zip(datasets,domains)],
                                             rotation=15, ha="right", fontsize=8)
     ax.set_title("FairGround - GB DPD Before vs After DP Constraint\n(Cross-domain fairness intervention)",
@@ -246,14 +259,15 @@ def run_stage2():
 
     # Fig 3 - EOD Before vs After EO Constraint
     base_gb_eods = [all_results[d]["baseline"]["GradientBoosting"]["eod"] for d in datasets]
-    eo_gb_eods = [all_results[d]["eo"]["GradientBoosting"]["eod"] if all_results[d]["eo"].get("GradientBoosting") else 0 for d in datasets]
+    eo_gb_eods = [all_results[d]["eo"]["GradientBoosting"]["eod"] if all_results[d]["eo"].get("GradientBoosting") else np.nan for d in datasets]
     fig, ax = plt.subplots(figsize=(14, 6))
     bars_b = ax.bar(x2-w2/2, base_gb_eods, w2, label="Baseline EOD", color="#e74c3c", edgecolor="white")
     bars_c = ax.bar(x2+w2/2, eo_gb_eods,   w2, label="After EO Constraint", color="#2ecc71", edgecolor="white")
     for bar, val in zip(bars_b, base_gb_eods):
         ax.text(bar.get_x()+bar.get_width()/2, val+0.005, f"{val:.3f}", ha="center", fontsize=8)
     for bar, val in zip(bars_c, eo_gb_eods):
-        ax.text(bar.get_x()+bar.get_width()/2, val+0.005, f"{val:.3f}", ha="center", fontsize=8)
+        ax.text(bar.get_x()+bar.get_width()/2, 0.005 if np.isnan(val) else val+0.005,
+                "fit failed" if np.isnan(val) else f"{val:.3f}", ha="center", fontsize=8)
     ax.set_xticks(x2); ax.set_xticklabels([f"{d}\n({dom})" for d,dom in zip(datasets,domains)],
                                             rotation=15, ha="right", fontsize=8)
     ax.set_title("FairGround - GB EOD Before vs After EO Constraint\n(Cross-domain equalized odds intervention)",
@@ -297,15 +311,15 @@ def run_stage2():
     # Fig 5 - Cross-Domain Accuracy Comparison
     fig, ax = plt.subplots(figsize=(14, 6))
     base_gb_accs = [all_results[d]["baseline"]["GradientBoosting"]["acc"] for d in datasets]
-    dp_gb_accs = [all_results[d]["dp"]["GradientBoosting"]["acc"] if all_results[d]["dp"].get("GradientBoosting") else 0 for d in datasets]
-    eo_gb_accs = [all_results[d]["eo"]["GradientBoosting"]["acc"] if all_results[d]["eo"].get("GradientBoosting") else 0 for d in datasets]
+    dp_gb_accs = [all_results[d]["dp"]["GradientBoosting"]["acc"] if all_results[d]["dp"].get("GradientBoosting") else np.nan for d in datasets]
+    eo_gb_accs = [all_results[d]["eo"]["GradientBoosting"]["acc"] if all_results[d]["eo"].get("GradientBoosting") else np.nan for d in datasets]
     w5 = 0.25
     ax.bar(x2-w5, base_gb_accs, w5, label="Baseline", color="#95a5a6", edgecolor="white")
     ax.bar(x2,    dp_gb_accs,   w5, label="DP Constraint", color="#3498db", edgecolor="white")
     ax.bar(x2+w5, eo_gb_accs,   w5, label="EO Constraint", color="#e74c3c", edgecolor="white")
     ax.set_xticks(x2); ax.set_xticklabels([f"{d}\n({dom})" for d,dom in zip(datasets,domains)],
                                             rotation=15, ha="right", fontsize=8)
-    ax.set_title("FairGround - Cross-Domain Accuracy: Baseline vs Constrained\n(Accuracy cost of fairness constraints)",
+    ax.set_title("FairGround - Cross-Domain Accuracy: Baseline vs Constrained\n(no constrained bar where the fit failed)",
                 fontsize=11, fontweight="bold")
     ax.set_ylabel("Accuracy"); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "fairground_accuracy_comparison.png"), dpi=150, bbox_inches="tight")
@@ -342,7 +356,7 @@ def run_stage2():
         ax.text(bar.get_x()+bar.get_width()/2, val+1, f'{val:.0f}%', ha='center', fontsize=9, color='#2c3e50')
     ax.axhline(0, color='gray', linestyle='--', alpha=0.5)
     ax.set_xticks(x6); ax.set_xticklabels(domain_labels, rotation=15, ha='right')
-    ax.set_title('FairGround - Fairness Improvement % by Domain\n(Education achieves strongest reduction; Credit near-zero baseline)',
+    ax.set_title('FairGround - Fairness Improvement % by Domain, GB\n(negative = the constraint made the metric worse)',
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('Fairness Improvement %'); ax.legend()
     plt.tight_layout()
@@ -373,17 +387,11 @@ def run_stage2():
     plt.savefig(os.path.join(FIGURES_DIR, 'fairground_permodel_dpd_improvement.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 7 saved - fairground_permodel_dpd_improvement.png')
 
-    print(f"\n--- FairGround Stage 2 complete ---")
-    print(f"  7 figures saved to figures/stage2/")
-    print(f"  Cross-domain ThresholdOptimizer results ready for FAPE paper Section 4")
-
-
-
     # Fig 8 - DIR Before vs After DP Constraint
     datasets8 = list(all_results.keys())
     domains8 = [all_results[d]['domain'] for d in datasets8]
     dir_b = [all_results[d]['baseline']['GradientBoosting']['dpr'] if all_results[d]['baseline'].get('GradientBoosting') else 0 for d in datasets8]
-    dir_a = [all_results[d]['dp']['GradientBoosting']['dpr'] if all_results[d]['dp'].get('GradientBoosting') else 0 for d in datasets8]
+    dir_a = [all_results[d]['dp']['GradientBoosting']['dpr'] if all_results[d]['dp'].get('GradientBoosting') else np.nan for d in datasets8]
     x8 = np.arange(len(datasets8))
     w8 = 0.35
     fig, ax = plt.subplots(figsize=(12, 5))
@@ -391,17 +399,21 @@ def run_stage2():
     ax.bar(x8 + w8/2, dir_a, w8, label='Post-DP DIR', color='#5cb85c', edgecolor='black', linewidth=0.5)
     for i, (b, a) in enumerate(zip(dir_b, dir_a)):
         ax.text(x8[i] - w8/2, b + 0.01, f'{b:.3f}', ha='center', fontsize=8)
-        ax.text(x8[i] + w8/2, a + 0.01, f'{a:.3f}', ha='center', fontsize=8)
-    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='EEOC 4/5ths threshold (0.8)')
+        ax.text(x8[i] + w8/2, 0.01 if np.isnan(a) else a + 0.01,
+                'fit failed' if np.isnan(a) else f'{a:.3f}', ha='center', fontsize=8)
+    ax.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='0.8 four-fifths convention')
     ax.set_xticks(x8)
     ax.set_xticklabels(domains8, rotation=15, ha='right', fontsize=9)
-    ax.set_title('FairGround - Disparate Impact Ratio (DIR) Before vs After DP Constraint\n'
-                 '(GB model; EEOC 4/5ths rule: DIR > 0.8 = compliant)', fontsize=11)
-    ax.set_ylabel('Disparate Impact Ratio (DIR)')
+    ax.set_title('FairGround - Selection-Rate Ratio Before vs After DP Constraint\n'
+                 '(GB model; lowest group rate over highest, not a fixed pair)', fontsize=11)
+    ax.set_ylabel('Demographic parity ratio')
     ax.set_ylim(0, 1.5); ax.legend(fontsize=9)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'fairground_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 8 saved - fairground_dir_before_after.png')
+
+    print(f"\n--- FairGround Stage 2 complete ---")
+    print(f"  8 figures saved to figures/stage2/")
 
 if __name__ == "__main__":
     run_stage2()

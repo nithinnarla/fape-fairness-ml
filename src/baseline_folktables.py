@@ -6,7 +6,9 @@ Socioeconomic Domain
 Baseline models for Folktables ACS income prediction.
 Three classifiers: Logistic Regression, Random Forest, Gradient Boosting.
 Standard metrics + fairness metrics by race (RAC1P) and sex (SEX).
-Sample: 100,000 stratified from 1,589,032 total records.
+Sample: 100,000 drawn from 1,589,032 records, 50,000 per label class.
+POVPIP is left out of the features: it is built from family income, which
+includes the income the label is defined on.
 """
 
 import pandas as pd
@@ -70,7 +72,7 @@ def run_baselines():
     ).reset_index(drop=True)
     print(f"\nSampled: {len(df):,} from {len(df_full):,} total")
 
-    feature_cols = ['AGEP','SEX','RAC1P','SCHL','MAR','WKHP','COW','DIS','POVPIP','NATIVITY']
+    feature_cols = ['AGEP','SEX','RAC1P','SCHL','MAR','WKHP','COW','DIS','NATIVITY']
     X = df[feature_cols].values
     y = df['label'].values
 
@@ -147,8 +149,8 @@ def run_baselines():
     print(f"  Best model: {best[0]} (AUC={best[1]['auc']:.3f})")
     print(f"  Male-Female income gap: Male {df[df['SEX']==1]['label'].mean():.1%} vs Female {df[df['SEX']==2]['label'].mean():.1%}")
     print(f"  Black-White income gap: Black {df[df['RAC1P']==2]['label'].mean():.1%} vs White {df[df['RAC1P']==1]['label'].mean():.1%}")
-    print(f"  Note: Asian income rate (51.1%) exceeds White (46.7%), intersectional analysis needed")
-    print(f"  Note: FAPE Stage 2 ThresholdOptimizer targets equalized opportunity by race and sex")
+    print(f"  Asian-White income gap: Asian {df[df['RAC1P']==6]['label'].mean():.1%} vs White {df[df['RAC1P']==1]['label'].mean():.1%}")
+    print(f"  Note: Stage 2 applies the DP and EO constraints by race, plus a separate DP run by sex")
 
     print(f"\n--- Folktables Baseline complete ---")
     return results

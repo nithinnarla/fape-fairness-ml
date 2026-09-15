@@ -7,10 +7,12 @@ Baseline models across 5 representative FairGround datasets:
 - adult (income), race sensitive
 - compas_2_years (criminal justice), age sensitive
 - creditcard (credit), sex sensitive
-- law_school_lequy (education), race + sex sensitive
+- law_school_lequy (education), race sensitive (White / non-White)
 - meps_panel_19_fy2015 (healthcare), race sensitive
 
-Demonstrates fairness disparities exist across all 5 domains.
+Features are the columns FairGround documents for each dataset
+(fairground_loader.documented_feature_columns). The raw MEPS and compas_2_years
+files also carry label-defining and outcome columns, which that list leaves out.
 Sets up for Stage 2 ThresholdOptimizer cross-domain intervention.
 """
 
@@ -21,6 +23,7 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(__file__))
+from fairground_loader import documented_feature_columns
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -79,28 +82,8 @@ def prepare_dataset(corpus, ds_id, config):
     # Final safety, replace any remaining NaN/inf with 0
     X_num = X_num.replace([np.inf, -np.inf], 0).fillna(0)
 
-    # Drop known leakage columns
-    leakage_cols = ['is_recid', 'is_violent_recid', 'event', 'end', 'start',
-                    'r_case_number', 'r_jail_in', 'r_jail_out',
-                    'r_charge_desc', 'r_charge_degree', 'r_days_from_arrest',
-                    'r_offense_date', 'c_charge_desc', 'id', 'name', 'first',
-                    'last', 'compas_screening_date', 'dob', 'c_jail_in',
-                    'c_jail_out', 'c_case_number', 'c_offense_date',
-                    'vr_offense_date', 'decile_score', 'decile_score.1',
-                    'v_decile_score', 'score_text', 'v_score_text',
-                    'out_custody', 'in_custody', 'screening_date',
-                    'v_screening_date', 'vr_case_number', 'c_arrest_date',
-                    'vr_charge_desc', 'vr_charge_degree', 'violent_recid',
-                    'type_of_assessment', 'v_type_of_assessment',
-                    'c_days_from_compas', 'priors_count.1']
-    X_num = X_num.drop(columns=[c for c in leakage_cols if c in X_num.columns], errors='ignore')
-
-    # For high-dim data keep top 50 features by variance (MEPS)
-    if X_num.shape[1] > 100:
-        variances = X_num.var()
-        top_cols = variances.nlargest(50).index
-        X_num = X_num[top_cols]
-
+    # Outcome and label-defining columns never reach this point: the corpus
+    # below keeps only FairGround's documented feature columns.
     return X_num, y, sensitive
 
 
@@ -143,7 +126,7 @@ def run_baselines():
             df = dataset.to_pandas()
             target_col = dataset.get_target_column()
             sensitive_cols = dataset.sensitive_columns if hasattr(dataset, 'sensitive_columns') else []
-            feature_cols = [c for c in df.columns if c != target_col]
+            feature_cols = documented_feature_columns(ds_id, df, target_col)
             corpus[ds_id] = {
                 'X': df[feature_cols],
                 'y': df[target_col],
@@ -222,7 +205,6 @@ def run_baselines():
 
     print(f"\n--- FairGround Baseline complete ---")
     print(f"  5 domains covered: Income, Criminal Justice, Credit, Education, Healthcare")
-    print(f"  Fairness disparities confirmed across all domains, Stage 2 ThresholdOptimizer needed")
 
     return all_results
 

@@ -5,16 +5,19 @@ Socioeconomic Domain
 
 Applies Fairlearn ThresholdOptimizer post-processing to Folktables ACS baseline.
 Tests demographic_parity and equalized_odds constraints.
-Sensitive attributes: RAC1P (race, 9 groups), SEX (binary)
+Sensitive attributes: RAC1P (race, 9 groups) for both constraints; SEX (binary)
+gets a separate demographic parity run for reference.
 
-Key baseline findings:
-- Black DIR=0.74, Am.Indian DIR=0.54, Other DIR=0.52 - all below EEOC 0.8
-- Asian DIR=1.13 - advantaged group, income rate exceeds White
-- Male-Female income gap: Male 57.0% vs Female 42.1%
+Label: personal income (PINCP) above $50,000. POVPIP, the family income to
+poverty ratio, is not a model feature: family income contains the person's own
+income, so it hands the model most of the label. The loader still reads it
+for EDA.
 
-Note: ThresholdOptimizer in fairlearn 0.13.0 is non-deterministic.
-Results vary between runs. Cross-run direction is consistent:
-Black-White income gap reduces, FPR gap narrows after EO constraint.
+Race-level rates and DIR against White are computed below for groups with at
+least 30 test records; two race groups fall under that floor, and the DPD
+and EOD values over all groups are sensitive to them (see group_size_check.py).
+
+ThresholdOptimizer.predict is seeded (random_state=42), so runs are repeatable.
 """
 
 import pandas as pd
@@ -43,7 +46,7 @@ FIGURES_DIR = os.path.join(REPO_ROOT, 'figures', 'stage2')
 os.makedirs(FIGURES_DIR, exist_ok=True)
 
 SAMPLE_SIZE = 100000
-FEATURE_COLS = ["AGEP", "SCHL", "MAR", "WKHP", "COW", "DIS", "POVPIP", "NATIVITY"]
+FEATURE_COLS = ["AGEP", "SCHL", "MAR", "WKHP", "COW", "DIS", "NATIVITY"]   # no POVPIP: built from family income
 RAC1P_LABELS = {1:"White", 2:"Black", 3:"Am.Indian", 4:"Alaska Native",
                 5:"Am.Indian+Alaska", 6:"Asian", 7:"Pacific Islander",
                 8:"Other", 9:"Two or more"}
@@ -207,6 +210,15 @@ def run_stage2():
     print(f"  Black-White base gap: {bw_gap_b:.3f}")
     print(f"  Black-White constrained gap: {bw_gap_c:.3f}")
 
+    print(f"\n--- DIR against White, GB Before vs After EO Constraint (groups with n>=30) ---")
+    race_dir = {}
+    for label, r in race_level.items():
+        if label == "White":
+            continue
+        race_dir[label] = (r["base"] / race_level["White"]["base"],
+                           r["constrained"] / race_level["White"]["constrained"])
+        print(f"  {label:<20} n={r['n']:>5,} DIR {race_dir[label][0]:.2f} -> {race_dir[label][1]:.2f}")
+
     print(f"\n--- FPR/FNR by Race - GB Before vs After EO Constraint ---")
     main_races = [(2,"Black"),(1,"White"),(6,"Asian"),(3,"Am.Indian"),(8,"Other"),(9,"Two or more")]
     fpr_fnr = {}
@@ -234,12 +246,13 @@ def run_stage2():
     if valid_eo:
         best_eo = min(valid_eo, key=lambda x: abs(x[1]["eod"]))
         print(f"  Best EO constraint: {best_eo[0]} EOD={best_eo[1]['eod']:.3f}")
-    print(f"  Black-White income gap: {bw_gap_b:.3f} -> {bw_gap_c:.3f} (ThresholdOptimizer reduces gap)")
-    print(f"  Black DIR baseline below EEOC 0.8 threshold - ThresholdOptimizer applied")
-    print(f"  Am.Indian DIR=0.54, Other DIR=0.52 - most severely disadvantaged groups")
-    print(f"  Asian DIR=1.13 - advantaged group, income rate exceeds White")
-    print(f"  Note: ThresholdOptimizer non-deterministic in fairlearn 0.13.0 - direction consistent across runs")
-    print(f"  Note: RF/GB DPD worsens under DP constraint - 9 racial groups challenge")
+    print(f"  Black-White predicted-rate gap under GB: {bw_gap_b:.3f} -> {bw_gap_c:.3f} (EO constraint)")
+    below = sorted(label for label, (b, _) in race_dir.items() if b < 0.8)
+    crossed = sorted(label for label, (b, c) in race_dir.items() if b < 0.8 <= c)
+    print(f"  GB baseline DIR below the 0.8 convention: {', '.join(below) or 'none'}")
+    print(f"  Moved to 0.8 or above under the EO constraint: {', '.join(crossed) or 'none'}")
+    worse_dp = [n for n, r in dp_results.items() if r and r["dpd"] > baseline_results[n]["dpd"]]
+    print(f"  DPD worse after the DP constraint (all groups): {', '.join(worse_dp) or 'none'}")
 
     # FIGURES
     models = list(baseline_results.keys())
@@ -265,11 +278,12 @@ def run_stage2():
     axes[0].bar(x+width, eo_accs,   width, label="EO Constraint", color="#e74c3c", edgecolor="white")
     axes[0].set_xticks(x); axes[0].set_xticklabels(short)
     axes[0].set_title("Accuracy: Baseline vs Constrained", fontsize=11, fontweight="bold")
-    axes[0].set_ylabel("Accuracy"); axes[0].legend(); axes[0].set_ylim(0.6, 0.88)
+    all_accs = [v for v in base_accs + dp_accs + eo_accs if v]
+    axes[0].set_ylabel("Accuracy"); axes[0].legend(); axes[0].set_ylim(min(all_accs) - 0.05, max(all_accs) + 0.03)
     axes[1].bar(x-width, base_dpds, width, label="Baseline", color="#95a5a6", edgecolor="white")
     axes[1].bar(x,       dp_dpds,   width, label="DP Constraint", color="#3498db", edgecolor="white")
     axes[1].bar(x+width, eo_dpds,   width, label="EO Constraint", color="#e74c3c", edgecolor="white")
-    axes[1].axhline(0.1, color="green", linestyle="--", alpha=0.7, label="Target DPD<0.1")
+    axes[1].axhline(0.1, color="green", linestyle="--", alpha=0.7, label="DPD 0.1 convention")
     axes[1].set_xticks(x); axes[1].set_xticklabels(short)
     axes[1].set_title("Demographic Parity Difference\n(lower = fairer)", fontsize=11, fontweight="bold")
     axes[1].set_ylabel("DPD"); axes[1].legend()
@@ -348,7 +362,7 @@ def run_stage2():
     for i,val in enumerate(sex_dpds): ax.text(i-width/2, val+0.002, f"{val:.3f}", ha="center", fontsize=9)
     for i,val in enumerate(sex_eods): ax.text(i+width/2, val+0.002, f"{val:.3f}", ha="center", fontsize=9)
     ax.set_xticks(x); ax.set_xticklabels(short)
-    ax.set_title("Folktables ACS - Sex Fairness After DP Constraint\n(Male-Female income gap reduction)", fontsize=11, fontweight="bold")
+    ax.set_title("Folktables ACS - Sex Fairness After DP Constraint on Sex", fontsize=11, fontweight="bold")
     ax.set_ylabel("Fairness Metric"); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_sex_fairness.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 4 saved - folktables_sex_fairness.png")
@@ -360,7 +374,8 @@ def run_stage2():
     ax.bar(x+width, eo_f1s,   width, label="EO Constraint", color="#e74c3c", edgecolor="white")
     ax.set_xticks(x); ax.set_xticklabels(short)
     ax.set_title("Folktables ACS - F1 Score Comparison", fontsize=11, fontweight="bold")
-    ax.set_ylabel("F1 Score"); ax.legend(); ax.set_ylim(0.55, 0.85); plt.tight_layout()
+    all_f1s = [v for v in base_f1s + dp_f1s + eo_f1s if v]
+    ax.set_ylabel("F1 Score"); ax.legend(); ax.set_ylim(min(all_f1s) - 0.05, max(all_f1s) + 0.03); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_f1_comparison.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 5 saved - folktables_f1_comparison.png")
 
@@ -379,7 +394,7 @@ def run_stage2():
         ax.text(i,    b+0.005, f"{b:.2f}", ha="center", fontsize=7)
         ax.text(i+w6, c+0.005, f"{c:.2f}", ha="center", fontsize=7)
     ax.set_xticks(x6); ax.set_xticklabels(plot_labels, rotation=15, ha="right")
-    ax.set_title("Folktables ACS - Race-Level Prediction Rates: Baseline vs EO Constraint\n(Black-White income prediction gap reduction)", fontsize=11, fontweight="bold")
+    ax.set_title("Folktables ACS - Race-Level Prediction Rates: Baseline vs EO Constraint\n(groups with at least 30 test records)", fontsize=11, fontweight="bold")
     ax.set_ylabel("Predicted Positive Rate"); ax.legend(); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "folktables_race_prediction_rates.png"), dpi=150, bbox_inches="tight")
     plt.close(); print("Fig 6 saved - folktables_race_prediction_rates.png")
@@ -427,15 +442,17 @@ def run_stage2():
         dir_colors.append('#2ecc71' if dir_v >= 0.8 else '#e74c3c')
     fig, ax = plt.subplots(figsize=(11, 6))
     bars = ax.bar(dir_labels, dir_vals, color=dir_colors, edgecolor='white', width=0.6)
-    ax.axhline(0.8, color='#f39c12', linestyle='--', linewidth=2, label='EEOC 80% rule threshold')
+    ax.axhline(0.8, color='#f39c12', linestyle='--', linewidth=2, label='0.8 four-fifths convention')
     ax.axhline(1.0, color='gray', linestyle=':', linewidth=1, alpha=0.5, label='White reference (DIR=1.0)')
     for bar, val in zip(bars, dir_vals):
         ax.text(bar.get_x()+bar.get_width()/2, val+0.02, f'{val:.3f}',
                 ha='center', fontsize=10, fontweight='bold')
-    ax.set_title('Folktables ACS - Disparate Impact Ratio by Race\n(EEOC 80% Rule: Black DIR=0.657 - Am.Indian DIR=0.612 - Other DIR=0.460 - all FAIL)',
+    under = [f'{l} {v:.2f}' for l, v in zip(dir_labels, dir_vals) if v < 0.8]
+    ax.set_title('Folktables ACS - Disparate Impact Ratio by Race, GB Baseline\n'
+                 f"(below 0.8: {', '.join(under) or 'none'})",
                 fontsize=11, fontweight='bold')
     ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend()
-    ax.set_ylim(0, 1.35)
+    ax.set_ylim(0, max(1.35, max(dir_vals) * 1.15))
     plt.xticks(rotation=15, ha='right'); plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'folktables_dir_by_race.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 8 saved - folktables_dir_by_race.png')
@@ -456,22 +473,24 @@ def run_stage2():
     fig, ax = plt.subplots(figsize=(13, 6))
     bars_b = ax.bar(x9-w9/2, dir_base_vals, w9, label='Baseline DIR', color='#e74c3c', edgecolor='white')
     bars_c = ax.bar(x9+w9/2, dir_con_vals,  w9, label='EO Constrained DIR', color='#3498db', edgecolor='white')
-    ax.axhline(0.8, color='#f39c12', linestyle='--', linewidth=2, label='EEOC 80% threshold')
+    ax.axhline(0.8, color='#f39c12', linestyle='--', linewidth=2, label='0.8 four-fifths convention')
     for bar, val in zip(bars_b, dir_base_vals):
         ax.text(bar.get_x()+bar.get_width()/2, val+0.015, f'{val:.3f}', ha='center', fontsize=8)
     for bar, val in zip(bars_c, dir_con_vals):
         ax.text(bar.get_x()+bar.get_width()/2, val+0.015, f'{val:.3f}', ha='center', fontsize=8)
     ax.set_xticks(x9); ax.set_xticklabels(dir_labels2, rotation=15, ha='right')
-    ax.set_title('Folktables ACS - DIR Before vs After EO Constraint\n(Two or more: DIR 0.739->0.863 crosses EEOC threshold - key regulatory finding)',
+    crossers = [f'{l} {b:.2f}->{c:.2f}' for l, b, c in zip(dir_labels2, dir_base_vals, dir_con_vals) if b < 0.8 <= c]
+    ax.set_title('Folktables ACS - DIR Before vs After EO Constraint, GB\n'
+                 f"(crossing 0.8: {', '.join(crossers) or 'none'})",
                 fontsize=11, fontweight='bold')
-    ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend(); ax.set_ylim(0, 1.35)
+    ax.set_ylabel('Disparate Impact Ratio (DIR)'); ax.legend()
+    ax.set_ylim(0, max(1.35, max(dir_base_vals + dir_con_vals) * 1.15))
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'folktables_dir_before_after.png'), dpi=150, bbox_inches='tight')
     plt.close(); print('Fig 9 saved - folktables_dir_before_after.png')
 
     print(f"\n--- Folktables Stage 2 complete ---")
     print(f"  9 figures saved to figures/stage2/")
-    print(f"  Ready for FairGround + Student Stage 2")
 
 
 if __name__ == "__main__":
