@@ -87,11 +87,26 @@ RESULTS = {
     },
 }
 
+# MEPS Panel 19 FY2015 (Healthcare), evaluated via the FairGround pipeline rather than a
+# standalone Stage 2 script, so it is held separately from RESULTS above. Values verified
+# against a pinned-environment run of stage2_fairground_threshold.py. Single source of truth
+# for make_results_table.py and fairness_drift_monitor.py.
+MEPS_RESULTS = {
+    'LR': {'baseline_acc': 0.971, 'baseline_dpd': 0.115, 'baseline_eod': 0.017,
+           'dp_acc': 0.888, 'dp_dpd': 0.028, 'eo_acc': 0.968, 'eo_eod': 0.021},
+    'RF': {'baseline_acc': 0.976, 'baseline_dpd': 0.116, 'baseline_eod': 0.017,
+           'dp_acc': 0.855, 'dp_dpd': 0.090, 'eo_acc': 0.975, 'eo_eod': 0.019},
+    'GB': {'baseline_acc': 0.992, 'baseline_dpd': 0.110, 'baseline_eod': 0.002,
+           'dp_acc': 0.911, 'dp_dpd': 0.024, 'eo_acc': 0.992, 'eo_eod': 0.016},
+}
+
 DOMAINS = list(RESULTS.keys())
 MODELS = ['LR', 'RF', 'GB']
 
 def safe_get(domain, model, key):
     entry = RESULTS.get(domain, {}).get(model)
+    if entry is None and domain == 'MEPS':
+        entry = MEPS_RESULTS.get(model)
     if entry is None:
         return None
     return entry.get(key)
@@ -126,7 +141,9 @@ def run_threshold_aggregation():
         print(f"  {domain:<15} LR={fmt(dpds['LR'])} RF={fmt(dpds['RF'])} GB={fmt(dpds['GB'])}")
 
     print("\n--- Key Findings (computed from RESULTS, not hardcoded - see Decision 12) ---")
-    acc_doms = [d for d in DOMAINS if has_accuracy(d)]
+    # MEPS lives in its own dict because it was added after the original seven.
+    # Fold it in for the accuracy comparison; the domain loops above stay on RESULTS.
+    acc_doms = [d for d in DOMAINS + ['MEPS'] if has_accuracy(d)]
     auc_doms = [d for d in DOMAINS if not has_accuracy(d)]
     gb_best_acc = sum(1 for d in acc_doms if safe_get(d, 'GB', 'baseline_acc') == max(
         safe_get(d, m, 'baseline_acc') or 0 for m in MODELS))
