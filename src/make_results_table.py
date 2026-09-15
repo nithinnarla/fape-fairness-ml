@@ -29,7 +29,7 @@ ORDER = [
     ("Agricultural", R['Agricultural']),
     ("FairGround", R['FairGround (Education/law_school_lequy)']),
     ("MEPS", MEPS),
-    ("Student", R['Student (math)']),
+    ("Student (Math)", R["Student (math)"]),
 ]
 
 def cell(entry, before, after):

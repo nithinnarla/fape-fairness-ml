@@ -3,7 +3,9 @@ FAPE, ThresholdOptimizer Results Aggregation
 Stage 2: All Models × All Domains Summary
 
 Aggregates ThresholdOptimizer results for all 3 models (LR, RF, GB)
-across all 7 FAPE domains into a unified comparison table and figures.
+across the seven Stage 2 domains into a unified comparison table and figures.
+MEPS, the eighth evaluation, is held in MEPS_RESULTS and reported in Table 2.
+Models a domain did not evaluate are left blank in the figures, not drawn as zero.
 
 Complements cross_domain_comparison.py (GB only) by showing
 model-level variation within each domain.
@@ -41,12 +43,12 @@ RESULTS = {
                 'dp_acc': 0.675, 'dp_dpd': 0.571, 'eo_acc': 0.677, 'eo_eod': 0.659},
     },
     'Folktables': {
-        'LR':  {'baseline_acc': 0.819, 'baseline_dpd': 0.352, 'baseline_eod': 0.571,
-                'dp_acc': 0.799, 'dp_dpd': 0.340, 'eo_acc': 0.807, 'eo_eod': 0.333},
-        'RF':  {'baseline_acc': 0.829, 'baseline_dpd': 0.319, 'baseline_eod': 0.823,
-                'dp_acc': 0.794, 'dp_dpd': 0.394, 'eo_acc': 0.823, 'eo_eod': 0.861},
-        'GB':  {'baseline_acc': 0.845, 'baseline_dpd': 0.320, 'baseline_eod': 0.333,
-                'dp_acc': 0.825, 'dp_dpd': 0.339, 'eo_acc': 0.828, 'eo_eod': 0.334},
+        'LR':  {'baseline_acc': 0.740, 'baseline_dpd': 0.301, 'baseline_eod': 0.728,
+                'dp_acc': 0.717, 'dp_dpd': 0.348, 'eo_acc': 0.693, 'eo_eod': 0.314},
+        'RF':  {'baseline_acc': 0.726, 'baseline_dpd': 0.290, 'baseline_eod': 0.732,
+                'dp_acc': 0.706, 'dp_dpd': 0.193, 'eo_acc': 0.712, 'eo_eod': 0.836},
+        'GB':  {'baseline_acc': 0.756, 'baseline_dpd': 0.302, 'baseline_eod': 0.767,
+                'dp_acc': 0.740, 'dp_dpd': 0.373, 'eo_acc': 0.721, 'eo_eod': 0.417},
     },
     'Law School': {
         'LR':  {'baseline_acc': None, 'baseline_auc': 0.872, 'baseline_dpd': 0.329, 'baseline_eod': 0.543,
@@ -89,15 +91,16 @@ RESULTS = {
 
 # MEPS Panel 19 FY2015 (Healthcare), evaluated via the FairGround pipeline rather than a
 # standalone Stage 2 script, so it is held separately from RESULTS above. Values verified
-# against a pinned-environment run of stage2_fairground_threshold.py. Single source of truth
-# for make_results_table.py and fairness_drift_monitor.py.
+# against a pinned-environment run of stage2_fairground_threshold.py, which uses FairGround's
+# documented 41 MEPS features (the raw file's visit counts define the label). Single source
+# of truth for make_results_table.py and fairness_drift_monitor.py.
 MEPS_RESULTS = {
-    'LR': {'baseline_acc': 0.971, 'baseline_dpd': 0.115, 'baseline_eod': 0.017,
-           'dp_acc': 0.888, 'dp_dpd': 0.028, 'eo_acc': 0.968, 'eo_eod': 0.021},
-    'RF': {'baseline_acc': 0.976, 'baseline_dpd': 0.116, 'baseline_eod': 0.017,
-           'dp_acc': 0.855, 'dp_dpd': 0.090, 'eo_acc': 0.975, 'eo_eod': 0.019},
-    'GB': {'baseline_acc': 0.992, 'baseline_dpd': 0.110, 'baseline_eod': 0.002,
-           'dp_acc': 0.911, 'dp_dpd': 0.024, 'eo_acc': 0.992, 'eo_eod': 0.016},
+    'LR': {'baseline_acc': 0.855, 'baseline_dpd': 0.069, 'baseline_eod': 0.034,
+           'dp_acc': 0.784, 'dp_dpd': 0.013, 'eo_acc': 0.795, 'eo_eod': 0.030},
+    'RF': {'baseline_acc': 0.857, 'baseline_dpd': 0.089, 'baseline_eod': 0.053,
+           'dp_acc': 0.724, 'dp_dpd': 0.253, 'eo_acc': 0.826, 'eo_eod': 0.071},
+    'GB': {'baseline_acc': 0.859, 'baseline_dpd': 0.092, 'baseline_eod': 0.056,
+           'dp_acc': 0.784, 'dp_dpd': 0.013, 'eo_acc': 0.799, 'eo_eod': 0.039},
 }
 
 DOMAINS = list(RESULTS.keys())
@@ -186,7 +189,7 @@ def run_threshold_aggregation():
     x1 = np.arange(len(acc_domains))
     for i, model in enumerate(MODELS):
         vals = [safe_get(d, model, 'baseline_acc') for d in acc_domains]
-        vals = [v if v is not None else 0 for v in vals]
+        vals = [v if v is not None else np.nan for v in vals]
         ax1.bar(x1 + (i-1)*w, vals, w, label=model, color=COLORS[model],
                 edgecolor='black', linewidth=0.5, alpha=0.85)
     ax1.set_xticks(x1)
@@ -201,7 +204,7 @@ def run_threshold_aggregation():
         vals = [safe_get(d, model, 'baseline_auc') for d in auc_domains]
         if all(v is None for v in vals):
             continue
-        vals = [v if v is not None else 0 for v in vals]
+        vals = [v if v is not None else np.nan for v in vals]
         ax2.bar(x2 + (i-1)*w, vals, w, label=model, color=COLORS[model],
                 edgecolor='black', linewidth=0.5, alpha=0.85)
     ax2.set_xticks(x2)
@@ -211,7 +214,7 @@ def run_threshold_aggregation():
     ax2.legend(fontsize=9)
     ax2.set_ylim(0.5, 1.0)
 
-    plt.suptitle('Baseline Performance Across All 7 FAPE Domains - Split by Metric Type', fontsize=13)
+    plt.suptitle('Baseline Performance Across the Seven Stage 2 Domains - Split by Metric Type', fontsize=13)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_baseline_accuracy.png'),
                 dpi=150, bbox_inches='tight')
@@ -223,15 +226,15 @@ def run_threshold_aggregation():
     fig, ax = plt.subplots(figsize=(14, 6))
     for i, model in enumerate(MODELS):
         dpds = [safe_get(d, model, 'dp_dpd') for d in DOMAINS]
-        dpds = [v if v is not None else 0 for v in dpds]
+        dpds = [v if v is not None else np.nan for v in dpds]
         ax.bar(x + (i-1)*w, dpds, w, label=f'{model} post-DP', color=COLORS[model],
                edgecolor='black', linewidth=0.5, alpha=0.85)
     ax.axhline(y=0.1, color='black', linestyle='--', linewidth=1,
-               label='EEOC threshold (0.1)')
+               label='DPD 0.1 convention')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
     ax.set_title('Post-ThresholdOptimizer DPD - LR vs RF vs GB\n'
-                 'Across All 7 FAPE Domains (DP Constraint)', fontsize=12)
+                 'Seven Stage 2 Domains, DP Constraint (RF not evaluated in 3 domains)', fontsize=12)
     ax.set_ylabel('Demographic Parity Disparity (DPD)')
     ax.legend(fontsize=9)
     plt.tight_layout()
@@ -244,15 +247,15 @@ def run_threshold_aggregation():
     fig, ax = plt.subplots(figsize=(14, 6))
     for i, model in enumerate(MODELS):
         eods = [safe_get(d, model, 'eo_eod') for d in DOMAINS]
-        eods = [v if v is not None else 0 for v in eods]
+        eods = [v if v is not None else np.nan for v in eods]
         ax.bar(x + (i-1)*w, eods, w, label=f'{model} post-EO', color=COLORS[model],
                edgecolor='black', linewidth=0.5, alpha=0.85)
     ax.axhline(y=0.1, color='black', linestyle='--', linewidth=1,
-               label='EEOC threshold (0.1)')
+               label='0.1 reference')
     ax.set_xticks(x)
     ax.set_xticklabels(DOMAINS, rotation=15, ha='right', fontsize=9)
     ax.set_title('Post-ThresholdOptimizer EOD - LR vs RF vs GB\n'
-                 'Across All 7 FAPE Domains (EO Constraint)', fontsize=12)
+                 'Seven Stage 2 Domains, EO Constraint (RF not evaluated in 3 domains)', fontsize=12)
     ax.set_ylabel('Equalized Odds Disparity (EOD)')
     ax.legend(fontsize=9)
     plt.tight_layout()

@@ -27,7 +27,7 @@ STAGES = [
     ("Stage 3: Fairness intervention",
      "ThresholdOptimizer, DP and EO constraints", "#7d6ecf"),
     ("Stage 4: Drift monitoring",
-     "CUSUM detection, EEOC threshold DPD 0.1", "#d4941e"),
+     "CUSUM from deployment, DPD 0.1 convention", "#d4941e"),
 ]
 
 # Coverage matches Sections 3.5, 5.4, 5.6: DPD and EOD everywhere; DIR and
@@ -35,13 +35,13 @@ STAGES = [
 METRICS = [
     ("DPD", "Parity difference", "all 8"),
     ("EOD", "Odds difference", "all 8"),
-    ("DIR", "Impact ratio", "3 domains"),
-    ("Accuracy cost", "Baseline minus\nconstrained", "5 evaluations"),
+    ("DIR", "Impact ratio", "3 fixed pairs + Folktables"),
+    ("Accuracy cost", "Baseline minus constrained", "5 evaluations"),
 ]
 
 def build():
     fig, ax = plt.subplots(figsize=(11, 10))
-    ax.set_xlim(0, 10); ax.set_ylim(0, 10.6); ax.axis('off')
+    ax.set_xlim(0, 10); ax.set_ylim(-0.45, 10.1); ax.axis('off')
 
     box_x, box_w, box_h, gap = 1.3, 7.4, 1.35, 0.52
     top = 9.5
@@ -63,7 +63,7 @@ def build():
                 length_includes_head=True, color='#444444'))
 
     # side annotations, as in the original
-    ax.text(9.05, top - box_h / 2 - (box_h + gap), "Regulatory\nalignment\nper domain",
+    ax.text(9.05, top - box_h / 2 - (box_h + gap), "Regulatory\ncontext\nper domain",
             ha='left', va='center', fontsize=10, color='#333333')
     ax.text(0.95, top - box_h / 2 - 2 * (box_h + gap), "Post-processing,\nno retraining",
             ha='right', va='center', fontsize=10, style='italic', color='#333333')
@@ -73,21 +73,21 @@ def build():
     ax.text(5.0, strip_y + 0.62, "Metrics reported per evaluation",
             ha='center', va='center', fontsize=12.5, color='#222222')
 
-    mw, mgap = 1.72, 0.24
+    mw, mgap = 1.98, 0.14
     total = len(METRICS) * mw + (len(METRICS) - 1) * mgap
     mx = 5.0 - total / 2
     for name, desc, cover in METRICS:
         ax.add_patch(FancyBboxPatch(
-            (mx, strip_y - 1.02), mw, 0.92,
+            (mx, strip_y - 1.16), mw, 1.06,
             boxstyle="round,pad=0.02,rounding_size=0.05",
             facecolor='#eeece7', edgecolor='#b9b5ac', linewidth=0.9))
-        ax.text(mx + mw / 2, strip_y - 0.32, name,
+        ax.text(mx + mw / 2, strip_y - 0.34, name,
                 ha='center', va='center', fontsize=11, fontweight='bold', color='#222222')
-        ax.text(mx + mw / 2, strip_y - 0.58, desc,
-                ha='center', va='center', fontsize=8.4, color='#555555',
+        ax.text(mx + mw / 2, strip_y - 0.66, desc,
+                ha='center', va='center', fontsize=8.0, color='#555555',
                 linespacing=1.25)
-        ax.text(mx + mw / 2, strip_y - 0.88, cover,
-                ha='center', va='center', fontsize=8.4, style='italic', color='#777777')
+        ax.text(mx + mw / 2, strip_y - 0.96, cover,
+                ha='center', va='center', fontsize=8.0, style='italic', color='#777777')
         mx += mw + mgap
 
     out = os.path.join(OUT_DIR, 'fape_pipeline_diagram.png')
