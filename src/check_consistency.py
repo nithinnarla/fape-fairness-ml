@@ -22,7 +22,8 @@ of what each script printed, so the numbers are checked against their saved outp
     text has an entry and every entry is cited. Works the phase records cite but the
     paper does not have entries in docs/reading_notes_references.md, so every citation
     in every document resolves without putting an uncited work in the paper's list
- 7. every figure the paper embeds exists
+ 7. every figure the paper embeds exists, every figure and table it captions is
+    referred to in the text, and both are numbered in order from 1
  8. the body stays within 7,000 words and the abstract within 200
  9. every notebook ran top to bottom without an error, and no notebook that runs
     a script is older than that script's last change
@@ -36,9 +37,11 @@ of what each script printed, so the numbers are checked against their saved outp
 13. no prose anywhere in the repository uses a typographic dash or quote, or a hyphen
     standing in for a dash. Code and inline code are left alone; only markdown,
     comments, docstrings and string literals are read
-14. every figure drawn by a script or notebook you have edited has been written since
-    that edit, so a label corrected in the code is redrawn before it is committed. Each
-    of the 231 figures resolves to the one source that saves it
+14. every figure drawn by a script you have edited has been written since that edit, so a
+    label corrected in a script is redrawn before it is committed. Each of the 231 figures
+    resolves to the one source that saves it
+15. a notebook whose code cells changed carries new run timestamps, so its output and its
+    figures come from the code it now holds rather than from an earlier run
 
 Prints one line per problem and exits with status 1 if there is any.
 """
@@ -333,6 +336,21 @@ def check_figures(paper):
             problem('docs/paper_draft.md', f'embedded figure {target} does not exist')
 
 
+def check_exhibits(paper):
+    """Every figure and table the paper captions is referred to in the text, and numbered in order."""
+    body = paper.split('## 1. Introduction')[1].split('## Declarations')[0]
+    captions = re.findall(r'^\*\*(Figure|Table) (\d+)\.\*\*', body, re.M)
+    for kind in ('Figure', 'Table'):
+        numbers = [int(n) for k, n in captions if k == kind]
+        if numbers != list(range(1, len(numbers) + 1)):
+            problem('docs/paper_draft.md', f'{kind} captions are numbered {numbers}, not in order from 1')
+    for kind, number in captions:
+        prose = '\n'.join(line for line in body.splitlines()
+                          if not line.startswith('![') and not line.startswith(f'**{kind} {number}.**'))
+        if not re.search(rf'\b{kind} {number}\b', prose):
+            problem('docs/paper_draft.md', f'{kind} {number} is captioned but never referred to in the text')
+
+
 def check_limits(paper_lines):
     # The line that embeds a figure is a file path, not manuscript text. Its caption, the
     # line below it, is counted like any other sentence.
@@ -440,13 +458,23 @@ def check_doc_citations():
                              f'{" or ".join(os.path.basename(f) for f in REFERENCE_FILES)}')
 
 
-def check_figures_current():
-    """Every figure has been drawn since the script or notebook that draws it was last edited.
+def last_run(notebook):
+    """When the notebook's stored run finished, from the timestamps nbclient records."""
+    stamps = [cell['metadata']['execution'].get('shell.execute_reply')
+              for cell in notebook['cells']
+              if cell.get('metadata', {}).get('execution', {}).get('shell.execute_reply')]
+    return max(stamps) if stamps else None
 
-    Only sources with uncommitted edits are checked, which is the case that matters: a label
+
+def check_figures_current():
+    """Every figure a script draws has been written since the script was last edited.
+
+    Only scripts with uncommitted edits are checked, which is the case that matters: a label
     corrected in the working tree and committed without drawing the figure again. Modification
     times decide it rather than the file's contents, since redrawing a figure whose appearance
-    did not change leaves the same bytes and git would see no edit at all."""
+    did not change leaves the same bytes and git would see no edit at all. Figures a notebook
+    draws are covered by check_notebook_rerun instead: nbconvert saves the notebook after the
+    figures it wrote, so their times cannot be compared this way."""
     if subprocess.run(['git', 'rev-parse'], cwd=REPO_ROOT, capture_output=True).returncode:
         return
     dirty = uncommitted()
@@ -454,7 +482,7 @@ def check_figures_current():
     def written(rel):
         return os.path.getmtime(os.path.join(REPO_ROOT, rel))
 
-    for rel in sorted(glob.glob('src/*.py', root_dir=REPO_ROOT)) + sorted(glob.glob('notebooks/*.ipynb', root_dir=REPO_ROOT)):
+    for rel in sorted(glob.glob('src/*.py', root_dir=REPO_ROOT)):
         drawn = figures_drawn(rel)
         if not drawn:
             continue
@@ -468,6 +496,26 @@ def check_figures_current():
         for figure in sorted(drawn):
             if written(newest) > written(figure):
                 problem(figure, f'has not been drawn since {newest} was edited; run {rel} again')
+
+
+def check_notebook_rerun():
+    """A notebook whose code changed has been run again, so its output and figures come from
+    the code it now holds. Comparing the run timestamps with the committed copy says whether
+    the edit was followed by a run, which a modification time cannot."""
+    if subprocess.run(['git', 'rev-parse'], cwd=REPO_ROOT, capture_output=True).returncode:
+        return
+    for rel in sorted(glob.glob('notebooks/*.ipynb', root_dir=REPO_ROOT)):
+        if rel not in uncommitted():
+            continue
+        committed = subprocess.run(['git', 'show', f'HEAD:{rel}'], cwd=REPO_ROOT,
+                                   capture_output=True, text=True)
+        if committed.returncode:      # a notebook added in this commit has nothing to compare
+            continue
+        before, after = json.loads(committed.stdout), json.loads(read(rel))
+        code = lambda nb: [''.join(c['source']) for c in nb['cells'] if c['cell_type'] == 'code']
+        if code(before) != code(after) and last_run(before) == last_run(after):
+            problem(rel, 'has edited code cells but the same run timestamps as the committed '
+                         'copy; run it again so its output and figures match the code')
 
 
 def check_feature_fixes():
@@ -637,10 +685,11 @@ def main():
         ('where each number comes from', lambda: check_number_sources(results)),
         ('headline counts', lambda: check_headline_counts(make_tables, paper_lines)),
         ('references and citations', lambda: (check_references(paper), check_doc_citations())),
-        ('embedded figures', lambda: check_figures(paper)),
+        ('embedded figures', lambda: (check_figures(paper), check_exhibits(paper))),
         ('word limits', lambda: check_limits(paper_lines)),
         ('notebooks', check_notebooks),
         ('figures newer than the scripts that draw them', check_figures_current),
+        ('notebooks rerun after a code change', check_notebook_rerun),
         ('feature fixes and retired phrases', lambda: (check_feature_fixes(), check_retired_phrases())),
         ('numbers typed into printed or plotted text', check_typed_numbers),
         ('figure counts', check_figure_counts),

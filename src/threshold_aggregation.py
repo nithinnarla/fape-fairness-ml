@@ -454,7 +454,8 @@ def run_threshold_aggregation():
                  f'The constraint reverses direction in {reversed_pairs} of them; the marker shows '
                  f'the disparity before the constraint, the arrow head after it', fontsize=12)
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_check_designs.png'), dpi=150, bbox_inches='tight')
+    # The paper embeds this one, so it is saved at the 300 dpi the other four paper figures use.
+    plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_check_designs.png'), dpi=300, bbox_inches='tight')
     plt.close()
     print(f"  Fig 8 saved, aggregation_check_designs.png")
     print(f"  The constraint reverses direction under a check in {reversed_pairs} of {checked} pairs")
