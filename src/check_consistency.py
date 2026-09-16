@@ -17,7 +17,8 @@ of what each script printed, so the numbers are checked against their saved outp
  4. every three-decimal number and one-decimal percentage in the paper, README,
     outline and cross-domain tables is printed by the notebooks of the evaluation
     it describes or follows from that evaluation's RESULTS
- 5. the headline counts in those documents match RESULTS
+ 5. the headline counts in those documents match RESULTS, including any sentence or
+    figure caption that counts the evaluated model-domain pairs as a whole
  6. the paper's reference list matches docs/references.md, every citation in the
     text has an entry and every entry is cited. Works the phase records cite but the
     paper does not have entries in docs/reading_notes_references.md, so every citation
@@ -305,6 +306,14 @@ def check_headline_counts(make_tables, paper_lines):
         for count, total in [(improved, len(high)), (worsened, len(low))]:
             if not re.search(rf'\b{count} of (?:the )?{total}\b', text):
                 problem(where, f'does not state "{count} of {total}", the count RESULTS gives')
+    # Anywhere a document counts the evaluated pairs as a whole, in a sentence or a figure
+    # caption, the number is the one RESULTS holds; a caption is as easy to get wrong as a
+    # sentence. "9 of the 14 pairs" counts a subset, so a number after "of" is left alone.
+    total_pairs = re.compile(r'(?<!of )(?<!of the )\b(\d+)\s+(?:evaluated\s+)?(?:model-domain\s+)?pairs\b')
+    for rel in RESULT_DOCS:
+        for stated in total_pairs.findall(read(rel)):
+            if int(stated) != len(everything):
+                problem(rel, f'counts {stated} evaluated pairs; RESULTS holds {len(everything)}')
 
 
 def check_references(paper):
@@ -577,8 +586,8 @@ def check_figure_counts():
     aggregation, cross, drift = count('stage2', 'aggregation_'), count('stage2', 'cross_domain_'), count('stage2', 'drift_')
     domain = stage - aggregation - cross - drift
     statements = [
-        ('docs/paper_draft.md', r'(\d+) exploratory data analysis figures, (\d+) baseline model evaluation figures, '
-                                r'and (\d+) figures from', (eda, baseline, stage)),
+        ('docs/paper_draft.md', r'(\d+) EDA, (\d+) baseline and (\d+) intervention and monitoring figures',
+         (eda, baseline, stage)),
         ('docs/paper_outline.md', r'(\d+) EDA, (\d+) baseline and (\d+) intervention and monitoring figures', (eda, baseline, stage)),
         ('README.md', r'with (\d+) EDA figures and (\d+) baseline figures', (eda, baseline)),
         ('README.md', r'with (\d+) figures: (\d+) from the seven domain scripts, (\d+) aggregation and (\d+) cross-domain',

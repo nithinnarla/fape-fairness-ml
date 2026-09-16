@@ -407,7 +407,8 @@ def run_threshold_aggregation():
                  f'Improved in {improved_high} of {len(high)} pairs above 0.2, worsened in {worsened_low} '
                  f'of {len(low)} below 0.05; points below the diagonal improved', fontsize=12)
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_effectiveness_pattern.png'), dpi=150, bbox_inches='tight')
+    # The paper embeds this one, so it is saved at the 300 dpi the other paper figures use.
+    plt.savefig(os.path.join(FIGURES_DIR, 'aggregation_effectiveness_pattern.png'), dpi=300, bbox_inches='tight')
     plt.close()
     print("  Fig 7 saved, aggregation_effectiveness_pattern.png")
 
