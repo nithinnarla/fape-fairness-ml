@@ -24,7 +24,9 @@ of what each script printed, so the numbers are checked against their saved outp
     in every document resolves without putting an uncited work in the paper's list
  7. every figure the paper embeds exists, every figure and table it captions is
     referred to in the text, and both are numbered in order from 1
- 8. the body stays within 7,000 words and the abstract within 200
+ 8. the body stays within 7,000 words, the body and declarations together stay within
+    7,000 as well since JASIST does not say the declarations are excluded, and the
+    abstract stays within 200. Table pipes, bold markers and figure paths are not words
  9. every notebook ran top to bottom without an error, and no notebook that runs
     a script is older than that script's last change
 10. the feature fixes for MEPS and Folktables are still in place, and phrases
@@ -351,19 +353,30 @@ def check_exhibits(paper):
             problem('docs/paper_draft.md', f'{kind} {number} is captioned but never referred to in the text')
 
 
+def manuscript_words(lines):
+    """Words as a journal counts them. The line that embeds a figure is a file path rather
+    than manuscript text, and the pipes and asterisks that draw a markdown table or mark bold
+    are punctuation, not words; its caption and its cells are counted like any other text."""
+    text = ' '.join(line for line in lines if not line.startswith('!['))
+    text = re.sub(r'\*{1,2}', '', text.replace('|', ' '))
+    return len(re.sub(r'(?<![\w.])[:-]+(?![\w.])', ' ', text).split())
+
+
 def check_limits(paper_lines):
-    # The line that embeds a figure is a file path, not manuscript text. Its caption, the
-    # line below it, is counted like any other sentence.
-    body = [line for line in section(paper_lines, '## 1. Introduction', '## Declarations')
-            if not line.startswith('![')]
-    words = len(' '.join(body).split())
-    if words > 7000:
-        problem('docs/paper_draft.md', f'body is {words} words, over the 7,000 limit')
-    abstract = [line for line in section(paper_lines, '## Abstract', '---')
-                if not line.startswith(('##', '---', '*'))]
-    words = len(' '.join(abstract).split())
-    if words > 200:
-        problem('docs/paper_draft.md', f'abstract is {words} words, over the 200 limit')
+    body = manuscript_words(section(paper_lines, '## 1. Introduction', '## Declarations'))
+    if body > 7000:
+        problem('docs/paper_draft.md', f'body is {body} words, over the 7,000 limit')
+    # JASIST excludes the abstract, keywords, references and supplemental material from the
+    # 7,000 words and says nothing about the declarations, so they are counted here too:
+    # the submission has to hold under the strictest reading of the limit, not the kindest.
+    declarations = manuscript_words(section(paper_lines, '## Declarations', '## References'))
+    if body + declarations > 7000:
+        problem('docs/paper_draft.md', f'body and declarations are {body + declarations} words '
+                                       f'together ({body} and {declarations}), over the 7,000 limit')
+    abstract = manuscript_words([line for line in section(paper_lines, '## Abstract', '---')
+                                 if not line.startswith(('##', '---', '*'))])
+    if abstract > 200:
+        problem('docs/paper_draft.md', f'abstract is {abstract} words, over the 200 limit')
 
 
 @functools.lru_cache(maxsize=1)
