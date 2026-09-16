@@ -4,7 +4,7 @@
 *JASIST submission target, September 29 2026*
 
 **Nithin Raghava Ramachandra Narla**  
-Independent Researcher  
+Independent Researcher, Dallas-Fort Worth, Texas, United States  
 ORCID: 0009-0005-7458-551X  
 Corresponding author: nithinrf95@gmail.com
 
