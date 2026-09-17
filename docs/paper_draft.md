@@ -146,7 +146,7 @@ Under the equalized odds constraint, Law School shows the strongest result, both
 
 FairGround's two evaluated sub-datasets diverge sharply. On law_school_lequy, used for FairGround's headline comparisons elsewhere, logistic regression and gradient boosting improve by 89% and 97% while random forest improves by 10%. The creditcard sub-dataset shows the opposite, all three worsening from baselines between 0.011 and 0.018.
 
-The remaining domains are mixed. COMPAS, Folktables and MEPS each improve under logistic regression and gradient boosting and worsen under random forest: COMPAS's gradient boosting falls from 1.000 to a still high 0.659, Folktables improves by 57% and 46%, and MEPS by 14% and 30%, while its random forest rises from 0.053 to 0.071. Agricultural worsens under both models. Lending Club barely moves in either direction.
+The remaining domains are mixed. COMPAS, Folktables and MEPS each improve under logistic regression and gradient boosting and worsen under random forest: COMPAS's gradient boosting falls from 1.000 to a still high 0.659, Folktables improves by 57% and 46%, and MEPS by 12% and 30%, while its random forest rises from 0.053 to 0.071. Agricultural worsens under both models. Lending Club barely moves in either direction.
 
 ### 5.4 Disparate Impact Ratio
 

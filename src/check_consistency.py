@@ -14,7 +14,7 @@ of what each script printed, so the numbers are checked against their saved outp
  2. Table 2 in the paper matches docs/results_table.md
  3. every value in RESULTS and MEPS_RESULTS is printed, on a line naming the same
     model, in that evaluation's intervention notebook (notebooks/stage2_*)
- 4. every three-decimal number and one-decimal percentage in the paper, README,
+ 4. every three-decimal number and every percentage, at one decimal or whole, in the paper, README,
     outline and cross-domain tables is printed by the notebooks of the evaluation
     it describes or follows from that evaluation's RESULTS
  5. the headline counts in those documents match RESULTS, including any sentence or
@@ -233,7 +233,11 @@ def printed_numbers(notebook):
 
 
 def derived_numbers(entries):
-    """Numbers the documents compute from RESULTS: the values, accuracy costs and percentage changes."""
+    """Numbers the documents compute from RESULTS: the values, accuracy costs and percentage changes.
+
+    Percentage changes are collected at one decimal and as whole numbers, because the prose
+    rounds both ways: "96.7%" in one sentence and "by 12% and 30%" in another.
+    """
     three, one = set(), set()
     for entry in entries:
         for values in entry.values():
@@ -248,7 +252,9 @@ def derived_numbers(entries):
                     continue
                 three.add(f'{abs(values[before] - values[after]):.3f}')
                 if values[before]:
-                    one.add(f'{abs(values[before] - values[after]) / values[before] * 100:.1f}')
+                    pct = abs(values[before] - values[after]) / values[before] * 100
+                    one.add(f'{pct:.1f}')
+                    one.add(f'{pct:.0f}')          # the prose also rounds to whole numbers
     return three, one
 
 
@@ -271,6 +277,14 @@ def check_number_sources(results):
         for lineno, line in enumerate(read(rel).splitlines(), 1):
             numbers = [(m.start(), m.end(), m.group()) for m in re.finditer(r'(?<![\d.])\d\.\d{3}(?![\d.])', line)]
             numbers += [(m.start(), m.end(), m.group()) for m in re.finditer(r'(?<![\d.])\d+\.\d%', line)]
+            # Whole-number percentages written as "by 12% and 30%", the idiom the prose uses for
+            # an improvement in a metric. That form hid a wrong MEPS value the one-decimal
+            # pattern never saw. Rates the data simply has, "default rises to about 40%", are a
+            # different kind of claim and are left alone.
+            for m in re.finditer(r'\bby (\d{1,3})%(?:\s+and\s+(\d{1,3})%)?', line):
+                for group in (1, 2):
+                    if m.group(group):
+                        numbers.append((m.start(group), m.end(group), m.group(group) + '%'))
             if not numbers:
                 continue
             mentions = sorted((m.start(), m.end(), words) for words in EVALUATIONS
