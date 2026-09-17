@@ -281,10 +281,13 @@ def check_number_sources(results):
             # an improvement in a metric. That form hid a wrong MEPS value the one-decimal
             # pattern never saw. Rates the data simply has, "default rises to about 40%", are a
             # different kind of claim and are left alone.
-            for m in re.finditer(r'\bby (\d{1,3})%(?:\s+and\s+(\d{1,3})%)?', line):
-                for group in (1, 2):
-                    if m.group(group):
-                        numbers.append((m.start(group), m.end(group), m.group(group) + '%'))
+            for pattern in (r'\bby (\d{1,3})%(?:\s+and\s+(\d{1,3})%)?',      # "improves by 12% and 30%"
+                            r'(\d{1,3})% on (?:DPD|EOD)\b',                  # "81% on DPD against 12% on EOD"
+                            r'(?:DPD|EOD) by (\d{1,3})%'):                    # "cuts EOD by 64%"
+                for m in re.finditer(pattern, line):
+                    for group in range(1, (m.re.groups or 1) + 1):
+                        if m.group(group):
+                            numbers.append((m.start(group), m.end(group), m.group(group) + '%'))
             if not numbers:
                 continue
             mentions = sorted((m.start(), m.end(), words) for words in EVALUATIONS
