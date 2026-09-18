@@ -46,7 +46,7 @@ A parallel body of work defines what fairness means numerically. Dwork et al. (2
 
 ### 2.3 Cross-Domain Fairness Evaluation
 
-Empirical fairness research has mostly evaluated interventions one dataset at a time, most often COMPAS, Adult Income, or German Credit. Comparative studies widen the view but reuse those benchmarks. Friedler et al. (2019) compared fairness-enhancing interventions across several benchmark datasets and found them sensitive to how the data were split into training and test sets, and Chen et al. (2023) evaluated seventeen mitigation methods, equalized odds post-processing among them, on the five datasets that ship with the AIF360 toolkit: Adult, COMPAS, German Credit, Bank Marketing, and MEPS. Simson et al. (2025) addressed the narrowness of that pool with FairGround, a corpus of fairness-annotated datasets built for broader, more reproducible evaluation. FAPE applies one post-processing intervention to eight evaluations: COMPAS and MEPS from that pool, Folktables in place of Adult, and Law School, Lending Club, SBA agricultural loan, and Student Performance data from outside it, with three evaluations loaded through FairGround. Section 6.4 states how many independent data sources the eight rest on.
+Empirical fairness research has mostly evaluated interventions one dataset at a time, most often COMPAS, Adult Income, or German Credit. Comparative studies widen the view but reuse those benchmarks. Friedler et al. (2019) compared fairness-enhancing interventions across several benchmark datasets and found them sensitive to how the data were split into training and test sets, and Chen et al. (2023) evaluated seventeen mitigation methods, equalized odds post-processing among them, on the five datasets that ship with the AIF360 toolkit: Adult, COMPAS, German Credit, Bank Marketing, and MEPS. Simson et al. (2025) addressed the narrowness of that pool with FairGround, a corpus of fairness-annotated datasets built for broader, more reproducible evaluation. FAPE applies one post-processing intervention to eight evaluations: COMPAS and MEPS from that pool, Folktables in place of Adult, and Law School (Wightman, 1998), Lending Club, SBA agricultural loan, and Student Performance (Cortez and Silva, 2008) data from outside it, with three evaluations loaded through FairGround. Section 6.4 states how many independent data sources the eight rest on.
 
 ### 2.4 Production Fairness Monitoring
 
@@ -264,6 +264,8 @@ Chen, Z., Zhang, J. M., Sarro, F., & Harman, M. (2023). A comprehensive empirica
 
 Chouldechova, A. (2017). Fair prediction with disparate impact: A study of bias in recidivism prediction instruments. *Big Data*, 5(2), 153-163. https://doi.org/10.1089/big.2016.0047
 
+Cortez, P., & Silva, A. M. G. (2008). Using data mining to predict secondary school student performance. In *Proceedings of 5th FUture BUsiness TEChnology Conference (FUBUTEC 2008)*, 5-12.
+
 Ding, F., Hardt, M., Miller, J., & Schmidt, L. (2021). Retiring Adult: New datasets for fair machine learning. *Advances in Neural Information Processing Systems*, 34, 6478-6490.
 
 Dwork, C., Hardt, M., Pitassi, T., Reingold, O., & Zemel, R. (2012). Fairness through awareness. In *Proceedings of the 3rd Innovations in Theoretical Computer Science Conference* (pp. 214-226). https://doi.org/10.1145/2090236.2090255
@@ -281,5 +283,7 @@ Sariola, D., Button, P., Culotta, A., & Mattei, N. (2026). The illusion of fairn
 Sculley, D., Holt, G., Golovin, D., Davydov, E., Phillips, T., Ebner, D., Chaudhary, V., Young, M., Crespo, J. F., & Dennison, D. (2015). Hidden technical debt in machine learning systems. *Advances in Neural Information Processing Systems*, 28, 2503-2511.
 
 Simson, J., Fabris, A., Fröhner, C., Kreuter, F., & Kern, C. (2025). Bias begins with data: The FairGround corpus for robust and reproducible research on algorithmic fairness. *arXiv preprint arXiv:2510.22363*. https://doi.org/10.48550/arXiv.2510.22363
+
+Wightman, L. F. (1998). *LSAC National Longitudinal Bar Passage Study*. Law School Admission Council.
 
 Zhang, B. H., Lemoine, B., & Mitchell, M. (2018). Mitigating unwanted biases with adversarial learning. In *Proceedings of the 2018 AAAI/ACM Conference on AI, Ethics, and Society* (pp. 335-340). https://doi.org/10.1145/3278721.3278779

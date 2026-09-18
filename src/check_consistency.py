@@ -126,6 +126,53 @@ CONVENTIONS = {'0.80', '1.25', '0.05', '0.10', '0.20', '0.50', '1.00', '0.00'}
 problems = []
 
 
+
+def check_caption_against_plot_title(paper):
+    """A caption must not contradict the title drawn onto the figure itself.
+
+    Added September 17 2026 after the ORACLE audit found two figures there whose
+    captions described corpus statistics while their own plotted titles said
+    "Retrieved Documents". Nothing in this repository fails it, so it is a
+    regression test rather than a fix.
+    """
+    sources = {path: read(path) for path in sorted(glob.glob('src/*.py'))}
+    blocks = re.findall(
+        r'!\[.*?\]\((?:\.\./)?(.*?)\)\s*\n\s*\n\*\*Figure (\d+)\.\*\*\s*(.*?)(?:\n\n|\Z)',
+        paper, re.S)
+    # phrases that name different populations or splits; a caption claiming one
+    # while the plotted title claims the other is the defect this catches
+    conflicts = [
+        ({'all pairs', 'every pair', 'all model-domain', 'every model-domain'},
+         {'subset', 'sample of', 'selected pairs'}),
+        ({'test set', 'held-out', 'held out'}, {'training set', 'train split'}),
+        ({'training set', 'train split'}, {'test set', 'held-out', 'held out'}),
+        ({'all eight', 'every domain', 'across all domains'}, {'single domain', 'one domain'}),
+        ({'single domain', 'one domain', 'a single model'}, {'all domains', 'all models'}),
+        ({'baseline'}, {'constrained only', 'after the constraint only'}),
+    ]
+    for relative, number, caption in blocks:
+        base = os.path.basename(relative)
+        titles = []
+        for text in sources.values():
+            if base not in text:
+                continue
+            titles += re.findall(r"set_title\(\s*[frub]*'(.*?)'", text, re.S)
+            titles += re.findall(r'set_title\(\s*[frub]*"(.*?)"', text, re.S)
+            titles += re.findall(r"suptitle\(\s*\n?\s*[frub]*'(.*?)'", text, re.S)
+            titles += re.findall(r'suptitle\(\s*\n?\s*[frub]*"(.*?)"', text, re.S)
+        drawn = ' '.join(titles).lower().replace('\\n', ' ')
+        if not drawn:
+            continue
+        spoken = caption.lower()
+        for caption_terms, title_terms in conflicts:
+            said = next((t for t in caption_terms if t in spoken), None)
+            drew = next((t for t in title_terms if t in drawn), None)
+            if said and drew:
+                problem('docs/paper_draft.md',
+                        f'Figure {number} caption says {said!r} but the title plotted '
+                        f'onto {base} says {drew!r}')
+
+
 def problem(where, message):
     problems.append(f'{where}: {message}')
 
@@ -725,6 +772,8 @@ def main():
         ('headline counts', lambda: check_headline_counts(make_tables, paper_lines)),
         ('references and citations', lambda: (check_references(paper), check_doc_citations())),
         ('embedded figures', lambda: (check_figures(paper), check_exhibits(paper))),
+        ('figure captions against plotted titles',
+         lambda: check_caption_against_plot_title(paper)),
         ('word limits', lambda: check_limits(paper_lines)),
         ('notebooks', check_notebooks),
         ('figures newer than the scripts that draw them', check_figures_current),

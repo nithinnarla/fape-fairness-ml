@@ -12,6 +12,8 @@ Chen, Z., Zhang, J. M., Sarro, F., & Harman, M. (2023). A comprehensive empirica
 
 Chouldechova, A. (2017). Fair prediction with disparate impact: A study of bias in recidivism prediction instruments. *Big Data*, 5(2), 153-163. https://doi.org/10.1089/big.2016.0047
 
+Cortez, P., & Silva, A. M. G. (2008). Using data mining to predict secondary school student performance. In *Proceedings of 5th FUture BUsiness TEChnology Conference (FUBUTEC 2008)*, 5-12.
+
 Ding, F., Hardt, M., Miller, J., & Schmidt, L. (2021). Retiring Adult: New datasets for fair machine learning. *Advances in Neural Information Processing Systems*, 34, 6478-6490.
 
 Dwork, C., Hardt, M., Pitassi, T., Reingold, O., & Zemel, R. (2012). Fairness through awareness. In *Proceedings of the 3rd Innovations in Theoretical Computer Science Conference* (pp. 214-226). https://doi.org/10.1145/2090236.2090255
@@ -29,5 +31,7 @@ Sariola, D., Button, P., Culotta, A., & Mattei, N. (2026). The illusion of fairn
 Sculley, D., Holt, G., Golovin, D., Davydov, E., Phillips, T., Ebner, D., Chaudhary, V., Young, M., Crespo, J. F., & Dennison, D. (2015). Hidden technical debt in machine learning systems. *Advances in Neural Information Processing Systems*, 28, 2503-2511.
 
 Simson, J., Fabris, A., Fröhner, C., Kreuter, F., & Kern, C. (2025). Bias begins with data: The FairGround corpus for robust and reproducible research on algorithmic fairness. *arXiv preprint arXiv:2510.22363*. https://doi.org/10.48550/arXiv.2510.22363
+
+Wightman, L. F. (1998). *LSAC National Longitudinal Bar Passage Study*. Law School Admission Council.
 
 Zhang, B. H., Lemoine, B., & Mitchell, M. (2018). Mitigating unwanted biases with adversarial learning. In *Proceedings of the 2018 AAAI/ACM Conference on AI, Ethics, and Society* (pp. 335-340). https://doi.org/10.1145/3278721.3278779
