@@ -22,7 +22,7 @@ The first ten decisions below were fixed before Phase 4. Decisions 11 onward rec
 
 **Decision:** Use Fairlearn ThresholdOptimizer (post-processing) as the fairness intervention.
 
-**Why:** In-processing requires modifying the training pipeline, which assumes you own the training pipeline. In eight years of production ML I have never inherited a system where I could modify training. Post-processing works on any model regardless of how it was built, which makes it the only approach deployable in the environments FAPE is designed for.
+**Why:** In-processing requires modifying the training pipeline, which assumes you own the training pipeline. In seven years of production ML I have never inherited a system where I could modify training. Post-processing works on any model regardless of how it was built, which makes it the only approach deployable in the environments FAPE is designed for.
 
 **What I gave up:** In-processing can achieve better accuracy-fairness tradeoffs because the fairness constraint is built into training. Post-processing applies the constraint after the fact and can only adjust decision thresholds, it can't change what the model learned. The paper will acknowledge this tradeoff explicitly.
 

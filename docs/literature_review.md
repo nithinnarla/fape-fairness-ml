@@ -12,7 +12,7 @@
 
 ## Why I Started Looking At This
 
-Eight years of building ML pipelines across industries (financial services, healthcare, workforce analytics), and the same problem kept showing up. A model ships with clean aggregate metrics and happy stakeholders, and six months later someone notices the error rate in one demographic group is twice what it is in another. Nobody was careless; nobody was measuring the right thing.
+Seven years of building ML pipelines across industries (financial services, healthcare, workforce analytics), and the same problem kept showing up. A model ships with clean aggregate metrics and happy stakeholders, and six months later someone notices the error rate in one demographic group is twice what it is in another. Nobody was careless; nobody was measuring the right thing.
 
 I started pulling on that thread in November 2025. What I found in the literature surprised me, not because the problem was undocumented, but because the gap between what researchers had solved and what happens in production was enormous. This document captures what I read, what I found useful, what I found frustrating, and what I couldn't find at all.
 

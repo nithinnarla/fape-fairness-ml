@@ -2,7 +2,7 @@
 
 ## The Problem I Kept Running Into
 
-Eight years building ML systems in financial services, healthcare, and workforce analytics, and the same failure mode repeated across every deployment. A model ships with clean aggregate metrics and stakeholder sign-off, and six months later someone notices the error rate for one demographic group is twice what it is for another. Nobody was careless; nobody was measuring the right thing, and the tools available weren't built to catch it in production.
+Seven years building ML systems in financial services, healthcare, and workforce analytics, and the same failure mode repeated across every deployment. A model ships with clean aggregate metrics and stakeholder sign-off, and six months later someone notices the error rate for one demographic group is twice what it is for another. Nobody was careless; nobody was measuring the right thing, and the tools available weren't built to catch it in production.
 
 The problem itself is documented everywhere. What surprised me when I started pulling on this thread in late 2025 was that the open-source fairness tools most research builds on are designed for research environments. AIF360, Fairlearn and the What-If Tool analyze a model at one point in time and stop there. None of them address what happens six months after deployment when the demographic composition of users shifts, the model gets retrained, or a third-party vendor swaps the underlying algorithm. The fairness guarantee you validated at launch doesn't automatically hold in production. Cloud platforms such as Amazon SageMaker Clarify now check bias on live data, but the open research tooling has nothing like it.
 

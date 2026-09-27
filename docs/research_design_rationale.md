@@ -48,7 +48,7 @@ Default hyperparameters is the more interesting constraint. Domain-specific tuni
 
 **Stage 3, Why post-processing and not in-processing**
 
-In eight years of production ML I have never worked in an environment where I owned the model. You inherit it from a vendor, from a previous team, from a partner organization. In-processing fairness constraints require retraining, which means you need to own the training pipeline. Post-processing works on any model regardless of how it was built.
+In seven years of production ML I have never worked in an environment where I owned the model. You inherit it from a vendor, from a previous team, from a partner organization. In-processing fairness constraints require retraining, which means you need to own the training pipeline. Post-processing works on any model regardless of how it was built.
 
 Fairlearn's ThresholdOptimizer is the specific implementation because it's the cleanest operationalization of Hardt et al.'s (2016) equalized odds approach. It applies the constraint post-training without modifying the underlying model. The limitation is that the thresholds are fitted to one model and have to be refitted whenever the model changes; Ajarra and Basu (2026) study the related problem of auditing fairness when model owners keep updating their models. Stage 4 exists partly because of this limitation.
 
